@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>组合图形编辑器 - 3D立体视图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3436;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e8eef3;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e8eef3;
+        }
+
+        .shape-section {
+            margin-bottom: 24px;
+        }
+
+        .shape-section h3 {
+            font-size: 14px;
+            color: #636e72;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shape-section h3 svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #2d3436;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-row .input-group {
+            flex: 1;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #2d3436;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1a1a1a;
+        }
+
+        .btn-secondary {
+            background: #f1f1f1;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #2d3436;
+            border: 2px solid #2d3436;
+            margin-top: 10px;
+        }
+
+        .btn-outline:hover {
+            background: #2d3436;
+            color: white;
+        }
+
+        .btn-outline.active {
+            background: #2d3436;
+            color: white;
+        }
+
+        .preview-area {
+            flex: 1;
+            min-width: 600px;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e8eef3;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-container {
+            background: white;
+            border-radius: 12px;
+            height: 550px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e8eef3;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            cursor: grab;
+        }
+        
+        .canvas-container:active {
+            cursor: grabbing;
+        }
+
+        .grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .shape-container {
+            position: absolute;
+            cursor: move;
+            transition: transform 0.2s ease;
+        }
+
+        .shape-container:hover {
+            filter: brightness(1.02);
+        }
+
+        .shape-container.selected {
+            outline: 3px solid #2d3436;
+            outline-offset: 5px;
+            border-radius: 4px;
+        }
+
+        /* 线框长方体样式 */
+        .wireframe-cuboid {
+            position: relative;
+        }
+
+        .wireframe-cuboid svg {
+            position: absolute;
+        }
+
+        /* 线框圆柱体样式 */
+        .wireframe-cylinder {
+            position: relative;
+        }
+
+        .wireframe-cylinder svg {
+            position: absolute;
+        }
+
+        /* 填充长方体样式 */
+        .solid-cuboid {
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .solid-cuboid-face {
+            position: absolute;
+            border: 1px solid rgba(0,0,0,0.1);
+            opacity: 0.9;
+        }
+
+        .solid-cuboid-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .solid-cuboid-back {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .solid-cuboid-right {
+            background: linear-gradient(135deg, #a29bfe 0%, #667eea 100%);
+        }
+
+        .solid-cuboid-left {
+            background: linear-gradient(135deg, #764ba2 0%, #5a4d9a 100%);
+        }
+
+        .solid-cuboid-top {
+            background: linear-gradient(135deg, #dfe6e9 0%, #b2bec3 100%);
+        }
+
+        .solid-cuboid-bottom {
+            background: linear-gradient(135deg, #b2bec3 0%, #dfe6e9 100%);
+        }
+
+        /* 填充圆柱体样式 */
+        .solid-cylinder {
+            position: relative;
+        }
+
+        .solid-cylinder-body {
+            background: linear-gradient(90deg, #00b894 0%, #55efc4 50%, #00b894 100%);
+            border-radius: 4px;
+        }
+
+        .solid-cylinder-top,
+        .solid-cylinder-bottom {
+            background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+            border-radius: 50%;
+        }
+
+        .info-panel {
+            background: #fafafa;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .info-panel h4 {
+            font-size: 14px;
+            color: #2d3436;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e8eef3;
+            font-size: 13px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .label {
+            color: #636e72;
+        }
+
+        .info-row .value {
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 16px;
+            font-size: 12px;
+            color: #856404;
+        }
+
+        .shape-list {
+            margin-top: 16px;
+        }
+
+        .shape-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .shape-item span {
+            font-size: 13px;
+            color: #333;
+        }
+
+        .delete-btn {
+            padding: 4px 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .mode-switch {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .mode-switch button {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            background: white;
+            color: #636e72;
+            transition: all 0.3s ease;
+        }
+
+        .mode-switch button.active {
+            border-color: #2d3436;
+            background: #2d3436;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 3D组合图形编辑器</h1>
+        
+        <div class="main-content">
+            <div class="control-panel">
+                <div class="panel-title">⚙️ 参数设置</div>
+                
+                <!-- 显示模式切换 -->
+                <div class="shape-section">
+                    <h3>🎨 显示模式</h3>
+                    <div class="mode-switch">
+                        <button id="wireframeMode" class="active" onclick="setMode('wireframe')">线框模式</button>
+                        <button id="solidMode" onclick="setMode('solid')">填充模式</button>
+                    </div>
+                </div>
+
+                <!-- 长方体参数 -->
+                <div class="shape-section">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#2d3436" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="9" y1="3" x2="9" y2="21"/>
+                            <line x1="15" y1="3" x2="15" y2="21"/>
+                        </svg>
+                        长方体参数
+                    </h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>长度 (L)</label>
+                            <input type="number" id="cuboidLength" value="10" min="1" max="50">
+                        </div>
+                        <div class="input-group">
+                            <label>宽度 (W)</label>
+                            <input type="number" id="cuboidWidth" value="8" min="1" max="50">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>高度 (H)</label>
+                        <input type="number" id="cuboidHeight" value="4" min="1" max="50">
+                    </div>
+                    <button class="btn btn-primary" onclick="addCuboid()">添加长方体</button>
+                </div>
+
+                <!-- 圆柱体参数 -->
+                <div class="shape-section">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#2d3436" stroke-width="2">
+                            <ellipse cx="12" cy="4" rx="3" ry="3"/>
+                            <path d="M12 7v13"/>
+                            <path d="M9 21l3-3 3 3"/>
+                            <ellipse cx="12" cy="21" rx="3" ry="3"/>
+                        </svg>
+                        圆柱体参数
+                    </h3>
+                    <div class="input-group">
+                        <label>直径 (D)</label>
+                        <input type="number" id="cylinderDiameter" value="6" min="1" max="30">
+                    </div>
+                    <div class="input-group">
+                        <label>高度 (H)</label>
+                        <input type="number" id="cylinderHeight" value="10" min="1" max="50">
+                    </div>
+                    <button class="btn btn-primary" onclick="addCylinder()">添加圆柱体</button>
+                </div>
+
+                <!-- 缩放控制 -->
+                <div class="shape-section">
+                    <h3>🔍 显示缩放</h3>
+                    <input type="range" class="input-group" id="scaleSlider" min="1" max="5" step="0.1" value="3" style="padding:0;">
+                    <div style="text-align:center; margin-top:8px; font-size:13px; color:#636e72;">缩放比例: <span id="scaleValue">3.0x</span></div>
+                </div>
+
+                <!-- 位置控制 -->
+                <div class="shape-section">
+                    <h3>📍 位置控制</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>X 坐标</label>
+                            <input type="number" id="posX" value="200" min="0" max="600">
+                        </div>
+                        <div class="input-group">
+                            <label>Y 坐标</label>
+                            <input type="number" id="posY" value="150" min="0" max="400">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="updatePosition()">更新位置</button>
+                </div>
+
+                <!-- 旋转控制 -->
+                <div class="shape-section">
+                    <h3>🔄 旋转控制</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                        <label>X轴旋转</label>
+                        <input type="range" id="rotateX" min="-180" max="180" step="1" value="0" style="padding:0;">
+                        <div style="text-align:right; font-size:12px; color:#636e72;" id="rotateXValue">0°</div>
+                    </div>
+                    <div class="input-group">
+                        <label>Y轴旋转</label>
+                        <input type="range" id="rotateY" min="-180" max="180" step="1" value="0" style="padding:0;">
+                        <div style="text-align:right; font-size:12px; color:#636e72;" id="rotateYValue">0°</div>
+                    </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Z轴旋转</label>
+                        <input type="range" id="rotateZ" min="-180" max="180" step="1" value="0" style="padding:0;">
+                        <div style="text-align:right; font-size:12px; color:#636e72;" id="rotateZValue">0°</div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="resetRotation()">重置旋转</button>
+                </div>
+
+                <!-- 图形列表 -->
+                <div class="shape-list" id="shapeList">
+                    <div class="panel-title">📦 图形列表</div>
+                </div>
+
+                <!-- 操作说明 -->
+                <div class="instructions">
+                    <strong>💡 使用提示：</strong><br>
+                    • 点击图形可选中，选中后可拖动移动<br>
+                    • 在空白区域拖拽可旋转整个3D视图<br>
+                    • 使用线框/填充模式切换显示风格<br>
+                    • 调整缩放滑块改变显示大小<br>
+                    • 通过旋转滑块精确控制X/Y/Z轴旋转<br>
+                    • 删除图形后可重新添加
+                </div>
+            </div>
+
+            <!-- 预览区域 -->
+            <div class="preview-area">
+                <div class="panel-title">👁️ 3D预览区域</div>
+                <div class="canvas-container" id="canvas">
+                    <div class="grid"></div>
+                </div>
+                
+                <!-- 信息面板 -->
+                <div class="info-panel" id="infoPanel">
+                    <h4>📊 选中图形信息</h4>
+                    <div id="infoContent">
+                        <p style="color:#999; text-align:center;">请选择一个图形查看信息</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const shapeList = document.getElementById('shapeList');
+        const infoPanel = document.getElementById('infoPanel');
+        const infoContent = document.getElementById('infoContent');
+        const scaleSlider = document.getElementById('scaleSlider');
+        const scaleValue = document.getElementById('scaleValue');
+        const wireframeModeBtn = document.getElementById('wireframeMode');
+        const solidModeBtn = document.getElementById('solidMode');
+        const rotateX = document.getElementById('rotateX');
+        const rotateY = document.getElementById('rotateY');
+        const rotateZ = document.getElementById('rotateZ');
+        const rotateXValue = document.getElementById('rotateXValue');
+        const rotateYValue = document.getElementById('rotateYValue');
+        const rotateZValue = document.getElementById('rotateZValue');
+        
+        let shapes = [];
+        let selectedShape = null;
+        let shapeIdCounter = 0;
+        let dragState = null;
+        let rotateState = null;
+        let currentScale = 3;
+        let currentMode = 'wireframe'; // 'wireframe' or 'solid'
+        let rotation = { x: 0, y: 0, z: 0 };
+        
+        // 更新旋转显示
+        function updateRotationDisplay() {
+            rotateXValue.textContent = rotation.x + '°';
+            rotateYValue.textContent = rotation.y + '°';
+            rotateZValue.textContent = rotation.z + '°';
+            applyRotation();
+        }
+        
+        // 应用旋转到canvas
+        function applyRotation() {
+            canvas.style.transform = `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) rotateZ(${rotation.z}deg)`;
+        }
+        
+        // 旋转滑块事件
+        rotateX.addEventListener('input', function() {
+            rotation.x = parseInt(this.value);
+            updateRotationDisplay();
+        });
+        
+        rotateY.addEventListener('input', function() {
+            rotation.y = parseInt(this.value);
+            updateRotationDisplay();
+        });
+        
+        rotateZ.addEventListener('input', function() {
+            rotation.z = parseInt(this.value);
+            updateRotationDisplay();
+        });
+        
+        // 重置旋转
+        function resetRotation() {
+            rotation = { x: 0, y: 0, z: 0 };
+            rotateX.value = 0;
+            rotateY.value = 0;
+            rotateZ.value = 0;
+            updateRotationDisplay();
+        }
+        
+        // 鼠标拖拽旋转
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        
+        canvas.addEventListener('mousedown', function(e) {
+            if (e.target === canvas || e.target.classList.contains('grid')) {
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                rotateState = 'rotating';
+            }
+        });
+        
+        document.addEventListener('mousemove', function(e) {
+            if (rotateState === 'rotating') {
+                const deltaX = e.clientX - lastMouseX;
+                const deltaY = e.clientY - lastMouseY;
+                
+                rotation.y += deltaX * 0.5;
+                rotation.x -= deltaY * 0.5;
+                
+                // 限制X轴旋转范围
+                rotation.x = Math.max(-90, Math.min(90, rotation.x));
+                
+                rotateX.value = Math.round(rotation.x);
+                rotateY.value = Math.round(rotation.y);
+                
+                updateRotationDisplay();
+                
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            }
+        });
+        
+        document.addEventListener('mouseup', function() {
+            rotateState = null;
+        });
+
+        // 设置显示模式
+        function setMode(mode) {
+            currentMode = mode;
+            wireframeModeBtn.classList.toggle('active', mode === 'wireframe');
+            solidModeBtn.classList.toggle('active', mode === 'solid');
+            
+            // 重新渲染所有图形
+            shapes.forEach(shape => {
+                updateShapeDisplay(shape);
+            });
+        }
+
+        // 缩放变化
+        scaleSlider.addEventListener('input', function() {
+            currentScale = parseFloat(this.value);
+            scaleValue.textContent = currentScale.toFixed(1) + 'x';
+            shapes.forEach(shape => {
+                updateShapeDisplay(shape);
+            });
+        });
+
+        // 添加长方体
+        function addCuboid() {
+            const length = parseInt(document.getElementById('cuboidLength').value);
+            const width = parseInt(document.getElementById('cuboidWidth').value);
+            const height = parseInt(document.getElementById('cuboidHeight').value);
+            
+            const shape = {
+                id: ++shapeIdCounter,
+                type: 'cuboid',
+                length,
+                width,
+                height,
+                x: 100 + shapes.length * 120,
+                y: 120
+            };
+            
+            shapes.push(shape);
+            renderShape(shape);
+            updateShapeList();
+        }
+
+        // 添加圆柱体
+        function addCylinder() {
+            const diameter = parseInt(document.getElementById('cylinderDiameter').value);
+            const height = parseInt(document.getElementById('cylinderHeight').value);
+            
+            const shape = {
+                id: ++shapeIdCounter,
+                type: 'cylinder',
+                diameter,
+                height,
+                x: 350 + shapes.length * 100,
+                y: 100
+            };
+            
+            shapes.push(shape);
+            renderShape(shape);
+            updateShapeList();
+        }
+
+        // 渲染线框长方体
+        function renderWireframeCuboid(shape) {
+            const scale = currentScale * 15;
+            const w = shape.length * scale;
+            const d = shape.width * scale;
+            const h = shape.height * scale;
+            
+            // 等轴测投影参数
+            const angle = Math.PI / 6; // 30度
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+            
+            // 计算8个顶点的等轴测坐标
+            const points = [
+                { x: 0, y: 0 },                           // 前左下
+                { x: w * cos, y: w * sin },               // 前右下
+                { x: w * cos - d * cos, y: w * sin + d * sin }, // 后右下
+                { x: -d * cos, y: d * sin },              // 后左下
+                { x: 0, y: -h },                          // 前左上
+                { x: w * cos, y: w * sin - h },           // 前右上
+                { x: w * cos - d * cos, y: w * sin + d * sin - h }, // 后右上
+                { x: -d * cos, y: d * sin - h }           // 后左上
+            ];
+            
+            // 缩放中心点
+            const centerX = w * cos / 2 - d * cos / 2;
+            const centerY = (w * sin + d * sin) / 2 - h / 2;
+            
+            // 创建SVG
+            const svgWidth = w * cos + d * cos + 20;
+            const svgHeight = w * sin + d * sin + h + 20;
+            
+            let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
+            
+            // 平移到中心
+            svg += `<g transform="translate(${svgWidth/2 - centerX}, ${svgHeight/2 - centerY})">`;
+            
+            // 前面（实线）
+            svg += `<polygon points="${points[0].x},${points[0].y} ${points[1].x},${points[1].y} ${points[5].x},${points[5].y} ${points[4].x},${points[4].y}" fill="none" stroke="#2d3436" stroke-width="2"/>`;
+            
+            // 右面（实线）
+            svg += `<polygon points="${points[1].x},${points[1].y} ${points[2].x},${points[2].y} ${points[6].x},${points[6].y} ${points[5].x},${points[5].y}" fill="none" stroke="#2d3436" stroke-width="2"/>`;
+            
+            // 顶面（实线）
+            svg += `<polygon points="${points[4].x},${points[4].y} ${points[5].x},${points[5].y} ${points[6].x},${points[6].y} ${points[7].x},${points[7].y}" fill="none" stroke="#2d3436" stroke-width="2"/>`;
+            
+            // 后面（虚线）
+            svg += `<polygon points="${points[2].x},${points[2].y} ${points[3].x},${points[3].y} ${points[7].x},${points[7].y} ${points[6].x},${points[6].y}" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+            
+            // 左面（虚线）
+            svg += `<polygon points="${points[0].x},${points[0].y} ${points[3].x},${points[3].y} ${points[7].x},${points[7].y} ${points[4].x},${points[4].y}" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+            
+            // 底面（虚线）
+            svg += `<polygon points="${points[0].x},${points[0].y} ${points[1].x},${points[1].y} ${points[2].x},${points[2].y} ${points[3].x},${points[3].y}" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+            
+            svg += '</g></svg>';
+            
+            const container = document.createElement('div');
+            container.className = 'shape-container';
+            container.dataset.id = shape.id;
+            container.innerHTML = svg;
+            
+            return container;
+        }
+
+        // 渲染线框圆柱体
+        function renderWireframeCylinder(shape) {
+            const scale = currentScale * 15;
+            const r = (shape.diameter * scale) / 2;
+            const h = shape.height * scale;
+            
+            // 等轴测角度
+            const angle = Math.PI / 6;
+            const cos = Math.cos(angle);
+            
+            // 创建SVG
+            const svgWidth = r * 4 + 20;
+            const svgHeight = h + r * 2 + 20;
+            
+            let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
+            
+            // 平移到中心
+            svg += `<g transform="translate(${svgWidth/2}, ${svgHeight/2})">`;
+            
+            // 顶部椭圆（实线）
+            svg += `<ellipse cx="0" cy="${-h/2}" rx="${r}" ry="${r * cos}" fill="none" stroke="#2d3436" stroke-width="2"/>`;
+            
+            // 底部椭圆（虚线）
+            svg += `<ellipse cx="0" cy="${h/2}" rx="${r}" ry="${r * cos}" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+            
+            // 左侧母线（实线）
+            svg += `<line x1="${-r}" y1="${-h/2}" x2="${-r}" y2="${h/2}" stroke="#2d3436" stroke-width="2"/>`;
+            
+            // 右侧母线（实线）
+            svg += `<line x1="${r}" y1="${-h/2}" x2="${r}" y2="${h/2}" stroke="#2d3436" stroke-width="2"/>`;
+            
+            // 后侧母线（虚线）
+            svg += `<line x1="0" y1="${-h/2 + r * cos}" x2="0" y2="${h/2 + r * cos}" stroke="#999" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+            
+            svg += '</g></svg>';
+            
+            const container = document.createElement('div');
+            container.className = 'shape-container';
+            container.dataset.id = shape.id;
+            container.innerHTML = svg;
+            
+            return container;
+        }
+
+        // 渲染填充长方体
+        function renderSolidCuboid(shape) {
+            const scale = currentScale * 15;
+            const w = shape.length * scale;
+            const d = shape.width * scale;
+            const h = shape.height * scale;
+            
+            const angle = Math.PI / 6;
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+            
+            const points = [
+                { x: 0, y: 0 },
+                { x: w * cos, y: w * sin },
+                { x: w * cos - d * cos, y: w * sin + d * sin },
+                { x: -d * cos, y: d * sin },
+                { x: 0, y: -h },
+                { x: w * cos, y: w * sin - h },
+                { x: w * cos - d * cos, y: w * sin + d * sin - h },
+                { x: -d * cos, y: d * sin - h }
+            ];
+            
+            const centerX = w * cos / 2 - d * cos / 2;
+            const centerY = (w * sin + d * sin) / 2 - h / 2;
+            const svgWidth = w * cos + d * cos + 20;
+            const svgHeight = w * sin + d * sin + h + 20;
+            
+            let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
+            svg += `<g transform="translate(${svgWidth/2 - centerX}, ${svgHeight/2 - centerY})">`;
+            
+            // 后面
+            svg += `<polygon points="${points[2].x},${points[2].y} ${points[3].x},${points[3].y} ${points[7].x},${points[7].y} ${points[6].x},${points[6].y}" fill="#667eea" opacity="0.8"/>`;
+            
+            // 左面
+            svg += `<polygon points="${points[0].x},${points[0].y} ${points[3].x},${points[3].y} ${points[7].x},${points[7].y} ${points[4].x},${points[4].y}" fill="#764ba2" opacity="0.8"/>`;
+            
+            // 底面
+            svg += `<polygon points="${points[0].x},${points[0].y} ${points[1].x},${points[1].y} ${points[2].x},${points[2].y} ${points[3].x},${points[3].y}" fill="#b2bec3" opacity="0.6"/>`;
+            
+            // 前面
+            svg += `<polygon points="${points[0].x},${points[0].y} ${points[1].x},${points[1].y} ${points[5].x},${points[5].y} ${points[4].x},${points[4].y}" fill="#a29bfe"/>`;
+            
+            // 右面
+            svg += `<polygon points="${points[1].x},${points[1].y} ${points[2].x},${points[2].y} ${points[6].x},${points[6].y} ${points[5].x},${points[5].y}" fill="#667eea"/>`;
+            
+            // 顶面
+            svg += `<polygon points="${points[4].x},${points[4].y} ${points[5].x},${points[5].y} ${points[6].x},${points[6].y} ${points[7].x},${points[7].y}" fill="#dfe6e9"/>`;
+            
+            // 边框
+            svg += `<polygon points="${points[0].x},${points[0].y} ${points[1].x},${points[1].y} ${points[5].x},${points[5].y} ${points[4].x},${points[4].y}" fill="none" stroke="#2d3436" stroke-width="1.5"/>`;
+            svg += `<polygon points="${points[1].x},${points[1].y} ${points[2].x},${points[2].y} ${points[6].x},${points[6].y} ${points[5].x},${points[5].y}" fill="none" stroke="#2d3436" stroke-width="1.5"/>`;
+            svg += `<polygon points="${points[4].x},${points[4].y} ${points[5].x},${points[5].y} ${points[6].x},${points[6].y} ${points[7].x},${points[7].y}" fill="none" stroke="#2d3436" stroke-width="1.5"/>`;
+            
+            svg += '</g></svg>';
+            
+            const container = document.createElement('div');
+            container.className = 'shape-container';
+            container.dataset.id = shape.id;
+            container.innerHTML = svg;
+            
+            return container;
+        }
+
+        // 渲染填充圆柱体
+        function renderSolidCylinder(shape) {
+            const scale = currentScale * 15;
+            const r = (shape.diameter * scale) / 2;
+            const h = shape.height * scale;
+            
+            const angle = Math.PI / 6;
+            const cos = Math.cos(angle);
+            
+            const svgWidth = r * 4 + 20;
+            const svgHeight = h + r * 2 + 20;
+            
+            let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
+            svg += `<g transform="translate(${svgWidth/2}, ${svgHeight/2})">`;
+            
+            // 圆柱侧面（用梯形近似）
+            svg += `<polygon points="${-r},${-h/2} ${r},${-h/2} ${r},${h/2} ${-r},${h/2}" fill="#00b894"/>`;
+            
+            // 顶部椭圆
+            svg += `<ellipse cx="0" cy="${-h/2}" rx="${r}" ry="${r * cos}" fill="#55efc4"/>`;
+            
+            // 底部椭圆（部分被遮挡）
+            svg += `<ellipse cx="0" cy="${h/2}" rx="${r}" ry="${r * cos}" fill="#00a383" opacity="0.8"/>`;
+            
+            // 边框
+            svg += `<ellipse cx="0" cy="${-h/2}" rx="${r}" ry="${r * cos}" fill="none" stroke="#2d3436" stroke-width="2"/>`;
+            svg += `<line x1="${-r}" y1="${-h/2}" x2="${-r}" y2="${h/2}" stroke="#2d3436" stroke-width="2"/>`;
+            svg += `<line x1="${r}" y1="${-h/2}" x2="${r}" y2="${h/2}" stroke="#2d3436" stroke-width="2"/>`;
+            
+            svg += '</g></svg>';
+            
+            const container = document.createElement('div');
+            container.className = 'shape-container';
+            container.dataset.id = shape.id;
+            container.innerHTML = svg;
+            
+            return container;
+        }
+
+        // 渲染图形
+        function renderShape(shape) {
+            let el;
+            if (currentMode === 'wireframe') {
+                el = shape.type === 'cuboid' ? renderWireframeCuboid(shape) : renderWireframeCylinder(shape);
+            } else {
+                el = shape.type === 'cuboid' ? renderSolidCuboid(shape) : renderSolidCylinder(shape);
+            }
+            
+            // 设置初始位置
+            el.style.left = shape.x + 'px';
+            el.style.top = shape.y + 'px';
+            
+            el.addEventListener('mousedown', startDrag);
+            el.addEventListener('click', selectShape);
+            
+            canvas.appendChild(el);
+        }
+
+        // 更新图形显示
+        function updateShapeDisplay(shape) {
+            const el = document.querySelector(`.shape-container[data-id="${shape.id}"]`);
+            if (!el) return;
+            
+            // 保存当前位置
+            const currentLeft = el.style.left;
+            const currentTop = el.style.top;
+            
+            let newEl;
+            if (currentMode === 'wireframe') {
+                newEl = shape.type === 'cuboid' ? renderWireframeCuboid(shape) : renderWireframeCylinder(shape);
+            } else {
+                newEl = shape.type === 'cuboid' ? renderSolidCuboid(shape) : renderSolidCylinder(shape);
+            }
+            
+            el.innerHTML = newEl.innerHTML;
+            
+            // 恢复位置
+            el.style.left = currentLeft;
+            el.style.top = currentTop;
+            
+            el.addEventListener('mousedown', startDrag);
+            el.addEventListener('click', selectShape);
+        }
+
+        // 选择图形
+        function selectShape(e) {
+            e.stopPropagation();
+            const id = parseInt(e.currentTarget.dataset.id);
+            selectedShape = shapes.find(s => s.id === id);
+            
+            document.querySelectorAll('.shape-container').forEach(s => s.classList.remove('selected'));
+            e.currentTarget.classList.add('selected');
+            
+            updateInfoPanel();
+            document.getElementById('posX').value = selectedShape.x;
+            document.getElementById('posY').value = selectedShape.y;
+        }
+
+        // 更新信息面板
+        function updateInfoPanel() {
+            if (!selectedShape) {
+                infoContent.innerHTML = '<p style="color:#999; text-align:center;">请选择一个图形查看信息</p>';
+                return;
+            }
+            
+            let html = '';
+            if (selectedShape.type === 'cuboid') {
+                const surfaceArea = 2 * (selectedShape.length * selectedShape.width + 
+                                        selectedShape.length * selectedShape.height + 
+                                        selectedShape.width * selectedShape.height);
+                const volume = selectedShape.length * selectedShape.width * selectedShape.height;
+                
+                html = `
+                    <div class="info-row"><span class="label">类型：</span><span class="value">长方体</span></div>
+                    <div class="info-row"><span class="label">长度：</span><span class="value">${selectedShape.length}</span></div>
+                    <div class="info-row"><span class="label">宽度：</span><span class="value">${selectedShape.width}</span></div>
+                    <div class="info-row"><span class="label">高度：</span><span class="value">${selectedShape.height}</span></div>
+                    <div class="info-row"><span class="label">表面积：</span><span class="value">${surfaceArea}</span></div>
+                    <div class="info-row"><span class="label">体积：</span><span class="value">${volume}</span></div>
+                `;
+            } else {
+                const radius = selectedShape.diameter / 2;
+                const surfaceArea = (2 * Math.PI * radius * radius + Math.PI * selectedShape.diameter * selectedShape.height).toFixed(2);
+                const lateralArea = (Math.PI * selectedShape.diameter * selectedShape.height).toFixed(2);
+                const volume = (Math.PI * radius * radius * selectedShape.height).toFixed(2);
+                
+                html = `
+                    <div class="info-row"><span class="label">类型：</span><span class="value">圆柱体</span></div>
+                    <div class="info-row"><span class="label">直径：</span><span class="value">${selectedShape.diameter}</span></div>
+                    <div class="info-row"><span class="label">半径：</span><span class="value">${radius}</span></div>
+                    <div class="info-row"><span class="label">高度：</span><span class="value">${selectedShape.height}</span></div>
+                    <div class="info-row"><span class="label">侧面积：</span><span class="value">${lateralArea}</span></div>
+                    <div class="info-row"><span class="label">表面积：</span><span class="value">${surfaceArea}</span></div>
+                    <div class="info-row"><span class="label">体积：</span><span class="value">${volume}</span></div>
+                `;
+            }
+            
+            infoContent.innerHTML = html;
+        }
+
+        // 更新位置
+        function updatePosition() {
+            if (!selectedShape) {
+                alert('请先选择一个图形！');
+                return;
+            }
+            
+            const x = parseInt(document.getElementById('posX').value);
+            const y = parseInt(document.getElementById('posY').value);
+            
+            selectedShape.x = x;
+            selectedShape.y = y;
+            
+            const el = document.querySelector(`.shape-container[data-id="${selectedShape.id}"]`);
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            
+            updateInfoPanel();
+        }
+
+        // 拖拽功能
+        function startDrag(e) {
+            e.preventDefault();
+            selectShape(e);
+            
+            // 禁止旋转，优先拖拽
+            rotateState = null;
+            
+            const el = e.currentTarget;
+            const rect = el.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            dragState = {
+                startX: e.clientX - rect.left,
+                startY: e.clientY - rect.top,
+                shapeId: selectedShape.id
+            };
+            
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function onDrag(e) {
+            if (!dragState) return;
+            
+            const canvasRect = canvas.getBoundingClientRect();
+            const shape = shapes.find(s => s.id === dragState.shapeId);
+            
+            let newX = e.clientX - canvasRect.left - dragState.startX;
+            let newY = e.clientY - canvasRect.top - dragState.startY;
+            
+            newX = Math.max(0, Math.min(canvasRect.width - 50, newX));
+            newY = Math.max(0, Math.min(canvasRect.height - 50, newY));
+            
+            shape.x = newX;
+            shape.y = newY;
+            
+            const el = document.querySelector(`.shape-container[data-id="${shape.id}"]`);
+            el.style.left = newX + 'px';
+            el.style.top = newY + 'px';
+            
+            document.getElementById('posX').value = Math.round(newX);
+            document.getElementById('posY').value = Math.round(newY);
+            updateInfoPanel();
+        }
+
+        function stopDrag() {
+            dragState = null;
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        // 更新图形列表
+        function updateShapeList() {
+            const listContent = document.createElement('div');
+            
+            if (shapes.length === 0) {
+                listContent.innerHTML = '<p style="color:#999; text-align:center; padding:10px;">暂无图形</p>';
+            } else {
+                shapes.forEach(shape => {
+                    const item = document.createElement('div');
+                    item.className = 'shape-item';
+                    let params = '';
+                    if (shape.type === 'cuboid') {
+                        params = ` (${shape.length}×${shape.width}×${shape.height})`;
+                    } else {
+                        params = ` (直径${shape.diameter}, 高${shape.height})`;
+                    }
+                    item.innerHTML = `
+                        <span>${shape.type === 'cuboid' ? '📦 长方体' : '🔵 圆柱体'}${params}</span>
+                        <button class="delete-btn" onclick="deleteShape(${shape.id})">删除</button>
+                    `;
+                    item.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selectShape({ currentTarget: document.querySelector(`.shape-container[data-id="${shape.id}"]`) });
+                    });
+                    listContent.appendChild(item);
+                });
+            }
+            
+            const title = shapeList.querySelector('.panel-title');
+            shapeList.innerHTML = '';
+            shapeList.appendChild(title);
+            shapeList.appendChild(listContent);
+        }
+
+        // 删除图形
+        function deleteShape(id) {
+            shapes = shapes.filter(s => s.id !== id);
+            document.querySelector(`.shape-container[data-id="${id}"]`)?.remove();
+            
+            if (selectedShape?.id === id) {
+                selectedShape = null;
+                updateInfoPanel();
+            }
+            
+            updateShapeList();
+        }
+
+        // 点击空白区域取消选中
+        canvas.addEventListener('click', (e) => {
+            if (e.target === canvas || e.target.classList.contains('grid')) {
+                document.querySelectorAll('.shape-container').forEach(s => s.classList.remove('selected'));
+                selectedShape = null;
+                updateInfoPanel();
+            }
+        });
+    </script>
+
+    <!-- 底部页脚 开始 -->
+    <footer style="
+      width: 100%;
+      background-color: #f8f8f8;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 12px;
+      color: #666;
+      border-top: 1px solid #e5e5e5;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+    ">
+      <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <span>© 陈胡氏HTML工具 版权所有</span>
+      </div>
+    </footer>
+    <!-- 底部页脚 结束 -->
+
+</body>
+</html>

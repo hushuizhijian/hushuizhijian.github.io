@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>体积比教学工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        /* 对比区域 */
+        .compare-area {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            align-items: flex-start;
+        }
+
+        /* 几何体卡片 */
+        .shape-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            width: calc(50% - 15px);
+            min-width: 280px;
+            max-width: 400px;
+            text-align: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .shape-card:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .shape-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        /* 形状选择器 */
+        .mini-shape-selector {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .mini-shape-btn {
+            padding: 10px 18px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .mini-shape-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .mini-shape-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+
+        /* 当前选择的形状显示 */
+        .current-shape {
+            background: linear-gradient(135deg, #e3f2fd 0%, #e8eaf6 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* 参数输入 */
+        .params {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .param-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .param-row label {
+            font-weight: bold;
+            color: #555;
+            width: 60px;
+            text-align: right;
+        }
+
+        .param-row input {
+            width: 80px;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .param-row input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .param-unit {
+            color: #888;
+            font-size: 14px;
+        }
+
+        /* 体积结果 */
+        .volume-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .volume-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .volume-formula {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 8px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .volume-calculation {
+            background: #fff3e0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            font-family: 'Times New Roman', serif;
+            font-size: 14px;
+            color: #e65100;
+            text-align: left;
+        }
+
+        /* 比例显示 */
+        .ratio-display {
+            background: #fff3e0;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .ratio-display h3 {
+            color: #e65100;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .ratio-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #e65100;
+        }
+
+        .ratio-label {
+            font-size: 16px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .ratio-bar {
+            display: flex;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+            gap: 2px;
+        }
+
+        .ratio-part {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .ratio-part.a {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .ratio-part.b {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        /* 计算按钮 */
+        .calculate-btn {
+            display: block;
+            width: 100%;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 使用说明 */
+        .instructions {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instructions li {
+            padding: 8px 0;
+            color: #555;
+            font-size: 14px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .instructions li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        /* 页脚 */
+        .footer {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            .compare-area {
+                gap: 20px;
+            }
+
+            .shape-card {
+                min-width: 100%;
+            }
+
+            .ratio-value {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📐 体积比教学工具</h1>
+        <p class="subtitle">通过交互式操作理解不同几何体的体积比例关系</p>
+
+        <div class="compare-area">
+            <!-- 几何体A -->
+            <div class="shape-card">
+                <h3>几何体 A</h3>
+                <div class="mini-shape-selector" id="selectorA">
+                    <button class="mini-shape-btn active" data-shape="cube">正方体</button>
+                    <button class="mini-shape-btn" data-shape="cuboid">长方体</button>
+                    <button class="mini-shape-btn" data-shape="cylinder">圆柱体</button>
+                    <button class="mini-shape-btn" data-shape="cone">圆锥体</button>
+                    <button class="mini-shape-btn" data-shape="sphere">球体</button>
+                </div>
+                <div class="current-shape" id="currentShapeA">正方体</div>
+                <div class="params">
+                    <div class="param-row" id="a1-row">
+                        <label>边长:</label>
+                        <input type="number" id="a1" value="2" min="1" max="20">
+                        <span class="param-unit">cm</span>
+                    </div>
+                    <div class="param-row" id="b1-row" style="display: none;">
+                        <label>宽:</label>
+                        <input type="number" id="b1" value="3" min="1" max="20">
+                        <span class="param-unit">cm</span>
+                    </div>
+                    <div class="param-row" id="h1-row" style="display: none;">
+                        <label>高:</label>
+                        <input type="number" id="h1" value="4" min="1" max="20">
+                        <span class="param-unit">cm</span>
+                    </div>
+                    <div class="param-row" id="r1-row" style="display: none;">
+                        <label>半径:</label>
+                        <input type="number" id="r1" value="2" min="1" max="20">
+                        <span class="param-unit">cm</span>
+                    </div>
+                </div>
+                <div class="volume-result">
+                    <div>体积 = <span class="volume-value" id="vol1">8</span> cm³</div>
+                    <div class="volume-formula" id="formula1">V = a³</div>
+                </div>
+                <div class="volume-calculation" id="calc1">V = 2³ = 8</div>
+            </div>
+
+            <!-- 几何体B -->
+            <div class="shape-card">
+                <h3>几何体 B</h3>
+                <div class="mini-shape-selector" id="selectorB">
+                    <button class="mini-shape-btn active" data-shape="cube">正方体</button>
+                    <button class="mini-shape-btn" data-shape="cuboid">长方体</button>
+                    <button class="mini-shape-btn" data-shape="cylinder">圆柱体</button>
+                    <button class="mini-shape-btn" data-shape="cone">圆锥体</button>
+                    <button class="mini-shape-btn" data-shape="sphere">球体</button>
+                </div>
+                <div class="current-shape" id="currentShapeB">正方体</div>
+                <div class="params">
+                    <div class="param-row" id="a2-row">
+                        <label>边长:</label>
+                        <input type="number" id="a2" value="4" min="1" max="20">
+                        <span class="param-unit">cm</span>
+                    </div>
+                    <div class="param-row" id="b2-row" style="display: none;">
+                        <label>宽:</label>
+                        <input type="number" id="b2" value="4" min="1" max="20">
+                        <span class="param-unit">cm</span>
+                    </div>
+                    <div class="param-row" id="h2-row" style="display: none;">
+                        <label>高:</label>
+                        <input type="number" id="h2" value="5" min="1" max="20">
+                        <span class="param-unit">cm</span>
+                    </div>
+                    <div class="param-row" id="r2-row" style="display: none;">
+                        <label>半径:</label>
+                        <input type="number" id="r2" value="3" min="1" max="20">
+                        <span class="param-unit">cm</span>
+                    </div>
+                </div>
+                <div class="volume-result">
+                    <div>体积 = <span class="volume-value" id="vol2">64</span> cm³</div>
+                    <div class="volume-formula" id="formula2">V = a³</div>
+                </div>
+                <div class="volume-calculation" id="calc2">V = 4³ = 64</div>
+            </div>
+        </div>
+
+        <!-- 计算按钮 -->
+        <button class="calculate-btn" id="calculateBtn">🔢 计算体积比</button>
+
+        <!-- 体积比显示 -->
+        <div class="ratio-display" id="ratioDisplay" style="display: none;">
+            <h3>📊 体积比 A : B</h3>
+            <div class="ratio-value" id="ratio">1 : 8</div>
+            <div class="ratio-label">A的体积是B的 <span id="percentage">12.5</span>%</div>
+            <div class="ratio-bar" id="ratioBar">
+                <div class="ratio-part a" style="flex: 1;">A</div>
+                <div class="ratio-part b" style="flex: 8;">B</div>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="instructions">
+            <h3>📖 使用说明</h3>
+            <ul>
+                <li><strong>选择几何体：</strong>每个卡片上方有独立的形状选择器，可分别选择不同的几何体</li>
+                <li><strong>调整参数：</strong>修改几何体的边长、半径、高度等参数，观察体积变化</li>
+                <li><strong>计算体积比：</strong>点击「计算体积比」按钮查看两个几何体的体积比</li>
+                <li><strong>理解比例：</strong>通过可视化的比例条直观理解体积之间的关系</li>
+                <li><strong>学习公式：</strong>每个几何体下方会显示对应的体积计算公式和具体计算过程</li>
+            </ul>
+        </div>
+
+            </div>
+
+    <!-- 底部页脚 开始 -->
+    <footer style="
+      width: 100%;
+      background-color: #f8f8f8;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 12px;
+      color: #666;
+      border-top: 1px solid #e5e5e5;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+    ">
+      <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <span>© 陈胡氏HTML工具 版权所有</span>
+      </div>
+    </footer>
+    <!-- 底部页脚 结束 -->
+
+    <script>
+        const selectorA = document.getElementById('selectorA');
+        const selectorB = document.getElementById('selectorB');
+        
+        const a1 = document.getElementById('a1');
+        const b1 = document.getElementById('b1');
+        const h1 = document.getElementById('h1');
+        const r1 = document.getElementById('r1');
+        
+        const a2 = document.getElementById('a2');
+        const b2 = document.getElementById('b2');
+        const h2 = document.getElementById('h2');
+        const r2 = document.getElementById('r2');
+        
+        const vol1 = document.getElementById('vol1');
+        const vol2 = document.getElementById('vol2');
+        const formula1 = document.getElementById('formula1');
+        const formula2 = document.getElementById('formula2');
+        const calc1 = document.getElementById('calc1');
+        const calc2 = document.getElementById('calc2');
+        const ratio = document.getElementById('ratio');
+        const percentage = document.getElementById('percentage');
+        const ratioBar = document.getElementById('ratioBar');
+        const currentShapeA = document.getElementById('currentShapeA');
+        const currentShapeB = document.getElementById('currentShapeB');
+        const ratioDisplay = document.getElementById('ratioDisplay');
+        const calculateBtn = document.getElementById('calculateBtn');
+        
+        let shapeTypeA = 'cube';
+        let shapeTypeB = 'cube';
+        
+        function showRatio() {
+            ratioDisplay.style.display = 'block';
+        }
+        
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b !== 0) {
+                let temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+        
+        function simplifyFraction(numerator, denominator) {
+            const common = gcd(numerator, denominator);
+            return {
+                numerator: numerator / common,
+                denominator: denominator / common
+            };
+        }
+        
+        const shapes = {
+            cube: {
+                name: '正方体',
+                params: ['a'],
+                paramLabels: {a: '边长'},
+                formula: 'V = a³',
+                calc: (a) => Math.pow(a, 3),
+                getCalcStr: (a) => `V = ${a}³ = ${Math.pow(a, 3)}`,
+                getVolumeStr: (a) => Math.pow(a, 3),
+                getExactValue: (a) => {
+                    return { coefficient: Math.pow(a, 3), denominator: 1, hasPi: false };
+                }
+            },
+            cuboid: {
+                name: '长方体',
+                params: ['a', 'b', 'h'],
+                paramLabels: {a: '长', b: '宽', h: '高'},
+                formula: 'V = 长 × 宽 × 高',
+                calc: (a, b, h) => a * b * h,
+                getCalcStr: (a, b, h) => `V = ${a} × ${b} × ${h} = ${a * b * h}`,
+                getVolumeStr: (a, b, h) => a * b * h,
+                getExactValue: (a, b, h) => {
+                    return { coefficient: a * b * h, denominator: 1, hasPi: false };
+                }
+            },
+            cylinder: {
+                name: '圆柱体',
+                params: ['r', 'h'],
+                paramLabels: {r: '半径', h: '高'},
+                formula: 'V = πr²h',
+                calc: (r, h) => Math.PI * Math.pow(r, 2) * h,
+                getCalcStr: (r, h) => `V = π × ${r}² × ${h} = ${r * r * h}π`,
+                getVolumeStr: (r, h) => `${r * r * h}π`,
+                getExactValue: (r, h) => {
+                    return { coefficient: r * r * h, denominator: 1, hasPi: true };
+                }
+            },
+            cone: {
+                name: '圆锥体',
+                params: ['r', 'h'],
+                paramLabels: {r: '半径', h: '高'},
+                formula: 'V = (1/3)πr²h',
+                calc: (r, h) => (1/3) * Math.PI * Math.pow(r, 2) * h,
+                getCalcStr: function(r, h) {
+                    const numerator = r * r * h;
+                    const simplified = simplifyFraction(numerator, 3);
+                    let volStr;
+                    if (simplified.denominator === 1) {
+                        volStr = `${simplified.numerator}π`;
+                    } else {
+                        volStr = `(${simplified.numerator}/${simplified.denominator})π`;
+                    }
+                    return `V = (1/3) × π × ${r}² × ${h} = ${volStr}`;
+                },
+                getVolumeStr: function(r, h) {
+                    const numerator = r * r * h;
+                    const simplified = simplifyFraction(numerator, 3);
+                    if (simplified.denominator === 1) {
+                        return `${simplified.numerator}π`;
+                    } else {
+                        return `(${simplified.numerator}/${simplified.denominator})π`;
+                    }
+                },
+                getExactValue: function(r, h) {
+                    return { coefficient: r * r * h, denominator: 3, hasPi: true };
+                }
+            },
+            sphere: {
+                name: '球体',
+                params: ['r'],
+                paramLabels: {r: '半径'},
+                formula: 'V = (4/3)πr³',
+                calc: (r) => (4/3) * Math.PI * Math.pow(r, 3),
+                getCalcStr: function(r) {
+                    const numerator = 4 * r * r * r;
+                    const simplified = simplifyFraction(numerator, 3);
+                    let volStr;
+                    if (simplified.denominator === 1) {
+                        volStr = `${simplified.numerator}π`;
+                    } else {
+                        volStr = `(${simplified.numerator}/${simplified.denominator})π`;
+                    }
+                    return `V = (4/3) × π × ${r}³ = ${volStr}`;
+                },
+                getVolumeStr: function(r) {
+                    const numerator = 4 * r * r * r;
+                    const simplified = simplifyFraction(numerator, 3);
+                    if (simplified.denominator === 1) {
+                        return `${simplified.numerator}π`;
+                    } else {
+                        return `(${simplified.numerator}/${simplified.denominator})π`;
+                    }
+                },
+                getExactValue: function(r) {
+                    return { coefficient: 4 * r * r * r, denominator: 3, hasPi: true };
+                }
+            }
+        };
+        
+        function updateParams(card) {
+            const shape = shapes[card === 'A' ? shapeTypeA : shapeTypeB];
+            const suffix = card === 'A' ? '1' : '2';
+            
+            document.getElementById('a' + suffix + '-row').style.display = 'none';
+            document.getElementById('b' + suffix + '-row').style.display = 'none';
+            document.getElementById('h' + suffix + '-row').style.display = 'none';
+            document.getElementById('r' + suffix + '-row').style.display = 'none';
+            
+            shape.params.forEach(param => {
+                const row = document.getElementById(param + suffix + '-row');
+                row.style.display = 'flex';
+                const label = row.querySelector('label');
+                label.textContent = shape.paramLabels[param] + ':';
+            });
+            
+            document.getElementById('currentShape' + card).textContent = shape.name;
+        }
+        
+        function calculateSingleVolume(card) {
+            const shape = shapes[card === 'A' ? shapeTypeA : shapeTypeB];
+            const suffix = card === 'A' ? '1' : '2';
+            const params = shape.params.map(p => parseFloat(document.getElementById(p + suffix).value) || 1);
+            return {
+                value: shape.calc(...params),
+                calcStr: shape.getCalcStr(...params),
+                volumeStr: shape.getVolumeStr(...params),
+                exactValue: shape.getExactValue(...params)
+            };
+        }
+        
+        function calculateVolume() {
+            const result1 = calculateSingleVolume('A');
+            const result2 = calculateSingleVolume('B');
+            
+            vol1.textContent = result1.volumeStr;
+            vol2.textContent = result2.volumeStr;
+            
+            formula1.textContent = shapes[shapeTypeA].formula;
+            formula2.textContent = shapes[shapeTypeB].formula;
+            
+            calc1.textContent = result1.calcStr;
+            calc2.textContent = result2.calcStr;
+        }
+        
+        function calculateAndShowRatio() {
+            calculateVolume();
+            const result1 = calculateSingleVolume('A');
+            const result2 = calculateSingleVolume('B');
+            calculateRatio(result1.exactValue, result2.exactValue);
+            showRatio();
+        }
+        
+        function calculateRatio(exact1, exact2) {
+            const coeff1 = exact1.coefficient;
+            const denom1 = exact1.denominator;
+            const hasPi1 = exact1.hasPi;
+            
+            const coeff2 = exact2.coefficient;
+            const denom2 = exact2.denominator;
+            const hasPi2 = exact2.hasPi;
+            
+            let ratioStr;
+            let percentageValue = '-';
+            
+            if (coeff2 === 0) {
+                ratioStr = 'A : B';
+                percentageValue = '-';
+            } else {
+                let numerator = coeff1 * denom2;
+                let denominator = coeff2 * denom1;
+                
+                const common = gcd(numerator, denominator);
+                numerator = numerator / common;
+                denominator = denominator / common;
+                
+                const piRatio = hasPi1 && hasPi2 ? '' : (hasPi1 ? 'π' : (hasPi2 ? '/π' : ''));
+                
+                if (denominator === 1) {
+                    ratioStr = `${numerator}${piRatio} : 1`;
+                } else if (numerator === 1) {
+                    ratioStr = `1${piRatio} : ${denominator}`;
+                } else {
+                    ratioStr = `${numerator}${piRatio} : ${denominator}`;
+                }
+                
+                if (!hasPi1 && !hasPi2) {
+                    percentageValue = ((coeff1 / denom1) / (coeff2 / denom2) * 100).toFixed(1);
+                } else {
+                    percentageValue = '含π';
+                }
+            }
+            
+            ratio.textContent = ratioStr;
+            percentage.textContent = percentageValue;
+            
+            const v1 = exact1.hasPi ? (exact1.coefficient / exact1.denominator) * Math.PI : (exact1.coefficient / exact1.denominator);
+            const v2 = exact2.hasPi ? (exact2.coefficient / exact2.denominator) * Math.PI : (exact2.coefficient / exact2.denominator);
+            const maxVal = Math.max(v1, v2);
+            
+            ratioBar.innerHTML = `
+                <div class="ratio-part a" style="flex: ${v1 / maxVal}">A</div>
+                <div class="ratio-part b" style="flex: ${v2 / maxVal}">B</div>
+            `;
+        }
+        
+        selectorA.addEventListener('click', (e) => {
+            const btn = e.target.closest('.mini-shape-btn');
+            if (!btn) return;
+            
+            selectorA.querySelectorAll('.mini-shape-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            shapeTypeA = btn.dataset.shape;
+            updateParams('A');
+            calculateVolume();
+        });
+        
+        selectorB.addEventListener('click', (e) => {
+            const btn = e.target.closest('.mini-shape-btn');
+            if (!btn) return;
+            
+            selectorB.querySelectorAll('.mini-shape-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            shapeTypeB = btn.dataset.shape;
+            updateParams('B');
+            calculateVolume();
+        });
+        
+        const inputs = document.querySelectorAll('.params input');
+        inputs.forEach(input => {
+            input.addEventListener('input', calculateVolume);
+        });
+        
+        calculateBtn.addEventListener('click', calculateAndShowRatio);
+        
+        updateParams('A');
+        updateParams('B');
+        calculateVolume();
+    </script>
+</body>
+</html>

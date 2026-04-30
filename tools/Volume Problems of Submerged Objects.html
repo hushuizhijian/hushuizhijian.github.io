@@ -1,0 +1,2861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浸没物体的体积 - 数学教育辅助工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding-bottom: 60px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        header { text-align: center; margin-bottom: 20px; color: white; }
+        header h1 { font-size: 1.8rem; margin-bottom: 5px; }
+        header p { font-size: 0.9rem; opacity: 0.9; }
+        
+        .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 10px 25px; border: none; border-radius: 25px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; }
+        .tab.active { background: white; color: #667eea; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .tab:not(.active) { background: rgba(255,255,255,0.2); color: white; }
+        .tab:hover:not(.active) { background: rgba(255,255,255,0.3); }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input[type="number"]:focus { outline: none; border-color: #667eea; }
+        
+        .progress-bar {
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+        
+        .stage-progress-fill.stage-novice { background: linear-gradient(90deg, #4CAF50, #8BC34A); }
+        .stage-progress-fill.stage-apprentice { background: linear-gradient(90deg, #2196F3, #64B5F6); }
+        .stage-progress-fill.stage-expert { background: linear-gradient(90deg, #FF9800, #FFB74D); }
+        .stage-progress-fill.stage-master { background: linear-gradient(90deg, #9C27B0, #CE93D8); }
+        
+        .stage-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .badge-novice { background: #e8f5e9; color: #155724; }
+        .badge-apprentice { background: #e3f2fd; color: #1565c0; }
+        .badge-expert { background: #fff3e0; color: #e65100; }
+        .badge-master { background: #f3e5f5; color: #7b1fa2; }
+        
+        .fireworks-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        .firework {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: explode 1.5s ease-out forwards;
+        }
+        @keyframes explode {
+            0% { transform: scale(1) translateY(0); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: scale(0) translateY(100px); opacity: 0; }
+        }
+        
+        .solution-area.error h3 {
+            color: #dc3545 !important;
+            background: #fff5f5;
+            border: 2px solid #dc3545;
+            padding: 12px;
+            border-radius: 8px;
+            animation: pulse-red 0.5s ease-in-out;
+        }
+        @keyframes pulse-red {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .achievement-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+            text-align: center;
+            z-index: 10000;
+            animation: pop-in 0.4s ease-out;
+        }
+        @keyframes pop-in {
+            0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        .feedback {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1rem;
+            animation: fade-in 0.3s ease;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .feedback.correct { background: linear-gradient(135deg, #81c784, #66bb6a); color: white; }
+        .feedback.wrong { background: linear-gradient(135deg, #ef5350, #e53935); color: white; }
+        
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255,255,255,0.95);
+            padding: 10px 0;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666;
+            border-top: 1px solid #e5e5e5;
+            z-index: 999;
+        }
+        
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: #555; }
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+            cursor: pointer;
+        }
+        .form-group select:focus { outline: none; border-color: #667eea; }
+        
+        .stat-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value { font-size: 1.3rem; font-weight: bold; color: #667eea; }
+        .stat-label { font-size: 0.75rem; color: #666; margin-top: 4px; }
+        
+        .question-area {
+            min-height: 180px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .question-area p { font-size: 1.1rem; line-height: 1.8; color: #333; }
+        
+        .solution-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .solution-area h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        .solution-steps {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: #444;
+        }
+        
+        .mistake-item {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: box-shadow 0.3s;
+        }
+        .mistake-item:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
+        @media (max-width: 768px) {
+            .main-content { grid-template-columns: 1fr; }
+            header h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 浸没物体的体积</h1>
+            <p>掌握圆柱与圆锥体积关系，提升解题能力</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('practice')">练习模式</button>
+            <button class="tab" onclick="showTab('mistakes')">错题本</button>
+        </div>
+        
+        <div id="practice" class="main-content">
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="card">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: #333;">🎯 题目生成器</h3>
+                    <div class="form-group">
+                        <label>选择模式</label>
+                        <select id="modeSelect">
+                            <option value="random">随机生成</option>
+                            <option value="bank">题库练习</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>题目类型</label>
+                        <select id="typeSelect">
+                            <option value="all">全部类型</option>
+                            <option value="direct">基础题</option>
+                            <option value="inverse">变式题</option>
+                            <option value="allocation">综合题</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>难度级别</label>
+                        <select id="difficultySelect">
+                            <option value="mixed">混合难度</option>
+                            <option value="easy">简单</option>
+                            <option value="medium">中等</option>
+                            <option value="hard">困难</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateQuestion()" style="width: 100%;">生成题目</button>
+                </div>
+                
+                <div class="card">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: #333;">🏆 学习成就</h3>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <span id="currentStageBadgeMini" class="stage-badge badge-novice">
+                            🌱 新手保护期
+                        </span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="font-size: 0.85rem; color: #666;">当前进度</span>
+                            <span id="stageProgressTextMini" style="font-size: 0.85rem; font-weight: bold;">0 / 9 题</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="stageProgressFillMini" class="stage-progress-fill stage-novice" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div class="stat-item">
+                            <div id="totalCorrectMini" class="stat-value">0</div>
+                            <div class="stat-label">累计答对</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="currentStageProgressMini" class="stat-value">0%</div>
+                            <div class="stat-label">阶段进度</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="nextStageNeedMini" class="stat-value">10</div>
+                            <div class="stat-label">距下一阶段</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="flex: 1;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: #333;">📊 练习统计</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+                        <div class="stat-item">
+                            <div id="totalCountMini" class="stat-value">0</div>
+                            <div class="stat-label">总练习次数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="accuracyMini" class="stat-value">0%</div>
+                            <div class="stat-label">正确率</div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="font-size: 0.8rem; color: #666;">正确率进度</span>
+                            <span style="font-size: 0.8rem; color: #666;">目标：80%以上</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="progressFillMini" class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <h4 style="font-size: 0.9rem; margin-bottom: 10px;">📈 按题型统计</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                            <div class="stat-item" style="background: #e7f3ff;">
+                                <div style="font-size: 0.7rem; color: #0c63e4; font-weight: bold;">基础题</div>
+                                <div id="directAccuracyMini" style="font-size: 1rem; font-weight: bold; color: #0c63e4;">0%</div>
+                            </div>
+                            <div class="stat-item" style="background: #e8f5e9;">
+                                <div style="font-size: 0.7rem; color: #155724; font-weight: bold;">变式题</div>
+                                <div id="inverseAccuracyMini" style="font-size: 1rem; font-weight: bold; color: #155724;">0%</div>
+                            </div>
+                            <div class="stat-item" style="background: #fff3cd;">
+                                <div style="font-size: 0.7rem; color: #856404; font-weight: bold;">综合题</div>
+                                <div id="allocationAccuracyMini" style="font-size: 1rem; font-weight: bold; color: #856404;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="clearStats()" style="width: 100%;">重置统计数据</button>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card" style="height: 100%;">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 15px; color: #333;">📝 答题区</h3>
+                    <div class="question-area" id="questionArea">
+                        <p style="color: #999; text-align: center; line-height: 180px;">点击"生成题目"开始练习</p>
+                    </div>
+                    <div>
+                        <input type="number" id="answerInput" placeholder="请输入答案（保留两位小数）" step="0.01">
+                        <div style="display: flex; gap: 12px; margin-top: 12px;">
+                            <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">提交答案</button>
+                            <button class="btn btn-secondary" id="continueBtn" onclick="generateQuestion()" style="display: none;">继续答题</button>
+                        </div>
+                    </div>
+                    <div id="feedback" class="feedback" style="display: none;"></div>
+                    <div id="solutionArea" class="solution-area" style="display: none;">
+                        <h3>💡 解题思路</h3>
+                        <div id="solutionSteps" class="solution-steps"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mistakes" class="main-content" style="display: none;">
+            <div class="card">
+                <h2 style="color: #333; margin-bottom: 20px;">📚 错题本</h2>
+                <div id="mistakesList">
+                    <p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="reviewMistakes()">复习错题</button>
+                    <button class="btn btn-secondary" onclick="clearMistakes()">清空错题本</button>
+                </div>
+            </div>
+            <div class="card">
+                <h2 style="color: #333; margin-bottom: 20px;">🎯 薄弱点分析</h2>
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 1rem; margin-bottom: 12px; color: #333;">错题类型分布</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 80px; background: #e7f3ff; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.85rem;">基础题</div>
+                            <div style="flex: 1; height: 15px; background: #e9ecef; border-radius: 8px; margin-left: 12px; overflow: hidden;">
+                                <div id="directMistakeProgress" style="width: 0%; background: #667eea;"></div>
+                            </div>
+                            <div style="margin-left: 12px; font-size: 0.85rem; color: #666;" id="directMistakeCount">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 80px; background: #e8f5e9; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.85rem;">变式题</div>
+                            <div style="flex: 1; height: 15px; background: #e9ecef; border-radius: 8px; margin-left: 12px; overflow: hidden;">
+                                <div id="inverseMistakeProgress" style="width: 0%; background: #4CAF50;"></div>
+                            </div>
+                            <div style="margin-left: 12px; font-size: 0.85rem; color: #666;" id="inverseMistakeCount">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 80px; background: #fff3cd; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.85rem;">综合题</div>
+                            <div style="flex: 1; height: 15px; background: #e9ecef; border-radius: 8px; margin-left: 12px; overflow: hidden;">
+                                <div id="allocationMistakeProgress" style="width: 0%; background: #FF9800;"></div>
+                            </div>
+                            <div style="margin-left: 12px; font-size: 0.85rem; color: #666;" id="allocationMistakeCount">0题</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="font-size: 1rem; margin-bottom: 12px; color: #333;">针对性练习建议</h3>
+                    <div id="practiceSuggestions" style="background: #fff3e0; padding: 15px; border-radius: 8px;">
+                        <p style="color: #856404; font-size: 0.9rem;">完成更多练习后，系统将根据您的错题情况提供针对性练习建议</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <a href="#" style="color:#666; text-decoration:none; font-size: 0.8rem;">关于我们</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none; font-size: 0.8rem;">使用说明</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none; font-size: 0.8rem;">隐私政策</a>
+            <span style="color: #ddd;">|</span>
+            <span style="font-size: 0.8rem;">© 陈胡氏HTML工具 版权所有</span>
+        </div>
+    </footer>
+    
+    <script>
+        const PI = Math.PI;
+        
+        const questionBank = [
+            {
+                id: 1,
+                content: '一个底面半径是16cm的圆柱形水桶装有水，放入一个高为10cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 1205.76,
+                solution: `步骤1：水面上升体积 = π×16²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 10 ≈ 1205.76 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 2,
+                content: '一个底面半径是12cm的圆柱形水桶装有水，放入一个高为10cm的圆锥形物体完全浸没后，水面上升了4cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 542.59,
+                solution: `步骤1：水面上升体积 = π×12²×4
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 10 ≈ 542.59 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 3,
+                content: '一个底面半径是12cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 180.86,
+                solution: `步骤1：水面上升体积 = π×12²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 180.86 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 4,
+                content: '一个底面半径是6cm的圆柱形水桶装有水，放入一个高为12cm的圆锥形物体完全浸没后，水面上升了4cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 113.04,
+                solution: `步骤1：水面上升体积 = π×6²×4
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 12 ≈ 113.04 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 5,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为20cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 105.97,
+                solution: `步骤1：水面上升体积 = π×15²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 20 ≈ 105.97 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 6,
+                content: '一个底面半径是20cm的圆柱形水桶装有水，放入一个高为12cm的圆锥形物体完全浸没后，水面上升了4cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 1256.0,
+                solution: `步骤1：水面上升体积 = π×20²×4
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 12 ≈ 1256.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 7,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了3cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 423.9,
+                solution: `步骤1：水面上升体积 = π×15²×3
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 423.9 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 8,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了3cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 423.9,
+                solution: `步骤1：水面上升体积 = π×15²×3
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 423.9 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 9,
+                content: '一个底面半径是12cm的圆柱形水桶装有水，放入一个高为20cm的圆锥形物体完全浸没后，水面上升了3cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 203.47,
+                solution: `步骤1：水面上升体积 = π×12²×3
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 20 ≈ 203.47 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 10,
+                content: '一个底面半径是6cm的圆柱形水桶装有水，放入一个高为20cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 33.91,
+                solution: `步骤1：水面上升体积 = π×6²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 20 ≈ 33.91 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 11,
+                content: '一个底面半径是12cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 452.16,
+                solution: `步骤1：水面上升体积 = π×12²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 452.16 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 12,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为10cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 211.95,
+                solution: `步骤1：水面上升体积 = π×15²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 10 ≈ 211.95 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 13,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 282.6,
+                solution: `步骤1：水面上升体积 = π×15²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 282.6 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 14,
+                content: '一个底面半径是5cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 15.7,
+                solution: `步骤1：水面上升体积 = π×5²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 15.7 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 15,
+                content: '一个底面半径是16cm的圆柱形水桶装有水，放入一个高为20cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 602.88,
+                solution: `步骤1：水面上升体积 = π×16²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 20 ≈ 602.88 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 16,
+                content: '一个底面半径是16cm的圆柱形水桶装有水，放入一个高为6cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 803.84,
+                solution: `步骤1：水面上升体积 = π×16²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 6 ≈ 803.84 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 17,
+                content: '一个底面半径是6cm的圆柱形水桶装有水，放入一个高为6cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 282.6,
+                solution: `步骤1：水面上升体积 = π×6²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 6 ≈ 282.6 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 18,
+                content: '一个底面半径是16cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 803.84,
+                solution: `步骤1：水面上升体积 = π×16²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 803.84 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 19,
+                content: '一个底面半径是5cm的圆柱形水桶装有水，放入一个高为12cm的圆锥形物体完全浸没后，水面上升了4cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 78.5,
+                solution: `步骤1：水面上升体积 = π×5²×4
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 12 ≈ 78.5 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 20,
+                content: '一个底面半径是16cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 160.77,
+                solution: `步骤1：水面上升体积 = π×16²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 160.77 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 21,
+                content: '一个底面半径是10cm的圆柱形水桶装有水，放入一个高为20cm的圆锥形物体完全浸没后，水面上升了3cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 141.3,
+                solution: `步骤1：水面上升体积 = π×10²×3
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 20 ≈ 141.3 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 22,
+                content: '一个底面半径是6cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 22.61,
+                solution: `步骤1：水面上升体积 = π×6²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 22.61 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 23,
+                content: '一个底面半径是6cm的圆柱形水桶装有水，放入一个高为12cm的圆锥形物体完全浸没后，水面上升了3cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 84.78,
+                solution: `步骤1：水面上升体积 = π×6²×3
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 12 ≈ 84.78 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 24,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为10cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 1059.75,
+                solution: `步骤1：水面上升体积 = π×15²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 10 ≈ 1059.75 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 25,
+                content: '一个底面半径是12cm的圆柱形水桶装有水，放入一个高为12cm的圆锥形物体完全浸没后，水面上升了3cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 339.12,
+                solution: `步骤1：水面上升体积 = π×12²×3
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 12 ≈ 339.12 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 26,
+                content: '一个底面半径是5cm的圆柱形水桶装有水，放入一个高为12cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 19.62,
+                solution: `步骤1：水面上升体积 = π×5²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 12 ≈ 19.62 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 27,
+                content: '一个底面半径是10cm的圆柱形水桶装有水，放入一个高为12cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 392.5,
+                solution: `步骤1：水面上升体积 = π×10²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 12 ≈ 392.5 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 28,
+                content: '一个底面半径是6cm的圆柱形水桶装有水，放入一个高为6cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 56.52,
+                solution: `步骤1：水面上升体积 = π×6²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 6 ≈ 56.52 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 29,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 706.5,
+                solution: `步骤1：水面上升体积 = π×15²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 706.5 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 30,
+                content: '一个底面半径是5cm的圆柱形水桶装有水，放入一个高为3cm的圆锥形物体完全浸没后，水面上升了4cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 314.0,
+                solution: `步骤1：水面上升体积 = π×5²×4
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 3 ≈ 314.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 31,
+                content: '一个底面半径是20cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 1256.0,
+                solution: `步骤1：水面上升体积 = π×20²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 1256.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 32,
+                content: '一个底面半径是6cm的圆柱形水桶装有水，放入一个高为12cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 56.52,
+                solution: `步骤1：水面上升体积 = π×6²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 12 ≈ 56.52 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 33,
+                content: '一个底面半径是6cm的圆柱形水桶装有水，放入一个高为6cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 56.52,
+                solution: `步骤1：水面上升体积 = π×6²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 6 ≈ 56.52 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 34,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了4cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 565.2,
+                solution: `步骤1：水面上升体积 = π×15²×4
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 565.2 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 35,
+                content: '一个底面半径是16cm的圆柱形水桶装有水，放入一个高为10cm的圆锥形物体完全浸没后，水面上升了4cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 964.61,
+                solution: `步骤1：水面上升体积 = π×16²×4
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 10 ≈ 964.61 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 36,
+                content: '一个底面半径是8cm的圆柱形水桶装有水，放入一个高为12cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 251.2,
+                solution: `步骤1：水面上升体积 = π×8²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 12 ≈ 251.2 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 37,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为3cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 1413.0,
+                solution: `步骤1：水面上升体积 = π×15²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 3 ≈ 1413.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 38,
+                content: '一个底面半径是10cm的圆柱形水桶装有水，放入一个高为3cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 314.0,
+                solution: `步骤1：水面上升体积 = π×10²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 3 ≈ 314.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 39,
+                content: '一个底面半径是16cm的圆柱形水桶装有水，放入一个高为20cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 241.15,
+                solution: `步骤1：水面上升体积 = π×16²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 20 ≈ 241.15 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 40,
+                content: '一个底面半径是5cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 31.4,
+                solution: `步骤1：水面上升体积 = π×5²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 31.4 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 41,
+                content: '一个底面半径是10cm的圆柱形水桶装有水，放入一个高为10cm的圆锥形物体完全浸没后，水面上升了4cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 376.8,
+                solution: `步骤1：水面上升体积 = π×10²×4
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 10 ≈ 376.8 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 42,
+                content: '一个底面半径是20cm的圆柱形水桶装有水，放入一个高为10cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 376.8,
+                solution: `步骤1：水面上升体积 = π×20²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 10 ≈ 376.8 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 43,
+                content: '一个底面半径是10cm的圆柱形水桶装有水，放入一个高为12cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 157.0,
+                solution: `步骤1：水面上升体积 = π×10²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 12 ≈ 157.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 44,
+                content: '一个底面半径是20cm的圆柱形水桶装有水，放入一个高为20cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 942.0,
+                solution: `步骤1：水面上升体积 = π×20²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 20 ≈ 942.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 45,
+                content: '一个底面半径是20cm的圆柱形水桶装有水，放入一个高为20cm的圆锥形物体完全浸没后，水面上升了4cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 753.6,
+                solution: `步骤1：水面上升体积 = π×20²×4
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 20 ≈ 753.6 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 46,
+                content: '一个底面半径是5cm的圆柱形水桶装有水，放入一个高为10cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 117.75,
+                solution: `步骤1：水面上升体积 = π×5²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 10 ≈ 117.75 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 47,
+                content: '一个底面半径是20cm的圆柱形水桶装有水，放入一个高为6cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 628.0,
+                solution: `步骤1：水面上升体积 = π×20²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 6 ≈ 628.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 48,
+                content: '一个底面半径是8cm的圆柱形水桶装有水，放入一个高为3cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 401.92,
+                solution: `步骤1：水面上升体积 = π×8²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 3 ≈ 401.92 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 49,
+                content: '一个底面半径是10cm的圆柱形水桶装有水，放入一个高为6cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 785.0,
+                solution: `步骤1：水面上升体积 = π×10²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 6 ≈ 785.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 50,
+                content: '一个底面半径是20cm的圆柱形水桶装有水，放入一个高为3cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 2512.0,
+                solution: `步骤1：水面上升体积 = π×20²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 3 ≈ 2512.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 51,
+                content: '一个底面半径是10cm的圆柱形水桶装有水，放入一个高为20cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 94.2,
+                solution: `步骤1：水面上升体积 = π×10²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 20 ≈ 94.2 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 52,
+                content: '一个底面半径是12cm的圆柱形水桶装有水，放入一个高为12cm的圆锥形物体完全浸没后，水面上升了3cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 339.12,
+                solution: `步骤1：水面上升体积 = π×12²×3
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 12 ≈ 339.12 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 53,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为10cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 211.95,
+                solution: `步骤1：水面上升体积 = π×15²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 10 ≈ 211.95 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 54,
+                content: '一个底面半径是12cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了3cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 271.3,
+                solution: `步骤1：水面上升体积 = π×12²×3
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 271.3 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 55,
+                content: '一个底面半径是16cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了3cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 482.3,
+                solution: `步骤1：水面上升体积 = π×16²×3
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 482.3 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 56,
+                content: '一个底面半径是16cm的圆柱形水桶装有水，放入一个高为10cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 482.3,
+                solution: `步骤1：水面上升体积 = π×16²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 10 ≈ 482.3 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 57,
+                content: '一个底面半径是6cm的圆柱形水桶装有水，放入一个高为15cm的圆锥形物体完全浸没后，水面上升了2cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 45.22,
+                solution: `步骤1：水面上升体积 = π×6²×2
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 15 ≈ 45.22 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 58,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为3cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 3532.5,
+                solution: `步骤1：水面上升体积 = π×15²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 3 ≈ 3532.5 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 59,
+                content: '一个底面半径是15cm的圆柱形水桶装有水，放入一个高为3cm的圆锥形物体完全浸没后，水面上升了5cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 3532.5,
+                solution: `步骤1：水面上升体积 = π×15²×5
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 3 ≈ 3532.5 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 60,
+                content: '一个底面半径是10cm的圆柱形水桶装有水，放入一个高为3cm的圆锥形物体完全浸没后，水面上升了1cm，圆锥的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 314.0,
+                solution: `步骤1：水面上升体积 = π×10²×1
+步骤2：圆锥底面积 = 水面上升体积 × 3 ÷ 3 ≈ 314.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 61,
+                content: '一个底面直径是40cm的圆柱形鱼缸装有水，放入一个高为6cm的圆锥形石头后，水面上升了1cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 628.0,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 628.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 62,
+                content: '一个底面直径是12cm的圆柱形鱼缸装有水，放入一个高为12cm的圆锥形石头后，水面上升了3cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 84.78,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 84.78 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 63,
+                content: '一个底面直径是20cm的圆柱形鱼缸装有水，放入一个高为6cm的圆锥形石头后，水面上升了2cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 314.0,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 314.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 64,
+                content: '一个底面直径是30cm的圆柱形鱼缸装有水，放入一个高为12cm的圆锥形石头后，水面上升了2cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 353.25,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 353.25 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 65,
+                content: '一个底面直径是32cm的圆柱形鱼缸装有水，放入一个高为12cm的圆锥形石头后，水面上升了1cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 200.96,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 200.96 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 66,
+                content: '一个底面直径是32cm的圆柱形鱼缸装有水，放入一个高为15cm的圆锥形石头后，水面上升了1cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 160.77,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 160.77 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 67,
+                content: '一个底面直径是10cm的圆柱形鱼缸装有水，放入一个高为20cm的圆锥形石头后，水面上升了3cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 35.33,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 35.33 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 68,
+                content: '一个底面直径是12cm的圆柱形鱼缸装有水，放入一个高为20cm的圆锥形石头后，水面上升了3cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 50.87,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 50.87 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 69,
+                content: '一个底面直径是40cm的圆柱形鱼缸装有水，放入一个高为10cm的圆锥形石头后，水面上升了2cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 753.6,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 753.6 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 70,
+                content: '一个底面直径是30cm的圆柱形鱼缸装有水，放入一个高为3cm的圆锥形石头后，水面上升了2cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 1413.0,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 1413.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 71,
+                content: '一个底面直径是32cm的圆柱形鱼缸装有水，放入一个高为10cm的圆锥形石头后，水面上升了4cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 964.61,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 964.61 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 72,
+                content: '一个底面直径是12cm的圆柱形鱼缸装有水，放入一个高为10cm的圆锥形石头后，水面上升了1cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 33.91,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 33.91 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 73,
+                content: '一个底面直径是24cm的圆柱形鱼缸装有水，放入一个高为20cm的圆锥形石头后，水面上升了4cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 271.3,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 271.3 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 74,
+                content: '一个底面直径是12cm的圆柱形鱼缸装有水，放入一个高为6cm的圆锥形石头后，水面上升了1cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 56.52,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 56.52 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 75,
+                content: '一个底面直径是12cm的圆柱形鱼缸装有水，放入一个高为12cm的圆锥形石头后，水面上升了4cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 113.04,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 113.04 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 76,
+                content: '一个底面直径是40cm的圆柱形鱼缸装有水，放入一个高为15cm的圆锥形石头后，水面上升了1cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 251.2,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 251.2 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 77,
+                content: '一个底面直径是20cm的圆柱形鱼缸装有水，放入一个高为3cm的圆锥形石头后，水面上升了1cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 314.0,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 314.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 78,
+                content: '一个底面直径是10cm的圆柱形鱼缸装有水，放入一个高为10cm的圆锥形石头后，水面上升了3cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 70.65,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 70.65 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 79,
+                content: '一个底面直径是12cm的圆柱形鱼缸装有水，放入一个高为3cm的圆锥形石头后，水面上升了1cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 113.04,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 113.04 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 80,
+                content: '一个底面直径是20cm的圆柱形鱼缸装有水，放入一个高为3cm的圆锥形石头后，水面上升了1cm，石头的底面积是多少平方厘米？',
+                type: 'direct',
+                difficulty: 'easy',
+                answer: 314.0,
+                solution: `水面上升体积等于圆锥体积，圆锥底面积 ≈ 314.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 1,
+                content: '圆柱形水桶底面半径5cm，放入一个底面积为314cm²的圆锥形物体后，水面上升了2cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 1.5,
+                solution: `步骤1：水面上升体积 = π×5²×2
+步骤2：圆锥高 = 水面上升体积 × 3 ÷ 314 ≈ 1.5 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 2,
+                content: '圆柱形水桶底面半径6cm，放入一个底面积为78.5cm²的圆锥形物体后，水面上升了2cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 8.64,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 8.64 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 3,
+                content: '圆柱形水桶底面半径15cm，放入一个底面积为251.2cm²的圆锥形物体后，水面上升了4cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 33.75,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 33.75 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 4,
+                content: '圆柱形水桶底面半径15cm，放入一个底面积为251.2cm²的圆锥形物体后，水面上升了3cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 25.31,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 25.31 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 5,
+                content: '圆柱形水桶底面半径10cm，放入一个底面积为62.8cm²的圆锥形物体后，水面上升了4cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 60.0,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 60.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 6,
+                content: '圆柱形水桶底面半径15cm，放入一个底面积为157cm²的圆锥形物体后，水面上升了4cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 54.0,
+                solution: `步骤1：水面上升体积 = π×15²×4
+步骤2：圆锥高 = 水面上升体积 × 3 ÷ 157 ≈ 54.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 7,
+                content: '圆柱形水桶底面半径8cm，放入一个底面积为78.5cm²的圆锥形物体后，水面上升了3cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 23.04,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 23.04 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 8,
+                content: '圆柱形水桶底面半径12cm，放入一个底面积为125.6cm²的圆锥形物体后，水面上升了3cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 32.4,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 32.4 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 9,
+                content: '圆柱形水桶底面半径5cm，放入一个底面积为78.5cm²的圆锥形物体后，水面上升了3cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 9.0,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 9.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 10,
+                content: '圆柱形水桶底面半径8cm，放入一个底面积为219.8cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 13.71,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 13.71 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 11,
+                content: '圆柱形水桶底面半径12cm，放入一个底面积为31.4cm²的圆锥形物体后，水面上升了4cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 172.8,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 172.8 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 12,
+                content: '圆柱形水桶底面半径10cm，放入一个底面积为251.2cm²的圆锥形物体后，水面上升了4cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 15.0,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 15.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 13,
+                content: '圆柱形水桶底面半径5cm，放入一个底面积为219.8cm²的圆锥形物体后，水面上升了4cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 4.29,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 4.29 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 14,
+                content: '圆柱形水桶底面半径12cm，放入一个底面积为251.2cm²的圆锥形物体后，水面上升了2cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 10.8,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 10.8 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 15,
+                content: '圆柱形水桶底面半径12cm，放入一个底面积为157cm²的圆锥形物体后，水面上升了4cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 34.56,
+                solution: `步骤1：水面上升体积 = π×12²×4
+步骤2：圆锥高 = 水面上升体积 × 3 ÷ 157 ≈ 34.56 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 16,
+                content: '圆柱形水桶底面半径8cm，放入一个底面积为31.4cm²的圆锥形物体后，水面上升了2cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 38.4,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 38.4 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 17,
+                content: '圆柱形水桶底面半径8cm，放入一个底面积为157cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 19.2,
+                solution: `步骤1：水面上升体积 = π×8²×5
+步骤2：圆锥高 = 水面上升体积 × 3 ÷ 157 ≈ 19.2 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 18,
+                content: '圆柱形水桶底面半径10cm，放入一个底面积为62.8cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 75.0,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 75.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 19,
+                content: '圆柱形水桶底面半径15cm，放入一个底面积为251.2cm²的圆锥形物体后，水面上升了4cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 33.75,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 33.75 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 20,
+                content: '圆柱形水桶底面半径5cm，放入一个底面积为251.2cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 4.69,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 4.69 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 21,
+                content: '圆柱形水桶底面半径10cm，放入一个底面积为314cm²的圆锥形物体后，水面上升了2cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 6.0,
+                solution: `步骤1：水面上升体积 = π×10²×2
+步骤2：圆锥高 = 水面上升体积 × 3 ÷ 314 ≈ 6.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 22,
+                content: '圆柱形水桶底面半径5cm，放入一个底面积为188.4cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 6.25,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 6.25 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 23,
+                content: '圆柱形水桶底面半径15cm，放入一个底面积为125.6cm²的圆锥形物体后，水面上升了2cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 33.75,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 33.75 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 24,
+                content: '圆柱形水桶底面半径5cm，放入一个底面积为314cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 3.75,
+                solution: `步骤1：水面上升体积 = π×5²×5
+步骤2：圆锥高 = 水面上升体积 × 3 ÷ 314 ≈ 3.75 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 25,
+                content: '圆柱形水桶底面半径8cm，放入一个底面积为157cm²的圆锥形物体后，水面上升了3cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 11.52,
+                solution: `步骤1：水面上升体积 = π×8²×3
+步骤2：圆锥高 = 水面上升体积 × 3 ÷ 157 ≈ 11.52 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 26,
+                content: '圆柱形水桶底面半径10cm，放入一个底面积为78.5cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 60.0,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 60.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 27,
+                content: '圆柱形水桶底面半径8cm，放入一个底面积为157cm²的圆锥形物体后，水面上升了4cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 15.36,
+                solution: `步骤1：水面上升体积 = π×8²×4
+步骤2：圆锥高 = 水面上升体积 × 3 ÷ 157 ≈ 15.36 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 28,
+                content: '圆柱形水桶底面半径8cm，放入一个底面积为314cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 9.6,
+                solution: `步骤1：水面上升体积 = π×8²×5
+步骤2：圆锥高 = 水面上升体积 × 3 ÷ 314 ≈ 9.6 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 29,
+                content: '圆柱形水桶底面半径12cm，放入一个底面积为125.6cm²的圆锥形物体后，水面上升了4cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 43.2,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 43.2 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 30,
+                content: '圆柱形水桶底面半径5cm，放入一个底面积为78.5cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 15.0,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 15.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 31,
+                content: '圆柱形水桶底面半径5cm，放入一个底面积为314cm²的圆锥形物体后，水面上升了3cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 2.25,
+                solution: `步骤1：水面上升体积 = π×5²×3
+步骤2：圆锥高 = 水面上升体积 × 3 ÷ 314 ≈ 2.25 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 32,
+                content: '圆柱形水桶底面半径12cm，放入一个底面积为251.2cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 27.0,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 27.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 33,
+                content: '圆柱形水桶底面半径5cm，放入一个底面积为78.5cm²的圆锥形物体后，水面上升了2cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 6.0,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 6.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 34,
+                content: '圆柱形水桶底面半径6cm，放入一个底面积为62.8cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 27.0,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 27.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 35,
+                content: '圆柱形水桶底面半径12cm，放入一个底面积为78.5cm²的圆锥形物体后，水面上升了3cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 51.84,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 51.84 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 36,
+                content: '圆柱形水桶底面半径5cm，放入一个底面积为219.8cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 5.36,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 5.36 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 37,
+                content: '圆柱形水桶底面半径6cm，放入一个底面积为62.8cm²的圆锥形物体后，水面上升了5cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 27.0,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 27.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 38,
+                content: '圆柱形水桶底面半径8cm，放入一个底面积为251.2cm²的圆锥形物体后，水面上升了2cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 4.8,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 4.8 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 39,
+                content: '圆柱形水桶底面半径10cm，放入一个底面积为31.4cm²的圆锥形物体后，水面上升了4cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 120.0,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 120.0 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 40,
+                content: '圆柱形水桶底面半径8cm，放入一个底面积为94.2cm²的圆锥形物体后，水面上升了3cm，圆锥的高是多少厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 19.2,
+                solution: `圆锥高 = 3 × 水面上升体积 ÷ 圆锥底面积 ≈ 19.2 cm`,
+                formula: '圆锥高 = 3 × π × r² × 水面上升高度 ÷ 圆锥底面积'
+            },
+            {
+                id: 41,
+                content: '圆柱形玻璃容器底面半径5cm，放入一个物体完全浸没后，水面上升了5cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 392.5,
+                solution: `物体体积 = 水面上升体积 = π×5²×5 ≈ 392.5 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 42,
+                content: '圆柱形玻璃容器底面半径10cm，放入一个物体完全浸没后，水面上升了1cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 314.0,
+                solution: `物体体积 = 水面上升体积 = π×10²×1 ≈ 314.0 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 43,
+                content: '圆柱形玻璃容器底面半径10cm，放入一个物体完全浸没后，水面上升了1cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 314.0,
+                solution: `物体体积 = 水面上升体积 = π×10²×1 ≈ 314.0 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 44,
+                content: '圆柱形玻璃容器底面半径5cm，放入一个物体完全浸没后，水面上升了1cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 78.5,
+                solution: `物体体积 = 水面上升体积 = π×5²×1 ≈ 78.5 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 45,
+                content: '圆柱形玻璃容器底面半径10cm，放入一个物体完全浸没后，水面上升了4cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 1256.0,
+                solution: `物体体积 = 水面上升体积 = π×10²×4 ≈ 1256.0 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 46,
+                content: '圆柱形玻璃容器底面半径12cm，放入一个物体完全浸没后，水面上升了4cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 1808.64,
+                solution: `物体体积 = 水面上升体积 = π×12²×4 ≈ 1808.64 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 47,
+                content: '圆柱形玻璃容器底面半径8cm，放入一个物体完全浸没后，水面上升了3cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 602.88,
+                solution: `物体体积 = 水面上升体积 = π×8²×3 ≈ 602.88 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 48,
+                content: '圆柱形玻璃容器底面半径6cm，放入一个物体完全浸没后，水面上升了1cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 113.04,
+                solution: `物体体积 = 水面上升体积 = π×6²×1 ≈ 113.04 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 49,
+                content: '圆柱形玻璃容器底面半径5cm，放入一个物体完全浸没后，水面上升了5cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 392.5,
+                solution: `物体体积 = 水面上升体积 = π×5²×5 ≈ 392.5 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 50,
+                content: '圆柱形玻璃容器底面半径5cm，放入一个物体完全浸没后，水面上升了3cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 235.5,
+                solution: `物体体积 = 水面上升体积 = π×5²×3 ≈ 235.5 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 51,
+                content: '圆柱形玻璃容器底面半径6cm，放入一个物体完全浸没后，水面上升了2cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 226.08,
+                solution: `物体体积 = 水面上升体积 = π×6²×2 ≈ 226.08 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 52,
+                content: '圆柱形玻璃容器底面半径5cm，放入一个物体完全浸没后，水面上升了1cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 78.5,
+                solution: `物体体积 = 水面上升体积 = π×5²×1 ≈ 78.5 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 53,
+                content: '圆柱形玻璃容器底面半径15cm，放入一个物体完全浸没后，水面上升了1cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 706.5,
+                solution: `物体体积 = 水面上升体积 = π×15²×1 ≈ 706.5 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 54,
+                content: '圆柱形玻璃容器底面半径8cm，放入一个物体完全浸没后，水面上升了1cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 200.96,
+                solution: `物体体积 = 水面上升体积 = π×8²×1 ≈ 200.96 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 55,
+                content: '圆柱形玻璃容器底面半径8cm，放入一个物体完全浸没后，水面上升了3cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 602.88,
+                solution: `物体体积 = 水面上升体积 = π×8²×3 ≈ 602.88 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 56,
+                content: '圆柱形玻璃容器底面半径15cm，放入一个物体完全浸没后，水面上升了2cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 1413.0,
+                solution: `物体体积 = 水面上升体积 = π×15²×2 ≈ 1413.0 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 57,
+                content: '圆柱形玻璃容器底面半径10cm，放入一个物体完全浸没后，水面上升了1cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 314.0,
+                solution: `物体体积 = 水面上升体积 = π×10²×1 ≈ 314.0 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 58,
+                content: '圆柱形玻璃容器底面半径10cm，放入一个物体完全浸没后，水面上升了4cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 1256.0,
+                solution: `物体体积 = 水面上升体积 = π×10²×4 ≈ 1256.0 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 59,
+                content: '圆柱形玻璃容器底面半径10cm，放入一个物体完全浸没后，水面上升了4cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 1256.0,
+                solution: `物体体积 = 水面上升体积 = π×10²×4 ≈ 1256.0 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 60,
+                content: '圆柱形玻璃容器底面半径10cm，放入一个物体完全浸没后，水面上升了5cm，这个物体的体积是多少立方厘米？',
+                type: 'inverse',
+                difficulty: 'medium',
+                answer: 1570.0,
+                solution: `物体体积 = 水面上升体积 = π×10²×5 ≈ 1570.0 cm³`,
+                formula: '浸没物体体积 = π × r² × 水面上升高度'
+            },
+            {
+                id: 1,
+                content: '一个底面半径是5cm的圆柱形水桶，里面装有18cm高的水。把一个高12cm的圆锥形物体完全浸没后，水面上升到22cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 78.5,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 78.5 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 2,
+                content: '一个底面半径是5cm的圆柱形水桶，里面装有19cm高的水。把一个高10cm的圆锥形物体完全浸没后，水面上升到21cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 47.1,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 47.1 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 3,
+                content: '一个底面半径是5cm的圆柱形水桶，里面装有17cm高的水。把一个高20cm的圆锥形物体完全浸没后，水面上升到19cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 23.55,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 23.55 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 4,
+                content: '一个底面半径是10cm的圆柱形水桶，里面装有25cm高的水。把一个高20cm的圆锥形物体完全浸没后，水面上升到28cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 141.3,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 141.3 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 5,
+                content: '一个底面半径是10cm的圆柱形水桶，里面装有25cm高的水。把一个高15cm的圆锥形物体完全浸没后，水面上升到27cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 125.6,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 125.6 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 6,
+                content: '一个底面半径是6cm的圆柱形水桶，里面装有28cm高的水。把一个高3cm的圆锥形物体完全浸没后，水面上升到30cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 226.08,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 226.08 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 7,
+                content: '一个底面半径是8cm的圆柱形水桶，里面装有27cm高的水。把一个高6cm的圆锥形物体完全浸没后，水面上升到32cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 502.4,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 502.4 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 8,
+                content: '一个底面半径是8cm的圆柱形水桶，里面装有23cm高的水。把一个高6cm的圆锥形物体完全浸没后，水面上升到25cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 200.96,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 200.96 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 9,
+                content: '一个底面半径是8cm的圆柱形水桶，里面装有26cm高的水。把一个高20cm的圆锥形物体完全浸没后，水面上升到28cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 60.29,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 60.29 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 10,
+                content: '一个底面半径是15cm的圆柱形水桶，里面装有29cm高的水。把一个高12cm的圆锥形物体完全浸没后，水面上升到32cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 529.88,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 529.88 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 11,
+                content: '一个底面半径是8cm的圆柱形水桶，里面装有17cm高的水。把一个高15cm的圆锥形物体完全浸没后，水面上升到20cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 120.58,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 120.58 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 12,
+                content: '一个底面半径是12cm的圆柱形水桶，里面装有24cm高的水。把一个高3cm的圆锥形物体完全浸没后，水面上升到27cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 1356.48,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 1356.48 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 13,
+                content: '一个底面半径是10cm的圆柱形水桶，里面装有16cm高的水。把一个高12cm的圆锥形物体完全浸没后，水面上升到18cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 157.0,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 157.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 14,
+                content: '一个底面半径是10cm的圆柱形水桶，里面装有19cm高的水。把一个高6cm的圆锥形物体完全浸没后，水面上升到21cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 314.0,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 314.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 15,
+                content: '一个底面半径是6cm的圆柱形水桶，里面装有19cm高的水。把一个高3cm的圆锥形物体完全浸没后，水面上升到21cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 226.08,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 226.08 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 16,
+                content: '一个底面半径是8cm的圆柱形水桶，里面装有25cm高的水。把一个高3cm的圆锥形物体完全浸没后，水面上升到28cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 602.88,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 602.88 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 17,
+                content: '一个底面半径是5cm的圆柱形水桶，里面装有27cm高的水。把一个高6cm的圆锥形物体完全浸没后，水面上升到29cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 78.5,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 78.5 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 18,
+                content: '一个底面半径是15cm的圆柱形水桶，里面装有28cm高的水。把一个高3cm的圆锥形物体完全浸没后，水面上升到33cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 3532.5,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 3532.5 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 19,
+                content: '一个底面半径是15cm的圆柱形水桶，里面装有22cm高的水。把一个高20cm的圆锥形物体完全浸没后，水面上升到23cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 105.97,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 105.97 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 20,
+                content: '一个底面半径是10cm的圆柱形水桶，里面装有25cm高的水。把一个高20cm的圆锥形物体完全浸没后，水面上升到26cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 47.1,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 47.1 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 21,
+                content: '一个底面半径是8cm的圆柱形水桶，里面装有22cm高的水。把一个高20cm的圆锥形物体完全浸没后，水面上升到25cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 90.43,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 90.43 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 22,
+                content: '一个底面半径是6cm的圆柱形水桶，里面装有29cm高的水。把一个高10cm的圆锥形物体完全浸没后，水面上升到33cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 135.65,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 135.65 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 23,
+                content: '一个底面半径是6cm的圆柱形水桶，里面装有20cm高的水。把一个高3cm的圆锥形物体完全浸没后，水面上升到21cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 113.04,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 113.04 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 24,
+                content: '一个底面半径是15cm的圆柱形水桶，里面装有29cm高的水。把一个高20cm的圆锥形物体完全浸没后，水面上升到34cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 529.88,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 529.88 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 25,
+                content: '一个底面半径是8cm的圆柱形水桶，里面装有29cm高的水。把一个高20cm的圆锥形物体完全浸没后，水面上升到31cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 60.29,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 60.29 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 26,
+                content: '一个底面半径是10cm的圆柱形水桶，里面装有16cm高的水。把一个高6cm的圆锥形物体完全浸没后，水面上升到20cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 628.0,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 628.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 27,
+                content: '一个底面半径是5cm的圆柱形水桶，里面装有19cm高的水。把一个高3cm的圆锥形物体完全浸没后，水面上升到22cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 235.5,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 235.5 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 28,
+                content: '一个底面半径是5cm的圆柱形水桶，里面装有29cm高的水。把一个高6cm的圆锥形物体完全浸没后，水面上升到33cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 157.0,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 157.0 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 29,
+                content: '一个底面半径是12cm的圆柱形水桶，里面装有28cm高的水。把一个高3cm的圆锥形物体完全浸没后，水面上升到30cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 904.32,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 904.32 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 30,
+                content: '一个底面半径是8cm的圆柱形水桶，里面装有19cm高的水。把一个高3cm的圆锥形物体完全浸没后，水面上升到23cm，圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 803.84,
+                solution: `水面上升体积 = 圆锥体积，圆锥底面积 ≈ 803.84 cm²`,
+                formula: '圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ 圆锥高'
+            },
+            {
+                id: 31,
+                content: '圆柱形容器底面半径15cm，放入2个完全相同的圆锥形物体后，水面上升了3cm。已知每个圆锥的高是15cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 211.95,
+                solution: `步骤1：水面上升体积 = π×15²×3
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 15 ≈ 211.95 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 32,
+                content: '圆柱形容器底面半径15cm，放入2个完全相同的圆锥形物体后，水面上升了2cm。已知每个圆锥的高是10cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 211.95,
+                solution: `步骤1：水面上升体积 = π×15²×2
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 10 ≈ 211.95 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 33,
+                content: '圆柱形容器底面半径5cm，放入3个完全相同的圆锥形物体后，水面上升了4cm。已知每个圆锥的高是3cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 104.67,
+                solution: `步骤1：水面上升体积 = π×5²×4
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 3
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 3 ≈ 104.67 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 34,
+                content: '圆柱形容器底面半径6cm，放入3个完全相同的圆锥形物体后，水面上升了4cm。已知每个圆锥的高是20cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 22.61,
+                solution: `步骤1：水面上升体积 = π×6²×4
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 3
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 20 ≈ 22.61 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 35,
+                content: '圆柱形容器底面半径10cm，放入2个完全相同的圆锥形物体后，水面上升了5cm。已知每个圆锥的高是20cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 117.75,
+                solution: `步骤1：水面上升体积 = π×10²×5
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 20 ≈ 117.75 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 36,
+                content: '圆柱形容器底面半径10cm，放入2个完全相同的圆锥形物体后，水面上升了2cm。已知每个圆锥的高是10cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 94.2,
+                solution: `步骤1：水面上升体积 = π×10²×2
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 10 ≈ 94.2 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 37,
+                content: '圆柱形容器底面半径6cm，放入3个完全相同的圆锥形物体后，水面上升了4cm。已知每个圆锥的高是15cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 30.14,
+                solution: `步骤1：水面上升体积 = π×6²×4
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 3
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 15 ≈ 30.14 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 38,
+                content: '圆柱形容器底面半径5cm，放入3个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是20cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 23.55,
+                solution: `步骤1：水面上升体积 = π×5²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 3
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 20 ≈ 23.55 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 39,
+                content: '圆柱形容器底面半径10cm，放入2个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是12cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 235.5,
+                solution: `步骤1：水面上升体积 = π×10²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 12 ≈ 235.5 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 40,
+                content: '圆柱形容器底面半径15cm，放入2个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是10cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 635.85,
+                solution: `步骤1：水面上升体积 = π×15²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 10 ≈ 635.85 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 41,
+                content: '圆柱形容器底面半径5cm，放入2个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是3cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 235.5,
+                solution: `步骤1：水面上升体积 = π×5²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 3 ≈ 235.5 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 42,
+                content: '圆柱形容器底面半径10cm，放入3个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是15cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 125.6,
+                solution: `步骤1：水面上升体积 = π×10²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 3
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 15 ≈ 125.6 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 43,
+                content: '圆柱形容器底面半径8cm，放入2个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是3cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 602.88,
+                solution: `步骤1：水面上升体积 = π×8²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 3 ≈ 602.88 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 44,
+                content: '圆柱形容器底面半径10cm，放入3个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是3cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 628.0,
+                solution: `步骤1：水面上升体积 = π×10²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 3
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 3 ≈ 628.0 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 45,
+                content: '圆柱形容器底面半径6cm，放入3个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是6cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 113.04,
+                solution: `步骤1：水面上升体积 = π×6²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 3
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 6 ≈ 113.04 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 46,
+                content: '圆柱形容器底面半径15cm，放入2个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是3cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 2119.5,
+                solution: `步骤1：水面上升体积 = π×15²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 3 ≈ 2119.5 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 47,
+                content: '圆柱形容器底面半径5cm，放入2个完全相同的圆锥形物体后，水面上升了4cm。已知每个圆锥的高是3cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 157.0,
+                solution: `步骤1：水面上升体积 = π×5²×4
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 3 ≈ 157.0 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 48,
+                content: '圆柱形容器底面半径10cm，放入2个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是12cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 235.5,
+                solution: `步骤1：水面上升体积 = π×10²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 12 ≈ 235.5 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 49,
+                content: '圆柱形容器底面半径6cm，放入2个完全相同的圆锥形物体后，水面上升了3cm。已知每个圆锥的高是15cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 33.91,
+                solution: `步骤1：水面上升体积 = π×6²×3
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 15 ≈ 33.91 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 50,
+                content: '圆柱形容器底面半径10cm，放入2个完全相同的圆锥形物体后，水面上升了2cm。已知每个圆锥的高是15cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 62.8,
+                solution: `步骤1：水面上升体积 = π×10²×2
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 15 ≈ 62.8 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 51,
+                content: '圆柱形容器底面半径5cm，放入3个完全相同的圆锥形物体后，水面上升了4cm。已知每个圆锥的高是15cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 20.93,
+                solution: `步骤1：水面上升体积 = π×5²×4
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 3
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 15 ≈ 20.93 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 52,
+                content: '圆柱形容器底面半径5cm，放入2个完全相同的圆锥形物体后，水面上升了4cm。已知每个圆锥的高是12cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 39.25,
+                solution: `步骤1：水面上升体积 = π×5²×4
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 12 ≈ 39.25 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 53,
+                content: '圆柱形容器底面半径10cm，放入3个完全相同的圆锥形物体后，水面上升了4cm。已知每个圆锥的高是15cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 83.73,
+                solution: `步骤1：水面上升体积 = π×10²×4
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 3
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 15 ≈ 83.73 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 54,
+                content: '圆柱形容器底面半径5cm，放入2个完全相同的圆锥形物体后，水面上升了3cm。已知每个圆锥的高是6cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 58.88,
+                solution: `步骤1：水面上升体积 = π×5²×3
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 6 ≈ 58.88 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 55,
+                content: '圆柱形容器底面半径6cm，放入2个完全相同的圆锥形物体后，水面上升了2cm。已知每个圆锥的高是10cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 33.91,
+                solution: `步骤1：水面上升体积 = π×6²×2
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 10 ≈ 33.91 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 56,
+                content: '圆柱形容器底面半径15cm，放入3个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是3cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 1413.0,
+                solution: `步骤1：水面上升体积 = π×15²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 3
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 3 ≈ 1413.0 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 57,
+                content: '圆柱形容器底面半径5cm，放入2个完全相同的圆锥形物体后，水面上升了3cm。已知每个圆锥的高是15cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 23.55,
+                solution: `步骤1：水面上升体积 = π×5²×3
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 15 ≈ 23.55 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 58,
+                content: '圆柱形容器底面半径8cm，放入2个完全相同的圆锥形物体后，水面上升了5cm。已知每个圆锥的高是15cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 100.48,
+                solution: `步骤1：水面上升体积 = π×8²×5
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 15 ≈ 100.48 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 59,
+                content: '圆柱形容器底面半径12cm，放入2个完全相同的圆锥形物体后，水面上升了4cm。已知每个圆锥的高是20cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 135.65,
+                solution: `步骤1：水面上升体积 = π×12²×4
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 20 ≈ 135.65 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+            {
+                id: 60,
+                content: '圆柱形容器底面半径15cm，放入2个完全相同的圆锥形物体后，水面上升了6cm。已知每个圆锥的高是20cm，每个圆锥的底面积是多少平方厘米？',
+                type: 'allocation',
+                difficulty: 'hard',
+                answer: 317.93,
+                solution: `步骤1：水面上升体积 = π×15²×6
+步骤2：单个圆锥体积 = 水面上升体积 ÷ 2
+步骤3：圆锥底面积 = 单个圆锥体积 × 3 ÷ 20 ≈ 317.93 cm²`,
+                formula: '单个圆锥底面积 = 3 × π × r² × 水面上升高度 ÷ (圆锥高 × 圆锥个数)'
+            },
+        ];
+        
+        let stats = {
+            total: 0,
+            correct: 0,
+            wrong: 0,
+            byType: {
+                direct: { correct: 0, total: 0 },
+                inverse: { correct: 0, total: 0 },
+                allocation: { correct: 0, total: 0 }
+            }
+        };
+        let mistakes = [];
+        let currentQuestion = null;
+        let bankIndex = 0;
+        
+        const stages = [
+            { id: 'novice', name: '新手保护期', target: 9, emoji: '🌱', color: 'novice' },
+            { id: 'apprentice', name: '学徒期', target: 24, emoji: '📚', color: 'apprentice' },
+            { id: 'expert', name: '学霸期', target: 48, emoji: '⭐', color: 'expert' },
+            { id: 'master', name: '学神期', target: 49, emoji: '👑', color: 'master' }
+        ];
+        
+        function getCurrentStage(correctCount) {
+            if (correctCount >= 49) return stages[3];
+            if (correctCount >= 25) return stages[2];
+            if (correctCount >= 10) return stages[1];
+            return stages[0];
+        }
+        
+        function getNextStage(correctCount) {
+            if (correctCount >= 49) return null;
+            if (correctCount >= 25) return stages[3];
+            if (correctCount >= 10) return stages[2];
+            if (correctCount >= 1) return stages[1];
+            return stages[0];
+        }
+        
+        function generateRandomQuestion() {
+            const mode = document.getElementById('modeSelect').value;
+            const type = document.getElementById('typeSelect').value;
+            const difficulty = document.getElementById('difficultySelect').value;
+            
+            let filteredBank = questionBank;
+            
+            if (type !== 'all') {
+                filteredBank = filteredBank.filter(q => q.type === type);
+            }
+            
+            if (difficulty !== 'mixed') {
+                filteredBank = filteredBank.filter(q => q.difficulty === difficulty);
+            }
+            
+            if (mode === 'bank') {
+                if (bankIndex >= filteredBank.length) {
+                    bankIndex = 0;
+                }
+                return filteredBank[bankIndex++];
+            } else {
+                return filteredBank[Math.floor(Math.random() * filteredBank.length)];
+            }
+        }
+        
+        function generateQuestion() {
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('continueBtn').style.display = 'none';
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+            
+            const question = generateRandomQuestion();
+            currentQuestion = question;
+            
+            document.getElementById('questionArea').innerHTML = `
+                <p>${question.content}</p>
+                <div style="margin-top: 15px; padding: 10px; background: #e8f5e9; border-radius: 6px; font-size: 0.85rem; color: #155724;">
+                    💡 知识点：浸没物体体积 = 水面上升体积
+                </div>
+            `;
+        }
+        
+        function submitAnswer() {
+            if (!currentQuestion) return;
+            
+            const userAnswer = parseFloat(document.getElementById('answerInput').value);
+            const submitBtn = document.getElementById('submitBtn');
+            
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+            
+            stats.total++;
+            const questionType = currentQuestion.type;
+            stats.byType[questionType].total++;
+            
+            const tolerance = 0.01;
+            const isCorrect = Math.abs(userAnswer - currentQuestion.answer) < tolerance;
+            
+            if (isCorrect) {
+                stats.correct++;
+                stats.byType[questionType].correct++;
+                showFeedback('correct', '🎉 回答正确！');
+                showFireworks();
+                checkStageProgress(stats.correct - 1, stats.correct);
+            } else {
+                stats.wrong++;
+                showFeedback('wrong', '😢 回答错误，正确答案：' + currentQuestion.answer);
+                highlightSolution();
+                addToMistakes(userAnswer);
+            }
+            
+            document.getElementById('solutionArea').style.display = 'block';
+            document.getElementById('solutionSteps').innerHTML = `
+                <div style="margin-bottom: 12px; padding: 10px; background: #fff3e0; border-radius: 6px; font-weight: bold; color: #856404;">
+                    核心公式：${currentQuestion.formula}
+                </div>
+                ${currentQuestion.solution.replace(/\n/g, '<br><br>')}
+            `;
+            document.getElementById('continueBtn').style.display = 'inline-block';
+            
+            saveData();
+            updateStatsDisplay();
+            updateWeaknessAnalysis();
+            renderMistakes();
+        }
+        
+        function showFeedback(type, message) {
+            const feedback = document.getElementById('feedback');
+            feedback.className = `feedback ${type}`;
+            feedback.textContent = message;
+            feedback.style.display = 'block';
+        }
+        
+        function showFireworks() {
+            const container = document.createElement('div');
+            container.className = 'fireworks-container';
+            document.body.appendChild(container);
+            
+            const colors = ['#ff6b6b', '#ffda79', '#63d471', '#4ecdc4', '#7a77ff', '#f783ac'];
+            
+            for (let i = 0; i < 25; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = window.innerWidth * (0.1 + Math.random() * 0.2) + 'px';
+                firework.style.top = window.innerHeight * (0.3 + Math.random() * 0.4) + 'px';
+                firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.animationDelay = Math.random() * 0.3 + 's';
+                firework.style.transform = `scale(${0.5 + Math.random() * 0.5})`;
+                container.appendChild(firework);
+            }
+            
+            for (let i = 0; i < 25; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.right = window.innerWidth * (0.1 + Math.random() * 0.2) + 'px';
+                firework.style.top = window.innerHeight * (0.3 + Math.random() * 0.4) + 'px';
+                firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.animationDelay = Math.random() * 0.3 + 's';
+                firework.style.transform = `scale(${0.5 + Math.random() * 0.5})`;
+                container.appendChild(firework);
+            }
+            
+            setTimeout(() => container.remove(), 1500);
+        }
+        
+        function highlightSolution() {
+            const solutionArea = document.getElementById('solutionArea');
+            solutionArea.classList.add('error');
+            setTimeout(() => {
+                solutionArea.classList.remove('error');
+            }, 3000);
+        }
+        
+        function addToMistakes(userAnswer) {
+            mistakes.push({
+                question: currentQuestion.content,
+                type: currentQuestion.type,
+                userAnswer: userAnswer,
+                correctAnswer: currentQuestion.answer,
+                solution: currentQuestion.solution,
+                formula: currentQuestion.formula,
+                timestamp: Date.now()
+            });
+        }
+        
+        function checkStageProgress(oldCorrect, newCorrect) {
+            if (newCorrect === 10 && oldCorrect < 10) {
+                showAchievementNotification(stages[1]);
+            } else if (newCorrect === 25 && oldCorrect < 25) {
+                showAchievementNotification(stages[2]);
+            } else if (newCorrect === 49 && oldCorrect < 49) {
+                showAchievementNotification(stages[3]);
+            }
+        }
+        
+        function showAchievementNotification(stage) {
+            const notification = document.createElement('div');
+            notification.className = 'achievement-notification';
+            notification.innerHTML = `
+                <div style="font-size: 4rem; margin-bottom: 15px;">${stage.emoji}</div>
+                <div style="font-weight: bold; font-size: 1.4rem; color: #333;">🎉 ${stage.name} 解锁！</div>
+                <div style="font-size: 1rem; color: #666; margin-top: 10px;">恭喜你累计答对${stage.target}道题！</div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'pop-in 0.3s ease-in reverse forwards';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3500);
+        }
+        
+        function updateStageProgress() {
+            const correctCount = stats.correct;
+            const currentStage = getCurrentStage(correctCount);
+            
+            const badgeMini = document.getElementById('currentStageBadgeMini');
+            if (badgeMini) {
+                badgeMini.textContent = `${currentStage.emoji} ${currentStage.name}`;
+                badgeMini.className = `stage-badge badge-${currentStage.color}`;
+            }
+            
+            let progress = 0;
+            let progressText = '';
+            let nextNeed = 0;
+            
+            if (correctCount >= 49) {
+                progress = 100;
+                progressText = `${correctCount} 题 (已满级)`;
+                nextNeed = 0;
+            } else if (correctCount >= 25) {
+                progress = Math.min(((correctCount - 24) / 24) * 100, 100);
+                progressText = `${correctCount} / 48 题`;
+                nextNeed = 49 - correctCount;
+            } else if (correctCount >= 10) {
+                progress = Math.min(((correctCount - 9) / 15) * 100, 100);
+                progressText = `${correctCount} / 24 题`;
+                nextNeed = 25 - correctCount;
+            } else if (correctCount >= 1) {
+                progress = Math.min((correctCount / 9) * 100, 100);
+                progressText = `${correctCount} / 9 题`;
+                nextNeed = 10 - correctCount;
+            } else {
+                progress = 0;
+                progressText = '0 / 9 题';
+                nextNeed = 10;
+            }
+            
+            const stageProgressTextMini = document.getElementById('stageProgressTextMini');
+            if (stageProgressTextMini) stageProgressTextMini.textContent = progressText;
+            
+            const stageProgressFillMini = document.getElementById('stageProgressFillMini');
+            if (stageProgressFillMini) {
+                stageProgressFillMini.style.width = `${progress}%`;
+                stageProgressFillMini.className = `stage-progress-fill stage-${currentStage.color}`;
+            }
+            
+            const totalCorrectMini = document.getElementById('totalCorrectMini');
+            if (totalCorrectMini) totalCorrectMini.textContent = correctCount;
+            
+            const currentStageProgressMini = document.getElementById('currentStageProgressMini');
+            if (currentStageProgressMini) currentStageProgressMini.textContent = `${Math.round(progress)}%`;
+            
+            const nextStageNeedMini = document.getElementById('nextStageNeedMini');
+            if (nextStageNeedMini) nextStageNeedMini.textContent = nextNeed > 0 ? nextNeed : '已满级';
+        }
+        
+        function updateStatsDisplay() {
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            
+            const totalCountMini = document.getElementById('totalCountMini');
+            if (totalCountMini) totalCountMini.textContent = stats.total;
+            
+            const accuracyMini = document.getElementById('accuracyMini');
+            if (accuracyMini) accuracyMini.textContent = accuracy + '%';
+            
+            const progressFillMini = document.getElementById('progressFillMini');
+            if (progressFillMini) progressFillMini.style.width = accuracy + '%';
+            
+            const directAcc = stats.byType.direct.total > 0 
+                ? Math.round((stats.byType.direct.correct / stats.byType.direct.total) * 100) 
+                : 0;
+            const inverseAcc = stats.byType.inverse.total > 0 
+                ? Math.round((stats.byType.inverse.correct / stats.byType.inverse.total) * 100) 
+                : 0;
+            const allocationAcc = stats.byType.allocation.total > 0 
+                ? Math.round((stats.byType.allocation.correct / stats.byType.allocation.total) * 100) 
+                : 0;
+            
+            const directAccuracyMini = document.getElementById('directAccuracyMini');
+            if (directAccuracyMini) directAccuracyMini.textContent = directAcc + '%';
+            
+            const inverseAccuracyMini = document.getElementById('inverseAccuracyMini');
+            if (inverseAccuracyMini) inverseAccuracyMini.textContent = inverseAcc + '%';
+            
+            const allocationAccuracyMini = document.getElementById('allocationAccuracyMini');
+            if (allocationAccuracyMini) allocationAccuracyMini.textContent = allocationAcc + '%';
+            
+            updateStageProgress();
+        }
+        
+        function updateWeaknessAnalysis() {
+            const mistakeCounts = {
+                direct: mistakes.filter(m => m.type === 'direct').length,
+                inverse: mistakes.filter(m => m.type === 'inverse').length,
+                allocation: mistakes.filter(m => m.type === 'allocation').length
+            };
+            
+            const maxCount = Math.max(...Object.values(mistakeCounts), 1);
+            
+            const directMistakeProgress = document.getElementById('directMistakeProgress');
+            if (directMistakeProgress) directMistakeProgress.style.width = `${(mistakeCounts.direct / maxCount) * 100}%`;
+            
+            const inverseMistakeProgress = document.getElementById('inverseMistakeProgress');
+            if (inverseMistakeProgress) inverseMistakeProgress.style.width = `${(mistakeCounts.inverse / maxCount) * 100}%`;
+            
+            const allocationMistakeProgress = document.getElementById('allocationMistakeProgress');
+            if (allocationMistakeProgress) allocationMistakeProgress.style.width = `${(mistakeCounts.allocation / maxCount) * 100}%`;
+            
+            const directMistakeCount = document.getElementById('directMistakeCount');
+            if (directMistakeCount) directMistakeCount.textContent = `${mistakeCounts.direct}题`;
+            
+            const inverseMistakeCount = document.getElementById('inverseMistakeCount');
+            if (inverseMistakeCount) inverseMistakeCount.textContent = `${mistakeCounts.inverse}题`;
+            
+            const allocationMistakeCount = document.getElementById('allocationMistakeCount');
+            if (allocationMistakeCount) allocationMistakeCount.textContent = `${mistakeCounts.allocation}题`;
+            
+            updatePracticeSuggestions(mistakeCounts);
+        }
+        
+        function updatePracticeSuggestions(mistakeCounts) {
+            const suggestions = [];
+            const totalMistakes = Object.values(mistakeCounts).reduce((a, b) => a + b, 0);
+            
+            if (totalMistakes === 0) {
+                document.getElementById('practiceSuggestions').innerHTML = 
+                    '<p style="color: #856404; font-size: 0.9rem;">完成更多练习后，系统将根据您的错题情况提供针对性练习建议</p>';
+                return;
+            }
+            
+            if (mistakeCounts.direct > mistakeCounts.inverse && mistakeCounts.direct > mistakeCounts.allocation) {
+                suggestions.push('建议加强【基础题】的练习，重点掌握圆柱体积公式');
+            }
+            if (mistakeCounts.inverse > mistakeCounts.direct && mistakeCounts.inverse > mistakeCounts.allocation) {
+                suggestions.push('建议加强【变式题】的练习，理解圆锥体积与圆柱体积的关系');
+            }
+            if (mistakeCounts.allocation > mistakeCounts.direct && mistakeCounts.allocation > mistakeCounts.inverse) {
+                suggestions.push('建议加强【综合题】的练习，提升多步解题能力');
+            }
+            
+            if (suggestions.length === 0) {
+                suggestions.push('各题型错题分布均匀，继续保持！建议针对薄弱环节进行专项练习');
+            }
+            
+            document.getElementById('practiceSuggestions').innerHTML = 
+                suggestions.map(s => `<p style="color: #856404; font-size: 0.9rem; margin: 8px 0;">• ${s}</p>`).join('');
+        }
+        
+        function renderMistakes() {
+            const mistakesList = document.getElementById('mistakesList');
+            
+            if (mistakes.length === 0) {
+                mistakesList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>';
+                return;
+            }
+            
+            mistakesList.innerHTML = mistakes.map((mistake, index) => {
+                const typeLabel = mistake.type === 'direct' ? '基础题' : mistake.type === 'inverse' ? '变式题' : '综合题';
+                return `
+                    <div class="mistake-item">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #333;">第${index + 1}题</div>
+                        <div style="color: #444; margin-bottom: 8px; line-height: 1.5;">${mistake.question}</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-bottom: 8px;">
+                            你的答案: <span style="color: #dc3545; font-weight: bold;">${mistake.userAnswer}</span> | 
+                            正确答案: <span style="color: #28a745; font-weight: bold;">${mistake.correctAnswer}</span> |
+                            类型: <span style="color: #667eea;">${typeLabel}</span>
+                        </div>
+                        <div style="padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 0.85rem; line-height: 1.6;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 5px;">💡 解题思路：</div>
+                            ${mistake.solution.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.main-content').forEach(content => content.style.display = 'none');
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).style.display = 'grid';
+            
+            if (tabName === 'mistakes') {
+                renderMistakes();
+            }
+        }
+        
+        function reviewMistakes() {
+            if (mistakes.length === 0) {
+                alert('暂无错题可复习！');
+                return;
+            }
+            
+            showTab('practice');
+            const randomMistake = mistakes[Math.floor(Math.random() * mistakes.length)];
+            
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('continueBtn').style.display = 'none';
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+            
+            currentQuestion = {
+                content: randomMistake.question,
+                type: randomMistake.type,
+                answer: randomMistake.correctAnswer,
+                solution: randomMistake.solution,
+                formula: randomMistake.formula
+            };
+            
+            document.getElementById('questionArea').innerHTML = `
+                <p>${randomMistake.question}</p>
+                <div style="margin-top: 15px; padding: 10px; background: #fff3e0; border-radius: 6px; font-size: 0.85rem; color: #856404;">
+                    📖 错题复习
+                </div>
+            `;
+        }
+        
+        function clearMistakes() {
+            if (confirm('确定要清空错题本吗？')) {
+                mistakes = [];
+                saveData();
+                renderMistakes();
+                updateWeaknessAnalysis();
+            }
+        }
+        
+        function clearStats() {
+            if (confirm('确定要重置所有统计数据吗？')) {
+                stats = {
+                    total: 0,
+                    correct: 0,
+                    wrong: 0,
+                    byType: {
+                        direct: { correct: 0, total: 0 },
+                        inverse: { correct: 0, total: 0 },
+                        allocation: { correct: 0, total: 0 }
+                    }
+                };
+                bankIndex = 0;
+                saveData();
+                updateStatsDisplay();
+            }
+        }
+        
+        function saveData() {
+            localStorage.setItem('immersionStats', JSON.stringify(stats));
+            localStorage.setItem('immersionMistakes', JSON.stringify(mistakes));
+            localStorage.setItem('immersionBankIndex', bankIndex.toString());
+        }
+        
+        function loadData() {
+            const savedStats = localStorage.getItem('immersionStats');
+            const savedMistakes = localStorage.getItem('immersionMistakes');
+            const savedIndex = localStorage.getItem('immersionBankIndex');
+            
+            if (savedStats) stats = JSON.parse(savedStats);
+            if (savedMistakes) mistakes = JSON.parse(savedMistakes);
+            if (savedIndex) bankIndex = parseInt(savedIndex);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            updateStatsDisplay();
+            updateWeaknessAnalysis();
+            renderMistakes();
+        });
+    </script>
+</body>
+</html>

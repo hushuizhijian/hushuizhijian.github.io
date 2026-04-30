@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>四舍五入还原问题 - 教育辅助工具</title>
+    
+    <!-- 百度统计代码 -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?b6afe57c989a4a35a4d13bb9cdc2d41b";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+<head>    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            padding-left: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .question-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .answer-area {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .answer-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .answer-box input {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .visual-step {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .visual-step h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .visual-step p {
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        .rule-highlight {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .rule-highlight h4 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .rule-highlight ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .rule-highlight li {
+            padding: 5px 0;
+            color: #155724;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            transition: background 0.3s;
+        }
+
+        .nav-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .wrong-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .wrong-item {
+            background: #fff3cd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .wrong-item .question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .wrong-item .user-answer {
+            color: #dc3545;
+            margin-bottom: 5px;
+        }
+
+        .wrong-item .correct-answer {
+            color: #28a745;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>四舍五入还原问题</h1>
+            <p>教育辅助工具 - 帮助学生掌握四舍五入数值范围确定</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('practice')">练习模式</button>
+            <button class="nav-tab" onclick="showTab('learn')">规则学习</button>
+            <button class="nav-tab" onclick="showTab('wrong')">错题本</button>
+            <button class="nav-tab" onclick="showTab('stats')">数据统计</button>
+        </div>
+
+        <!-- 练习模式 -->
+        <div id="practice" class="tab-content active">
+            <div class="card">
+                <div class="card-title">题目设置</div>
+                
+                <!-- 模式选择 -->
+                <div class="form-group">
+                    <label>生成模式</label>
+                    <div style="display: flex; gap: 10px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="generateMode" value="custom" checked onclick="toggleMode()">
+                            <span style="margin-left: 5px;">自定义生成</span>
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="generateMode" value="random" onclick="toggleMode()">
+                            <span style="margin-left: 5px;">随机生成</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 难度级别（随机生成模式下显示） -->
+                <div class="form-group" id="difficultyGroup" style="display: none;">
+                    <label>难度级别</label>
+                    <select id="difficulty">
+                        <option value="easy">简单（2位小数→十分位）</option>
+                        <option value="medium" selected>中等（3位小数→百分位）</option>
+                        <option value="hard">困难（4位小数→百分位/千分位）</option>
+                        <option value="mixed">混合难度</option>
+                    </select>
+                </div>
+
+                <!-- 自定义设置（自定义模式下显示） -->
+                <div class="form-group" id="customGroup">
+                    <label>四舍五入后的目标数值（如 3.30）</label>
+                    <input type="text" id="targetValue" value="3.30" placeholder="请输入目标数值">
+                </div>
+                
+                <div class="form-group">
+                    <label>原始小数位数（如 3 表示三位小数）</label>
+                    <select id="originalDecimals">
+                        <option value="2">2 位小数</option>
+                        <option value="3" selected>3 位小数</option>
+                        <option value="4">4 位小数</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>保留位数</label>
+                    <select id="roundDecimals">
+                        <option value="1">十分位</option>
+                        <option value="2" selected>百分位</option>
+                        <option value="3">千分位</option>
+                    </select>
+                </div>
+                
+                <button class="btn" onclick="generateQuestion()">生成题目</button>
+                <button class="btn btn-secondary" onclick="resetAll()">重置</button>
+                
+                <!-- 已生成题目记录 -->
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>已生成题目：<span id="questionCount">0</span> 道</label>
+                    <div id="questionHistory" style="max-height: 100px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 5px;"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">题目展示</div>
+                <div class="question-area" id="questionArea">
+                    <div class="question-text" id="questionText">点击上方"生成题目"按钮开始练习</div>
+                </div>
+
+                <div class="answer-area">
+                    <div class="answer-box">
+                        <label>最大值：</label>
+                        <input type="text" id="maxAnswer" placeholder="请输入最大值">
+                    </div>
+                    <div class="answer-box">
+                        <label>最小值：</label>
+                        <input type="text" id="minAnswer" placeholder="请输入最小值">
+                    </div>
+                </div>
+
+                <button class="btn" onclick="checkAnswer(true)" style="margin-top: 20px;">提交答案</button>
+                <button class="btn btn-secondary" onclick="showSolution()">查看解析</button>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">解题过程演示</div>
+                <div id="solutionSteps"></div>
+            </div>
+        </div>
+
+        <!-- 规则学习 -->
+        <div id="learn" class="tab-content">
+            <div class="card">
+                <div class="card-title">四舍五入规则</div>
+                <div class="rule-highlight">
+                    <h4>核心规则</h4>
+                    <ul>
+                        <li><strong>四舍：</strong>当舍去部分的最高位数字小于5时，直接舍去，保留部分不变</li>
+                        <li><strong>五入：</strong>当舍去部分的最高位数字大于或等于5时，向前一位进1</li>
+                    </ul>
+                </div>
+
+                <div class="card-title">还原问题解题方法</div>
+                <div class="visual-step">
+                    <h4>🔍 求最大值（四舍情况）</h4>
+                    <p>要找到四舍五入后等于目标值的最大数，需要考虑"四舍"的情况：</p>
+                    <p><strong>方法：</strong>目标值后面直接跟4（或多个9），确保下一位舍去后不进位</p>
+                    <p><strong>示例：</strong>3.30（保留两位小数）的最大值是 3.304</p>
+                </div>
+
+                <div class="visual-step">
+                    <h4>🔍 求最小值（五入情况）</h4>
+                    <p>要找到四舍五入后等于目标值的最小数，需要考虑"五入"的情况：</p>
+                    <p><strong>方法：</strong>目标值的最后一位减1，后面跟5（或多个0），确保进位后得到目标值</p>
+                    <p><strong>示例：</strong>3.30（保留两位小数）的最小值是 3.295</p>
+                </div>
+
+                <div class="card-title">特殊情况：末尾为0</div>
+                <div class="visual-step" style="background: #cce5ff; border-left-color: #007bff;">
+                    <h4>⚠️ 注意事项</h4>
+                    <p>当四舍五入后的结果末尾是0时（如3.30），这个0是有意义的，表示精确到百分位。</p>
+                    <p><strong>常见错误：</strong>将3.30误作3.3，导致最小值计算错误（3.25而非3.295）</p>
+                    <p><strong>正确理解：</strong>3.30 ≠ 3.3，前者精确到百分位，后者精确到十分位</p>
+                </div>
+
+                <button class="btn" onclick="showTab('practice')">开始练习</button>
+            </div>
+        </div>
+
+        <!-- 错题本 -->
+        <div id="wrong" class="tab-content">
+            <div class="card">
+                <div class="card-title">错题收集</div>
+                <div class="wrong-list" id="wrongList">
+                    <p style="text-align: center; color: #999; padding: 30px;">暂无错题记录</p>
+                </div>
+                <button class="btn" onclick="generateWrongPractice()" style="margin-top: 20px;">生成强化练习</button>
+                <button class="btn btn-secondary" onclick="clearWrongList()" style="margin-top: 20px;">清空错题</button>
+            </div>
+        </div>
+
+        <!-- 数据统计 -->
+        <div id="stats" class="tab-content">
+            <div class="card">
+                <div class="card-title">练习统计</div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalCount">0</div>
+                        <div class="stat-label">总练习次数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="correctCount">0</div>
+                        <div class="stat-label">正确次数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="accuracy">0%</div>
+                        <div class="stat-label">正确率</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="wrongCount">0</div>
+                        <div class="stat-label">错题数</div>
+                    </div>
+                </div>
+
+                <div class="card-title" style="margin-top: 30px;">正确率趋势</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <p style="text-align: center; color: #666;">继续加油！</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 当前题目数据
+        let currentQuestion = null;
+        
+        // 统计数据
+        let stats = {
+            total: 0,
+            correct: 0,
+            wrong: 0
+        };
+
+        // 错题列表
+        let wrongList = [];
+
+        // 初始化
+        function init() {
+            loadData();
+            updateStats();
+        }
+
+        // 加载数据
+        function loadData() {
+            const savedStats = localStorage.getItem('roundingStats');
+            const savedWrong = localStorage.getItem('roundingWrongList');
+            
+            if (savedStats) {
+                stats = JSON.parse(savedStats);
+            }
+            if (savedWrong) {
+                wrongList = JSON.parse(savedWrong);
+                updateWrongList();
+            }
+        }
+
+        // 保存数据
+        function saveData() {
+            localStorage.setItem('roundingStats', JSON.stringify(stats));
+            localStorage.setItem('roundingWrongList', JSON.stringify(wrongList));
+        }
+
+        // 显示标签页
+        function showTab(tabId) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // 生成题目
+        function generateQuestion() {
+            const mode = document.querySelector('input[name="generateMode"]:checked').value;
+            
+            let targetValue, originalDecimals, roundDecimals;
+            
+            if (mode === 'random') {
+                // 随机生成模式
+                let attempts = 0;
+                let questionParams;
+                
+                // 尝试生成不重复的题目，最多尝试10次
+                do {
+                    questionParams = generateRandomQuestion();
+                    attempts++;
+                } while (isQuestionGenerated(questionParams.target, questionParams.originalDecimals, questionParams.roundDecimals) && attempts < 10);
+                
+                if (attempts >= 10) {
+                    alert('已生成过多相似题目，请尝试更换难度或重置题目历史');
+                    return;
+                }
+                
+                targetValue = questionParams.target;
+                originalDecimals = questionParams.originalDecimals;
+                roundDecimals = questionParams.roundDecimals;
+                
+                // 更新显示的参数（虽然禁用，但显示给用户看）
+                document.getElementById('originalDecimals').value = originalDecimals;
+                document.getElementById('roundDecimals').value = roundDecimals;
+            } else {
+                // 自定义生成模式
+                targetValue = document.getElementById('targetValue').value;
+                originalDecimals = parseInt(document.getElementById('originalDecimals').value);
+                roundDecimals = parseInt(document.getElementById('roundDecimals').value);
+
+                if (!targetValue || isNaN(parseFloat(targetValue))) {
+                    alert('请输入有效的目标数值');
+                    return;
+                }
+                
+                // 验证保留位数必须小于原始小数位数
+                if (roundDecimals >= originalDecimals) {
+                    alert('保留位数必须小于原始小数位数');
+                    return;
+                }
+            }
+
+            // 计算最大值和最小值
+            const { max, min } = calculateRange(targetValue, originalDecimals, roundDecimals);
+            
+            currentQuestion = {
+                target: targetValue,
+                originalDecimals: originalDecimals,
+                roundDecimals: roundDecimals,
+                max: max,
+                min: min,
+                roundText: getRoundText(roundDecimals)
+            };
+
+            // 添加到题目历史
+            addToQuestionHistory(targetValue, originalDecimals, roundDecimals);
+            
+            // 统计题目生成事件
+            trackEvent('题目', '生成', mode === 'random' ? '随机生成' : '自定义生成');
+
+            // 显示题目
+            const roundText = getRoundText(roundDecimals);
+            const originalText = originalDecimals + '位小数';
+            
+            document.getElementById('questionText').innerHTML = 
+                `一个${originalText}四舍五入到${roundText}是 <strong>${targetValue}</strong>，<br>
+                这个数的最大值和最小值分别是多少？`;
+
+            // 清空答案和反馈
+            document.getElementById('maxAnswer').value = '';
+            document.getElementById('minAnswer').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionSteps').innerHTML = '';
+        }
+
+        // 获取保留位数的中文描述
+        function getRoundText(decimals) {
+            const texts = {
+                1: '十分位',
+                2: '百分位',
+                3: '千分位'
+            };
+            return texts[decimals] || '第' + decimals + '位';
+        }
+
+        // 计算数值范围
+        function calculateRange(targetValue, originalDecimals, roundDecimals) {
+            // 使用字符串处理，避免浮点数精度问题
+            
+            // 将目标值转换为字符串，处理末尾的0
+            const parts = targetValue.toString().split('.');
+            const integerPart = parts[0];
+            let decimalPart = parts[1] || '';
+            
+            // 确保小数部分有足够的位数（处理如"3.3"这样的情况）
+            while (decimalPart.length < roundDecimals) {
+                decimalPart += '0';
+            }
+            
+            // 最大值：四舍情况，保留roundDecimals位，后面全部补9
+            // 原理：四舍意味着保留位后的第一位<5，要使数值最大则取4，后面各位取最大9
+            let maxDecimal = decimalPart.substring(0, roundDecimals);
+            maxDecimal += '4'; // 保留位后的第一位取4（最大的舍去数字）
+            for (let i = roundDecimals + 1; i < originalDecimals; i++) {
+                maxDecimal += '9'; // 后面的位数都取9
+            }
+            const max = parseFloat(`${integerPart}.${maxDecimal}`);
+            
+            // 最小值：五入情况，最后一位减1，后面补5，再后面补0
+            // 原理：五入意味着保留位后的第一位≥5，要使数值最小则取5，后面各位取最小0
+            let minDecimal = decimalPart.substring(0, roundDecimals);
+            
+            // 将最后一位减1（处理借位情况）
+            const minDecimalArr = minDecimal.split('');
+            let borrow = 1;
+            for (let i = minDecimalArr.length - 1; i >= 0 && borrow; i--) {
+                const digit = parseInt(minDecimalArr[i]);
+                if (digit === 0) {
+                    minDecimalArr[i] = '9';
+                } else {
+                    minDecimalArr[i] = (digit - 1).toString();
+                    borrow = 0;
+                }
+            }
+            minDecimal = minDecimalArr.join('');
+            
+            // 保留位后第一位补5（最小的进位数字），后面的位数都补0
+            minDecimal += '5';
+            for (let i = roundDecimals + 1; i < originalDecimals; i++) {
+                minDecimal += '0';
+            }
+            const min = parseFloat(`${integerPart}.${minDecimal}`);
+            
+            return {
+                max: max.toFixed(originalDecimals),
+                min: min.toFixed(originalDecimals)
+            };
+        }
+
+        // 模式切换
+        function toggleMode() {
+            const mode = document.querySelector('input[name="generateMode"]:checked').value;
+            const customGroup = document.getElementById('customGroup');
+            const difficultyGroup = document.getElementById('difficultyGroup');
+            const originalDecimals = document.getElementById('originalDecimals');
+            const roundDecimals = document.getElementById('roundDecimals');
+            
+            if (mode === 'random') {
+                customGroup.style.display = 'none';
+                difficultyGroup.style.display = 'block';
+                originalDecimals.disabled = true;
+                roundDecimals.disabled = true;
+            } else {
+                customGroup.style.display = 'block';
+                difficultyGroup.style.display = 'none';
+                originalDecimals.disabled = false;
+                roundDecimals.disabled = false;
+            }
+        }
+
+        // 题目历史记录
+        let questionHistory = [];
+
+        // 随机生成题目
+        function generateRandomQuestion() {
+            const difficulty = document.getElementById('difficulty').value;
+            
+            // 根据难度选择参数
+            let originalDecimals, roundDecimals;
+            const difficultyConfig = {
+                easy: { original: [2], round: [1] },
+                medium: { original: [3], round: [2] },
+                hard: { original: [4], round: [2, 3] },
+                mixed: { original: [2, 3, 4], round: [1, 2, 3] }
+            };
+            
+            const config = difficultyConfig[difficulty];
+            originalDecimals = config.original[Math.floor(Math.random() * config.original.length)];
+            roundDecimals = config.round[Math.floor(Math.random() * config.round.length)];
+            
+            // 确保保留位数小于原始小数位数
+            if (roundDecimals >= originalDecimals) {
+                roundDecimals = originalDecimals - 1;
+            }
+            
+            // 随机生成目标数值
+            // 整数部分：1-99
+            const integerPart = Math.floor(Math.random() * 99) + 1;
+            // 小数部分：根据保留位数生成
+            let decimalPart = '';
+            for (let i = 0; i < roundDecimals; i++) {
+                decimalPart += Math.floor(Math.random() * 10);
+            }
+            // 确保至少有一位非零小数（避免生成如5.00这样的数）
+            if (decimalPart === '0'.repeat(roundDecimals)) {
+                const randomPos = Math.floor(Math.random() * roundDecimals);
+                decimalPart = decimalPart.split('');
+                decimalPart[randomPos] = (Math.floor(Math.random() * 9) + 1).toString();
+                decimalPart = decimalPart.join('');
+            }
+            
+            const targetValue = `${integerPart}.${decimalPart}`;
+            
+            return {
+                target: targetValue,
+                originalDecimals: originalDecimals,
+                roundDecimals: roundDecimals
+            };
+        }
+
+        // 检查题目是否已生成过
+        function isQuestionGenerated(target, originalDecimals, roundDecimals) {
+            return questionHistory.some(q => 
+                q.target === target && 
+                q.originalDecimals === originalDecimals &&
+                q.roundDecimals === roundDecimals
+            );
+        }
+
+        // 添加到题目历史
+        function addToQuestionHistory(target, originalDecimals, roundDecimals) {
+            questionHistory.push({
+                target: target,
+                originalDecimals: originalDecimals,
+                roundDecimals: roundDecimals,
+                timestamp: Date.now()
+            });
+            // 最多保留20道题目的历史
+            if (questionHistory.length > 20) {
+                questionHistory.shift();
+            }
+            updateQuestionHistoryDisplay();
+        }
+
+        // 更新题目历史显示
+        function updateQuestionHistoryDisplay() {
+            const historyElement = document.getElementById('questionHistory');
+            const countElement = document.getElementById('questionCount');
+            
+            countElement.textContent = questionHistory.length;
+            
+            if (questionHistory.length === 0) {
+                historyElement.innerHTML = '<span style="color: #999;">暂无题目记录</span>';
+                return;
+            }
+            
+            historyElement.innerHTML = questionHistory.map((q, index) => {
+                const roundText = getRoundText(q.roundDecimals);
+                return `<div style="padding: 5px 0; border-bottom: 1px solid #e0e0e0; font-size: 14px;">
+                    ${index + 1}. ${q.originalDecimals}位小数→${roundText}=${q.target}
+                </div>`;
+            }).join('');
+        }
+
+        // 检查答案
+        function checkAnswer(isSubmit = false) {
+            if (!currentQuestion) {
+                alert('请先生成题目');
+                return;
+            }
+
+            const userMax = document.getElementById('maxAnswer').value;
+            const userMin = document.getElementById('minAnswer').value;
+            const feedback = document.getElementById('feedback');
+
+            // 如果是提交按钮触发，检查是否填写完整
+            if (isSubmit) {
+                if (!userMax || !userMin) {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = '⚠️ 请填写完整答案（最大值和最小值都需要填写）';
+                    feedback.style.display = 'block';
+                    return;
+                }
+                
+                // 添加提交成功的视觉反馈
+                const submitBtn = document.querySelector('.btn[onclick="checkAnswer(true)"]');
+                if (submitBtn) {
+                    submitBtn.classList.add('pulse');
+                    setTimeout(() => submitBtn.classList.remove('pulse'), 500);
+                }
+            }
+
+            // 如果不是提交按钮触发且答案不完整，不显示反馈
+            if (!isSubmit && (!userMax || !userMin)) {
+                feedback.style.display = 'none';
+                return;
+            }
+
+            const isMaxCorrect = parseFloat(userMax) === parseFloat(currentQuestion.max);
+            const isMinCorrect = parseFloat(userMin) === parseFloat(currentQuestion.min);
+
+            stats.total++;
+            
+            if (isMaxCorrect && isMinCorrect) {
+                stats.correct++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `🎉 <strong>回答正确！</strong><br>
+                    <div style="margin-top: 10px;">你的答案：最大值=${userMax}，最小值=${userMin}</div>
+                    <div>正确答案：最大值=${currentQuestion.max}，最小值=${currentQuestion.min}</div>`;
+                feedback.style.display = 'block';
+                
+                // 统计答题正确事件
+                trackEvent('答题', '提交', '答案正确');
+            } else {
+                stats.wrong++;
+                feedback.className = 'feedback incorrect';
+                
+                let errorMsg = `❌ <strong>回答有误！</strong><br>`;
+                errorMsg += `<div style="margin-top: 10px;">你的答案：最大值=${userMax}，最小值=${userMin}</div>`;
+                errorMsg += `<div>正确答案：最大值=${currentQuestion.max}，最小值=${currentQuestion.min}</div><br>`;
+                
+                // 统计答题错误事件
+                trackEvent('答题', '提交', '答案错误');
+                
+                if (!isMaxCorrect) {
+                    errorMsg += `<div style="color: #c82333;">• 最大值错误</div>`;
+                }
+                if (!isMinCorrect) {
+                    errorMsg += `<div style="color: #c82333;">• 最小值错误</div>`;
+                }
+                
+                feedback.innerHTML = errorMsg;
+                feedback.style.display = 'block';
+                
+                // 添加到错题本（只在提交按钮触发时记录）
+                if (isSubmit) {
+                    addToWrongList(userMax, userMin);
+                }
+            }
+
+            updateStats();
+            saveData();
+        }
+
+        // 添加到错题本
+        function addToWrongList(userMax, userMin) {
+            const wrongItem = {
+                id: Date.now(),
+                target: currentQuestion.target,
+                originalDecimals: currentQuestion.originalDecimals,
+                roundDecimals: currentQuestion.roundDecimals,
+                roundText: currentQuestion.roundText,
+                max: currentQuestion.max,
+                min: currentQuestion.min,
+                userMax: userMax,
+                userMin: userMin
+            };
+
+            // 避免重复添加相同题目
+            const exists = wrongList.some(item => 
+                item.target === wrongItem.target && 
+                item.originalDecimals === wrongItem.originalDecimals &&
+                item.roundDecimals === wrongItem.roundDecimals
+            );
+
+            if (!exists) {
+                wrongList.push(wrongItem);
+                updateWrongList();
+            }
+        }
+
+        // 更新错题列表
+        function updateWrongList() {
+            const wrongListElement = document.getElementById('wrongList');
+            
+            if (wrongList.length === 0) {
+                wrongListElement.innerHTML = '<p style="text-align: center; color: #999; padding: 30px;">暂无错题记录</p>';
+                return;
+            }
+
+            wrongListElement.innerHTML = wrongList.map(item => `
+                <div class="wrong-item">
+                    <div class="question">一个${item.originalDecimals}位小数四舍五入到${item.roundText}是 ${item.target}</div>
+                    <div class="user-answer">你的答案：最大值=${item.userMax}，最小值=${item.userMin}</div>
+                    <div class="correct-answer">正确答案：最大值=${item.max}，最小值=${item.min}</div>
+                </div>
+            `).join('');
+        }
+
+        // 清空错题
+        function clearWrongList() {
+            if (confirm('确定要清空所有错题吗？')) {
+                wrongList = [];
+                updateWrongList();
+                saveData();
+            }
+        }
+
+        // 生成错题强化练习
+        function generateWrongPractice() {
+            if (wrongList.length === 0) {
+                alert('暂无错题记录');
+                return;
+            }
+
+            // 随机选择一个错题
+            const randomIndex = Math.floor(Math.random() * wrongList.length);
+            const wrongItem = wrongList[randomIndex];
+
+            // 设置为当前题目
+            document.getElementById('targetValue').value = wrongItem.target;
+            document.getElementById('originalDecimals').value = wrongItem.originalDecimals;
+            document.getElementById('roundDecimals').value = wrongItem.roundDecimals;
+
+            showTab('practice');
+            generateQuestion();
+        }
+
+        // 显示解题过程
+        function showSolution() {
+            if (!currentQuestion) {
+                alert('请先生成题目');
+                return;
+            }
+            
+            // 统计查看解析事件
+            trackEvent('操作', '查看解析', '查看解题步骤');
+
+            const steps = `
+                <div class="visual-step">
+                    <h4>📝 题目分析</h4>
+                    <p>已知：一个${currentQuestion.originalDecimals}位小数四舍五入到${currentQuestion.roundText}是 <strong>${currentQuestion.target}</strong></p>
+                    <p>求：这个数的最大值和最小值</p>
+                </div>
+                <div class="visual-step">
+                    <h4>🔝 求最大值（四舍情况）</h4>
+                    <p>要使这个数最大，需要满足"四舍"的条件，即舍去部分的数字小于5。</p>
+                    <p><strong>步骤：</strong></p>
+                    <p>1. 保持${currentQuestion.target}的前${currentQuestion.roundDecimals}位不变：${currentQuestion.target}</p>
+                    <p>2. 在末尾添加数字4（最大的舍去数字）</p>
+                    <p>3. 得到最大值：<strong>${currentQuestion.max}</strong></p>
+                    <p><strong>验证：</strong>${currentQuestion.max} 四舍五入到${currentQuestion.roundText} = ${currentQuestion.target}</p>
+                </div>
+                <div class="visual-step">
+                    <h4>🔻 求最小值（五入情况）</h4>
+                    <p>要使这个数最小，需要满足"五入"的条件，即舍去部分的数字大于或等于5。</p>
+                    <p><strong>步骤：</strong></p>
+                    <p>1. 将${currentQuestion.target}的最后一位减1：${subtractLastDigit(currentQuestion.target)}</p>
+                    <p>2. 在末尾添加数字5（最小的进位数字）</p>
+                    <p>3. 得到最小值：<strong>${currentQuestion.min}</strong></p>
+                    <p><strong>验证：</strong>${currentQuestion.min} 四舍五入到${currentQuestion.roundText} = ${currentQuestion.target}</p>
+                </div>
+                <div class="rule-highlight">
+                    <h4>💡 解题要点</h4>
+                    <ul>
+                        <li><strong>最大值：</strong>目标值直接加4（或多个9）</li>
+                        <li><strong>最小值：</strong>目标值最后一位减1，再加5</li>
+                        <li><strong>注意：</strong>末尾的0是精确位数的标志，不能忽略！</li>
+                    </ul>
+                </div>
+            `;
+
+            document.getElementById('solutionSteps').innerHTML = steps;
+        }
+
+        // 辅助函数：将数字的最后一位减1
+        function subtractLastDigit(value) {
+            const parts = value.split('.');
+            if (parts.length === 1) {
+                return (parseInt(value) - 1).toString();
+            }
+            
+            const decimalPart = parts[1];
+            let newDecimal = '';
+            
+            // 从末尾开始找第一个非0数字
+            let found = false;
+            for (let i = decimalPart.length - 1; i >= 0; i--) {
+                if (!found && decimalPart[i] === '0') {
+                    newDecimal = '9' + newDecimal;
+                } else if (!found) {
+                    newDecimal = (parseInt(decimalPart[i]) - 1) + newDecimal;
+                    found = true;
+                } else {
+                    newDecimal = decimalPart[i] + newDecimal;
+                }
+            }
+            
+            if (!found) {
+                return (parseInt(parts[0]) - 1) + '.' + newDecimal;
+            }
+            
+            return parts[0] + '.' + newDecimal;
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('correctCount').textContent = stats.correct;
+            document.getElementById('wrongCount').textContent = wrongList.length;
+            
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            document.getElementById('progressFill').style.width = accuracy + '%';
+        }
+
+        // 百度统计事件追踪
+        function trackEvent(category, action, label) {
+            if (window._hmt) {
+                _hmt.push(['_trackEvent', category, action, label]);
+            }
+        }
+
+        // 重置
+        function resetAll() {
+            document.getElementById('targetValue').value = '3.30';
+            document.getElementById('originalDecimals').value = '3';
+            document.getElementById('roundDecimals').value = '2';
+            document.getElementById('questionText').innerHTML = '点击上方"生成题目"按钮开始练习';
+            document.getElementById('maxAnswer').value = '';
+            document.getElementById('minAnswer').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionSteps').innerHTML = '';
+            currentQuestion = null;
+            // 清空题目历史
+            questionHistory = [];
+            updateQuestionHistoryDisplay();
+            
+            // 统计重置操作
+            trackEvent('操作', '重置', '重置所有设置');
+        }
+
+        // 页面加载完成后初始化
+        window.onload = function() {
+            init();
+            // 统计页面访问
+            trackEvent('页面', '访问', '四舍五入还原问题工具');
+        }
+    </script>
+</body>
+</html>

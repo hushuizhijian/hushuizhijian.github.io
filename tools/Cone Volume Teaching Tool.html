@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圆锥体积教学工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .tab {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tab.active {
+            background: white;
+            color: #e74c3c;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding-bottom: 60px;
+        }
+        
+        .main-content.practice-layout {
+            grid-template-columns: 1fr 3fr;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(231,76,60,0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .question-area {
+            min-height: 150px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .question-area .question-number {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .question-area .question-type {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .answer-area {
+            margin-bottom: 20px;
+        }
+        
+        .answer-area input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .solution-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .solution-area h3 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
+        
+        .solution-step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .stat-card .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .mistakes-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .mistake-item {
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .mistake-item .mistake-question {
+            font-size: 0.9rem;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+        
+        .mistake-item .mistake-answer {
+            font-size: 0.85rem;
+            color: #dc3545;
+            margin-right: 15px;
+        }
+        
+        .mistake-item .mistake-correct {
+            font-size: 0.85rem;
+            color: #28a745;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+            transition: width 0.5s ease;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        /* 礼花动画样式 */
+        .fireworks-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        
+        .firework {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: explode 1.5s ease-out forwards;
+        }
+        
+        @keyframes explode {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        /* 错误时解题思路高亮样式 */
+        .solution-area.error h3 {
+            color: #dc3545 !important;
+            font-size: 1.56rem !important;
+            background: #fff5f5;
+            border: 2px solid #dc3545;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            animation: pulse-red 0.5s ease-in-out;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.3);
+        }
+        
+        @keyframes pulse-red {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        /* 反馈动画 */
+        .feedback {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 粒子飞散动画 */
+        @keyframes particle-fly {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--endX), var(--endY)) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        /* 学习阶段进度条样式 */
+        .stage-progress-container {
+            margin-bottom: 20px;
+        }
+        
+        .stage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .stage-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .stage-progress-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .stage-progress-bar {
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stage-progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        /* 阶段颜色 */
+        .stage-novice {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        }
+        
+        .stage-apprentice {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+        
+        .stage-expert {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+        
+        .stage-master {
+            background: linear-gradient(90deg, #9C27B0, #CE93D8);
+        }
+        
+        /* 阶段徽章 */
+        .stage-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .badge-novice {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4CAF50;
+        }
+        
+        .badge-apprentice {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 2px solid #2196F3;
+        }
+        
+        .badge-expert {
+            background: #fff3e0;
+            color: #e65100;
+            border: 2px solid #FF9800;
+        }
+        
+        .badge-master {
+            background: #f3e5f5;
+            color: #6a1b9a;
+            border: 2px solid #9C27B0;
+        }
+        
+        /* 公式卡片 */
+        .formula-card {
+            background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .formula-card h4 {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .formula-card .formula {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .formula-card .description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* 参数输入区域 */
+        .params-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .param-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .param-input:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+        
+        /* 计算结果显示 */
+        .result-display {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .result-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔺 圆锥体积教学工具</h1>
+            <p>掌握圆锥体积计算及与圆柱的关系</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('practice')">练习模式</button>
+            <button class="tab" onclick="showTab('calculator')">计算器</button>
+            <button class="tab" onclick="showTab('mistakes')">错题本</button>
+        </div>
+        
+        <!-- 练习模式 -->
+        <div id="practice" class="main-content" style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
+            <!-- 左列：生成器、学习成就、练习统计 -->
+            <div style="display: flex; flex-direction: column; gap: 8px; height: 100%;">
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">🎯 题目生成器</h2>
+                    
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">选择模式</label>
+                        <select id="modeSelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="random">随机生成</option>
+                            <option value="bank">题库练习</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">题目类型</label>
+                        <select id="typeSelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="all">全部类型</option>
+                            <option value="basic">基础计算</option>
+                            <option value="relation">圆柱圆锥关系</option>
+                            <option value="application">生活应用</option>
+                            <option value="comprehensive">综合压轴</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 6px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">难度级别</label>
+                        <select id="difficultySelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="mixed">混合难度</option>
+                            <option value="easy">简单</option>
+                            <option value="medium">中等</option>
+                            <option value="hard">困难</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="generateQuestion()" style="width: 100%; font-size: 0.75rem; padding: 5px 8px;">生成题目</button>
+                </div>
+                
+                <!-- 学习成就 -->
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">🏆 学习成就</h2>
+                    
+                    <!-- 当前阶段 -->
+                    <div style="display: flex; justify-content: center; margin-bottom: 6px;">
+                        <span id="currentStageBadgeMini" class="stage-badge badge-novice" style="font-size: 0.7rem; padding: 4px 10px;">
+                            🌱 新手保护期
+                        </span>
+                    </div>
+                    
+                    <!-- 阶段进度 -->
+                    <div style="margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span style="font-size: 0.7rem; color: #666;">当前进度</span>
+                            <span id="stageProgressTextMini" style="font-size: 0.7rem; font-weight: bold;">0 / 9 题</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="stageProgressFillMini" class="stage-progress-fill stage-novice" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 快速统计 -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                        <div style="background: #fff3e0; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="totalCorrectMini" style="font-size: 0.9rem; font-weight: bold; color: #e65100;">0</div>
+                            <div style="font-size: 0.55rem; color: #666;">累计答对</div>
+                        </div>
+                        <div style="background: #e8f5e9; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="currentStageProgressMini" style="font-size: 0.9rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.55rem; color: #666;">阶段进度</div>
+                        </div>
+                        <div style="background: #e3f2fd; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="nextStageNeedMini" style="font-size: 0.9rem; font-weight: bold; color: #1565c0;">10</div>
+                            <div style="font-size: 0.55rem; color: #666;">距下一阶段</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 练习统计 -->
+                <div class="card" style="padding: 8px; flex: 1; display: flex; flex-direction: column;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">📊 练习统计</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px;">
+                        <div style="background: #fff3e0; padding: 5px; border-radius: 4px; text-align: center;">
+                            <div id="totalCountMini" style="font-size: 0.95rem; font-weight: bold; color: #e65100;">0</div>
+                            <div style="font-size: 0.6rem; color: #666;">总练习次数</div>
+                        </div>
+                        <div style="background: #d4edda; padding: 5px; border-radius: 4px; text-align: center;">
+                            <div id="accuracyMini" style="font-size: 0.95rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.6rem; color: #666;">正确率</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 5px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span style="font-size: 0.65rem; color: #666;">正确率进度</span>
+                            <span style="font-size: 0.65rem;">目标：80%以上</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="progressFillMini" style="width: 0%; background: linear-gradient(90deg, #f39c12 0%, #e74c3c 100%);"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 按题型统计 -->
+                    <div style="margin-top: 6px;">
+                        <h4 style="font-size: 0.7rem; margin-bottom: 5px;">📈 按题型统计</h4>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
+                            <div style="background: #fff3e0; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #e65100; font-weight: bold;">基础计算</div>
+                                <div id="basicAccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #e7f3ff; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #0c63e4; font-weight: bold;">关系题</div>
+                                <div id="relationAccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #e8f5e9; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #155724; font-weight: bold;">应用题</div>
+                                <div id="applicationAccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #f3e5f5; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #6a1b9a; font-weight: bold;">综合题</div>
+                                <div id="comprehensiveAccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="clearStats()" style="margin-top: auto; width: 100%; font-size: 0.65rem; padding: 4px 8px;">重置统计数据</button>
+                </div>
+            </div>
+            
+            <!-- 右列：答题区 -->
+            <div style="height: 100%;">
+                <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                    <h2 style="font-size: 1.1rem; margin-bottom: 12px;">📝 答题区</h2>
+                
+                <div class="question-area" id="questionArea">
+                    <p style="color: #999; text-align: center; line-height: 150px;">点击"生成题目"开始练习</p>
+                </div>
+                
+                <div class="answer-area">
+                    <input type="text" id="answerInput" placeholder="请输入答案" onkeyup="handleEnter(event)">
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">提交答案</button>
+                    <button class="btn btn-secondary" id="continueBtn" onclick="generateQuestion()" style="display: none;">
+                        ➡️ 继续答题
+                    </button>
+                </div>
+                
+                <div class="feedback" id="feedback"></div>
+                
+                <div class="solution-area" id="solutionArea" style="display: none;">
+                    <h3>💡 解题思路</h3>
+                    <div id="solutionSteps"></div>
+                </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 计算器模式 -->
+        <div id="calculator" class="main-content" style="display: none;">
+            <div class="card">
+                <h2>🔺 圆锥计算器</h2>
+                
+                <!-- 公式展示 -->
+                <div class="formula-card">
+                    <h4>圆锥体积公式</h4>
+                    <div class="formula">V = (1/3)πr²h</div>
+                    <div class="description">三分之一 × 底面积 × 高</div>
+                </div>
+                
+                <div class="formula-card">
+                    <h4>圆柱圆锥关系（等底等高）</h4>
+                    <div class="formula">V锥 = (1/3)V柱</div>
+                    <div class="description">圆锥体积是等底等高圆柱体积的三分之一</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>已知条件</label>
+                    <select id="inputType" onchange="updateInputFields()">
+                        <option value="radius">已知半径 r 和高 h</option>
+                        <option value="diameter">已知直径 d 和高 h</option>
+                        <option value="circumference">已知周长 C 和高 h</option>
+                    </select>
+                </div>
+                
+                <div class="params-grid">
+                    <div>
+                        <label id="label1">半径 r (cm)</label>
+                        <input type="number" id="param1" class="param-input" placeholder="输入数值">
+                    </div>
+                    <div>
+                        <label id="label2">高 h (cm)</label>
+                        <input type="number" id="param2" class="param-input" placeholder="输入数值">
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="calculate()" style="width: 100%;">计算</button>
+                
+                <div class="result-display" id="resultDisplay">
+                    <p style="text-align: center; color: #999;">请输入参数并点击计算</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📚 核心公式详解</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>π 的取值</h3>
+                    <p>计算时 π 取 3.14</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>圆锥体积计算步骤</h3>
+                    <ol>
+                        <li>计算底面积：S底 = πr²</li>
+                        <li>体积：V = (1/3) × S底 × h</li>
+                    </ol>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>圆柱圆锥关系（等底等高）</h3>
+                    <ul>
+                        <li>V锥 = (1/3)V柱</li>
+                        <li>V柱 = 3V锥</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3>单位换算提示</h3>
+                    <ul>
+                        <li>1 m = 10 dm = 100 cm</li>
+                        <li>1 m³ = 1000 dm³ = 1000000 cm³</li>
+                        <li>1 cm³ = 1 毫升</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 错题本 -->
+        <div id="mistakes" class="main-content" style="display: none;">
+            <div class="card">
+                <h2>📚 错题本</h2>
+                
+                <div class="mistakes-list" id="mistakesList">
+                    <p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="reviewMistakes()">复习错题</button>
+                    <button class="btn btn-secondary" onclick="clearMistakes()">清空错题本</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🎯 薄弱点分析</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>错题类型分布</h3>
+                    <div style="display: grid; gap: 10px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 150px; background: #fff3e0; padding: 10px; border-radius: 8px; text-align: center;">基础计算</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="basicMistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="basicMistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 150px; background: #e7f3ff; padding: 10px; border-radius: 8px; text-align: center;">关系题</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="relationMistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="relationMistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 150px; background: #e8f5e9; padding: 10px; border-radius: 8px; text-align: center;">应用题</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="applicationMistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="applicationMistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 150px; background: #f3e5f5; padding: 10px; border-radius: 8px; text-align: center;">综合题</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="comprehensiveMistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="comprehensiveMistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>💡 针对性练习建议</h3>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <span style="color: #e74c3c; font-weight: bold;">•</span> 
+                            牢记圆锥体积公式：V = (1/3)πr²h
+                        </li>
+                        <li style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <span style="color: #e74c3c; font-weight: bold;">•</span> 
+                            等底等高的圆柱和圆锥，圆锥体积是圆柱的1/3
+                        </li>
+                        <li style="background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                            <span style="color: #e74c3c; font-weight: bold;">•</span> 
+                            注意单位换算，尤其是容积单位
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 题库数据
+        const questionBank = [
+            // 基础计算题
+            { id: 1, type: 'basic', difficulty: 'easy', question: '一个圆锥底面半径 r=3cm，高 h=6cm，求体积。', answer: 56.52, unit: 'cm³', solution: ['底面积：3.14 × 3² = 28.26 (cm²)', '体积：(1/3) × 28.26 × 6 = 56.52 (cm³)'] },
+            { id: 2, type: 'basic', difficulty: 'easy', question: '圆锥底面半径 4dm，高 9dm，求体积。', answer: 150.72, unit: 'dm³', solution: ['底面积：3.14 × 4² = 50.24 (dm²)', '体积：(1/3) × 50.24 × 9 = 150.72 (dm³)'] },
+            { id: 3, type: 'basic', difficulty: 'easy', question: '圆锥底面直径 d=10m，高 3m，体积是多少？', answer: 78.5, unit: 'm³', solution: ['半径：r = 10 ÷ 2 = 5 (m)', '底面积：3.14 × 5² = 78.5 (m²)', '体积：(1/3) × 78.5 × 3 = 78.5 (m³)'] },
+            { id: 4, type: 'basic', difficulty: 'easy', question: '圆锥底面直径 6cm，高 10cm，求体积。', answer: 94.2, unit: 'cm³', solution: ['半径：r = 6 ÷ 2 = 3 (cm)', '底面积：3.14 × 3² = 28.26 (cm²)', '体积：(1/3) × 28.26 × 10 = 94.2 (cm³)'] },
+            { id: 5, type: 'basic', difficulty: 'medium', question: '圆锥底面周长 18.84cm，高 5cm，求体积。', answer: 47.1, unit: 'cm³', solution: ['半径：r = 18.84 ÷ 3.14 ÷ 2 = 3 (cm)', '底面积：3.14 × 3² = 28.26 (cm²)', '体积：(1/3) × 28.26 × 5 = 47.1 (cm³)'] },
+            { id: 6, type: 'basic', difficulty: 'medium', question: '圆锥形沙堆，底面周长 25.12m，高 3m，求沙堆体积。', answer: 50.24, unit: 'm³', solution: ['半径：r = 25.12 ÷ 3.14 ÷ 2 = 4 (m)', '底面积：3.14 × 4² = 50.24 (m²)', '体积：(1/3) × 50.24 × 3 = 50.24 (m³)'] },
+            
+            // 圆柱圆锥关系题
+            { id: 7, type: 'relation', difficulty: 'easy', question: '一个圆柱和圆锥等底等高，圆柱体积是 75cm³，圆锥体积是多少？', answer: 25, unit: 'cm³', solution: ['等底等高时，V锥 = (1/3)V柱', '圆锥体积：75 ÷ 3 = 25 (cm³)'] },
+            { id: 8, type: 'relation', difficulty: 'easy', question: '一个圆柱和圆锥等底等高，圆锥体积是 24dm³，圆柱体积是多少？', answer: 72, unit: 'dm³', solution: ['等底等高时，V柱 = 3V锥', '圆柱体积：24 × 3 = 72 (dm³)'] },
+            { id: 9, type: 'relation', difficulty: 'medium', question: '等底等高的圆柱与圆锥，体积和是 48m³，圆柱体积是多少？', answer: 36, unit: 'm³', solution: ['等底等高时，V柱:V锥 = 3:1', '总份数：3 + 1 = 4', '圆柱体积：48 × (3/4) = 36 (m³)'] },
+            { id: 10, type: 'relation', difficulty: 'medium', question: '等底等高的圆柱与圆锥，体积和是 48m³，圆锥体积是多少？', answer: 12, unit: 'm³', solution: ['等底等高时，V柱:V锥 = 3:1', '总份数：3 + 1 = 4', '圆锥体积：48 × (1/4) = 12 (m³)'] },
+            { id: 11, type: 'relation', difficulty: 'medium', question: '等底等高的圆柱与圆锥，体积差是 36cm³，圆锥体积是多少？', answer: 18, unit: 'cm³', solution: ['等底等高时，体积差 = 2V锥', '圆锥体积：36 ÷ 2 = 18 (cm³)'] },
+            { id: 12, type: 'relation', difficulty: 'medium', question: '等底等高的圆柱与圆锥，体积差是 36cm³，圆柱体积是多少？', answer: 54, unit: 'cm³', solution: ['等底等高时，体积差 = 2V锥', '圆锥体积：36 ÷ 2 = 18 (cm³)', '圆柱体积：18 × 3 = 54 (cm³)'] },
+            
+            // 生活应用题
+            { id: 13, type: 'application', difficulty: 'easy', question: '一个圆锥形小麦堆，底面半径 2m，高 1.5m，这堆小麦体积是多少立方米？', answer: 6.28, unit: 'm³', solution: ['底面积：3.14 × 2² = 12.56 (m²)', '体积：(1/3) × 12.56 × 1.5 = 6.28 (m³)'] },
+            { id: 14, type: 'application', difficulty: 'medium', question: '一个圆锥形漏斗，底面直径 8cm，高 12cm，它的容积是多少毫升？', answer: 200.96, unit: '毫升', solution: ['半径：r = 8 ÷ 2 = 4 (cm)', '底面积：3.14 × 4² = 50.24 (cm²)', '体积：(1/3) × 50.24 × 12 = 200.96 (cm³) = 200.96 毫升'] },
+            { id: 15, type: 'application', difficulty: 'medium', question: '工地有一堆圆锥形碎石，底面周长 12.56m，高 1.8m，碎石体积是多少？', answer: 7.536, unit: 'm³', solution: ['半径：r = 12.56 ÷ 3.14 ÷ 2 = 2 (m)', '底面积：3.14 × 2² = 12.56 (m²)', '体积：(1/3) × 12.56 × 1.8 = 7.536 (m³)'] },
+            
+            // 综合压轴题
+            { id: 16, type: 'comprehensive', difficulty: 'medium', question: '一个圆柱形容器底面半径 5cm，水深 8cm。放入一个完全浸没的圆锥形铁块，水面上升 2cm，求铁块体积。', answer: 157, unit: 'cm³', solution: ['上升水的体积 = 圆锥体积', '底面积：3.14 × 5² = 78.5 (cm²)', '体积：78.5 × 2 = 157 (cm³)'] },
+            { id: 17, type: 'comprehensive', difficulty: 'medium', question: '一个圆柱和圆锥体积相等，底面积相等，圆柱高 6dm，圆锥高是多少？', answer: 18, unit: 'dm', solution: ['等体等底时，h锥 = 3h柱', '圆锥高：6 × 3 = 18 (dm)'] },
+            { id: 18, type: 'comprehensive', difficulty: 'medium', question: '一个圆柱和圆锥体积相等，高相等，圆锥底面积 27cm²，圆柱底面积是多少？', answer: 9, unit: 'cm²', solution: ['等体等高时，S柱 = S锥 ÷ 3', '圆柱底面积：27 ÷ 3 = 9 (cm²)'] },
+            { id: 19, type: 'comprehensive', difficulty: 'hard', question: '把一个底面半径 3cm、高 6cm 的圆柱形铁块，熔铸成一个等底的圆锥，圆锥的高是多少？', answer: 18, unit: 'cm', solution: ['等底熔铸，体积不变', '圆锥高 = 圆柱高 × 3', '圆锥高：6 × 3 = 18 (cm)'] },
+            { id: 20, type: 'comprehensive', difficulty: 'hard', question: '一个圆柱形水桶，底面直径 4dm，高 5dm，装满水后，倒入一个底面半径 2dm 的圆锥形容器刚好倒满，圆锥的高是多少？', answer: 15, unit: 'dm', solution: ['圆柱体积：3.14 × (4÷2)² × 5 = 62.8 (dm³)', '圆锥底面积：3.14 × 2² = 12.56 (dm²)', '圆锥高：62.8 × 3 ÷ 12.56 = 15 (dm)'] },
+            
+            // 更多题目
+            { id: 21, type: 'basic', difficulty: 'easy', question: '圆锥底面半径 5cm，高 12cm，求体积。', answer: 314, unit: 'cm³', solution: ['底面积：3.14 × 5² = 78.5 (cm²)', '体积：(1/3) × 78.5 × 12 = 314 (cm³)'] },
+            { id: 22, type: 'basic', difficulty: 'medium', question: '圆锥底面周长 31.4m，高 6m，求体积。', answer: 157, unit: 'm³', solution: ['半径：r = 31.4 ÷ 3.14 ÷ 2 = 5 (m)', '底面积：3.14 × 5² = 78.5 (m²)', '体积：(1/3) × 78.5 × 6 = 157 (m³)'] },
+            { id: 23, type: 'relation', difficulty: 'easy', question: '等底等高的圆柱体积是 120cm³，圆锥体积是多少？', answer: 40, unit: 'cm³', solution: ['V锥 = V柱 ÷ 3', '120 ÷ 3 = 40 (cm³)'] },
+            { id: 24, type: 'relation', difficulty: 'medium', question: '等底等高的圆柱和圆锥，体积差是 40cm³，圆柱体积是多少？', answer: 60, unit: 'cm³', solution: ['体积差 = 2V锥', 'V锥 = 40 ÷ 2 = 20 (cm³)', 'V柱 = 20 × 3 = 60 (cm³)'] },
+            { id: 25, type: 'application', difficulty: 'easy', question: '圆锥形帐篷底面半径 3m，高 2m，帐篷空间有多大？', answer: 18.84, unit: 'm³', solution: ['底面积：3.14 × 3² = 28.26 (m²)', '体积：(1/3) × 28.26 × 2 = 18.84 (m³)'] },
+            { id: 26, type: 'comprehensive', difficulty: 'hard', question: '圆柱和圆锥体积相等，高的比是 1:3，底面积比是多少？', answer: 1, unit: '', solution: ['V柱 = V锥', 'S柱×h柱 = (1/3)×S锥×h锥', 'h锥 = 3h柱', 'S柱×h柱 = (1/3)×S锥×3h柱', 'S柱 = S锥', '底面积比 = 1:1'] },
+        ];
+
+        // 题库答案验证函数
+        function validateQuestionBank() {
+            const pi = 3.14;
+            let errors = [];
+            
+            questionBank.forEach((q, index) => {
+                let calculatedAnswer = null;
+                
+                if (q.type === 'basic') {
+                    const match = q.question.match(/半径\s*[rR]?\s*[=：:]\s*(\d+(\.\d+)?)/);
+                    const matchD = q.question.match(/直径\s*[dD]?\s*[=：:]\s*(\d+(\.\d+)?)/);
+                    const matchC = q.question.match(/周长\s*[cC]?\s*[=：:]\s*(\d+(\.\d+)?)/);
+                    const matchH = q.question.match(/高\s*[hH]?\s*[=：:]\s*(\d+(\.\d+)?)/);
+                    
+                    let r = 0, h = 0;
+                    
+                    if (matchH) h = parseFloat(matchH[1]);
+                    
+                    if (match) {
+                        r = parseFloat(match[1]);
+                    } else if (matchD) {
+                        r = parseFloat(matchD[1]) / 2;
+                    } else if (matchC) {
+                        r = parseFloat(matchC[1]) / (2 * pi);
+                    }
+                    
+                    if (r > 0 && h > 0) {
+                        calculatedAnswer = (1/3) * pi * r * r * h;
+                    }
+                } else if (q.type === 'relation') {
+                    const numMatch = q.question.match(/(\d+(\.\d+)?)/);
+                    if (numMatch) {
+                        const num = parseFloat(numMatch[1]);
+                        if (q.question.includes('圆柱体积') && q.question.includes('圆锥体积')) {
+                            calculatedAnswer = num / 3;
+                        } else if (q.question.includes('圆锥体积') && q.question.includes('圆柱体积')) {
+                            calculatedAnswer = num * 3;
+                        } else if (q.question.includes('体积和')) {
+                            if (q.answer === num * 0.25) {
+                                calculatedAnswer = num * 0.25;
+                            } else if (q.answer === num * 0.75) {
+                                calculatedAnswer = num * 0.75;
+                            }
+                        } else if (q.question.includes('体积差')) {
+                            if (q.answer === num / 2) {
+                                calculatedAnswer = num / 2;
+                            } else if (q.answer === (num / 2) * 3) {
+                                calculatedAnswer = (num / 2) * 3;
+                            }
+                        }
+                    }
+                } else if (q.type === 'application') {
+                    const match = q.question.match(/半径\s*[rR]?\s*[=：:]\s*(\d+(\.\d+)?)/);
+                    const matchD = q.question.match(/直径\s*[dD]?\s*[=：:]\s*(\d+(\.\d+)?)/);
+                    const matchC = q.question.match(/周长\s*[cC]?\s*[=：:]\s*(\d+(\.\d+)?)/);
+                    const matchH = q.question.match(/高\s*[hH]?\s*[=：:]\s*(\d+(\.\d+)?)/);
+                    const matchDeep = q.question.match(/深\s*[=：:]\s*(\d+(\.\d+)?)/);
+                    
+                    let r = 0, h = 0;
+                    
+                    if (matchH) h = parseFloat(matchH[1]);
+                    if (matchDeep) h = parseFloat(matchDeep[1]);
+                    
+                    if (match) {
+                        r = parseFloat(match[1]);
+                    } else if (matchD) {
+                        r = parseFloat(matchD[1]) / 2;
+                    } else if (matchC) {
+                        r = parseFloat(matchC[1]) / (2 * pi);
+                    }
+                    
+                    if (r > 0 && h > 0) {
+                        calculatedAnswer = (1/3) * pi * r * r * h;
+                    }
+                }
+                
+                if (calculatedAnswer !== null && Math.abs(calculatedAnswer - q.answer) > 0.01) {
+                    errors.push({
+                        index: index + 1,
+                        id: q.id,
+                        expected: calculatedAnswer.toFixed(2),
+                        actual: q.answer,
+                        question: q.question.substring(0, 50) + '...'
+                    });
+                }
+            });
+            
+            if (errors.length > 0) {
+                console.warn('题库验证发现以下错误：');
+                errors.forEach(e => {
+                    console.warn(`第${e.index}题(ID:${e.id}): 期望答案 ${e.expected}，实际答案 ${e.actual}`);
+                });
+            } else {
+                console.log('✅ 题库验证通过，所有答案正确！');
+            }
+            
+            return errors.length === 0;
+        }
+
+        // 当前题目
+        let currentQuestion = null;
+        
+        // 统计数据
+        let stats = {
+            total: 0,
+            correct: 0,
+            wrong: 0,
+            byType: {
+                basic: { total: 0, correct: 0 },
+                relation: { total: 0, correct: 0 },
+                application: { total: 0, correct: 0 },
+                comprehensive: { total: 0, correct: 0 }
+            }
+        };
+        
+        // 错题本
+        let mistakes = [];
+        
+        // 学习阶段配置
+        const stages = [
+            { id: 'novice', name: '新手保护期', target: 1, emoji: '🌱', color: 'novice' },
+            { id: 'apprentice', name: '学徒期', target: 10, emoji: '📚', color: 'apprentice' },
+            { id: 'expert', name: '学霸期', target: 25, emoji: '⭐', color: 'expert' },
+            { id: 'master', name: '学神期', target: 49, emoji: '👑', color: 'master' }
+        ];
+
+        // 获取当前阶段
+        function getCurrentStage(correctCount) {
+            if (correctCount >= 1 && correctCount <= 9) return stages[0];
+            if (correctCount >= 10 && correctCount <= 24) return stages[1];
+            if (correctCount >= 25 && correctCount <= 48) return stages[2];
+            if (correctCount >= 49) return stages[3];
+            return stages[0];
+        }
+        
+        // 获取下一阶段
+        function getNextStage(correctCount) {
+            if (correctCount < 10) return stages[1];
+            if (correctCount < 25) return stages[2];
+            if (correctCount < 49) return stages[3];
+            return null;
+        }
+        
+        // 更新阶段进度显示
+        function updateStageProgress() {
+            const correctCount = stats.correct;
+            const currentStage = getCurrentStage(correctCount);
+            
+            let progress = 0;
+            let progressText = '';
+            let nextNeed = 0;
+            
+            if (correctCount >= 49) {
+                progress = 100;
+                progressText = `${correctCount} 题 (已满级)`;
+                nextNeed = 0;
+            } else if (correctCount >= 25) {
+                progress = Math.min(((correctCount - 24) / 24) * 100, 100);
+                progressText = `${correctCount} / 48 题`;
+                nextNeed = 49 - correctCount;
+            } else if (correctCount >= 10) {
+                progress = Math.min(((correctCount - 9) / 15) * 100, 100);
+                progressText = `${correctCount} / 24 题`;
+                nextNeed = 25 - correctCount;
+            } else if (correctCount >= 1) {
+                progress = Math.min((correctCount / 9) * 100, 100);
+                progressText = `${correctCount} / 9 题`;
+                nextNeed = 10 - correctCount;
+            } else {
+                progress = 0;
+                progressText = `0 / 9 题`;
+                nextNeed = 10;
+            }
+            
+            const badgeMini = document.getElementById('currentStageBadgeMini');
+            if (badgeMini) {
+                badgeMini.textContent = `${currentStage.emoji} ${currentStage.name}`;
+                badgeMini.className = `stage-badge badge-${currentStage.color}`;
+            }
+            
+            const stageProgressTextMini = document.getElementById('stageProgressTextMini');
+            if (stageProgressTextMini) {
+                stageProgressTextMini.textContent = progressText;
+            }
+            
+            const stageProgressFillMini = document.getElementById('stageProgressFillMini');
+            if (stageProgressFillMini) {
+                stageProgressFillMini.style.width = `${progress}%`;
+                stageProgressFillMini.className = `stage-progress-fill stage-${currentStage.color}`;
+            }
+            
+            const totalCorrectMini = document.getElementById('totalCorrectMini');
+            if (totalCorrectMini) {
+                totalCorrectMini.textContent = correctCount;
+            }
+            
+            const currentStageProgressMini = document.getElementById('currentStageProgressMini');
+            if (currentStageProgressMini) {
+                currentStageProgressMini.textContent = `${Math.round(progress)}%`;
+            }
+            
+            const nextStageNeedMini = document.getElementById('nextStageNeedMini');
+            if (nextStageNeedMini) {
+                nextStageNeedMini.textContent = nextNeed > 0 ? nextNeed : '已满级';
+            }
+            
+            const totalCountMini = document.getElementById('totalCountMini');
+            if (totalCountMini) {
+                totalCountMini.textContent = stats.total;
+            }
+            
+            const accuracyMini = document.getElementById('accuracyMini');
+            if (accuracyMini) {
+                const acc = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+                accuracyMini.textContent = `${acc}%`;
+            }
+            
+            const progressFillMini = document.getElementById('progressFillMini');
+            if (progressFillMini) {
+                const acc = stats.total > 0 ? (stats.correct / stats.total) * 100 : 0;
+                progressFillMini.style.width = `${acc}%`;
+            }
+            
+            // 更新按题型统计
+            const basicAccuracy = stats.byType.basic.total > 0 
+                ? Math.round((stats.byType.basic.correct / stats.byType.basic.total) * 100) : 0;
+            const relationAccuracy = stats.byType.relation.total > 0 
+                ? Math.round((stats.byType.relation.correct / stats.byType.relation.total) * 100) : 0;
+            const applicationAccuracy = stats.byType.application.total > 0 
+                ? Math.round((stats.byType.application.correct / stats.byType.application.total) * 100) : 0;
+            const comprehensiveAccuracy = stats.byType.comprehensive.total > 0 
+                ? Math.round((stats.byType.comprehensive.correct / stats.byType.comprehensive.total) * 100) : 0;
+            
+            const basicAccuracyMini = document.getElementById('basicAccuracyMini');
+            if (basicAccuracyMini) basicAccuracyMini.textContent = `${basicAccuracy}%`;
+            
+            const relationAccuracyMini = document.getElementById('relationAccuracyMini');
+            if (relationAccuracyMini) relationAccuracyMini.textContent = `${relationAccuracy}%`;
+            
+            const applicationAccuracyMini = document.getElementById('applicationAccuracyMini');
+            if (applicationAccuracyMini) applicationAccuracyMini.textContent = `${applicationAccuracy}%`;
+            
+            const comprehensiveAccuracyMini = document.getElementById('comprehensiveAccuracyMini');
+            if (comprehensiveAccuracyMini) comprehensiveAccuracyMini.textContent = `${comprehensiveAccuracy}%`;
+        }
+        
+        // 检查阶段升级并显示提示
+        function checkStageUpgrade(newCorrectCount, oldCorrectCount) {
+            if (newCorrectCount >= 10 && oldCorrectCount < 10) {
+                showAchievementNotification(stages[1]);
+            }
+            if (newCorrectCount >= 25 && oldCorrectCount < 25) {
+                showAchievementNotification(stages[2]);
+            }
+            if (newCorrectCount >= 49 && oldCorrectCount < 49) {
+                showAchievementNotification(stages[3]);
+            }
+        }
+        
+        // 显示成就解锁提示
+        function showAchievementNotification(stage) {
+            const notification = document.createElement('div');
+            notification.className = 'achievement-notification';
+            notification.innerHTML = `
+                <div class="emoji">${stage.emoji}</div>
+                <div class="title">🎉 ${stage.name} 解锁！</div>
+                <div class="description">恭喜你累计答对${stage.target}道题！</div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'pop-in 0.3s ease-in reverse forwards';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // 显示标签页
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+            
+            document.querySelectorAll('.main-content').forEach(content => {
+                content.style.display = 'none';
+                content.classList.remove('practice-layout');
+            });
+            
+            const activeContent = document.getElementById(tabName);
+            activeContent.style.display = 'grid';
+            
+            if (tabName === 'practice') {
+                activeContent.classList.add('practice-layout');
+            }
+        }
+
+        // 生成题目
+        function generateQuestion() {
+            const mode = document.getElementById('modeSelect').value;
+            const type = document.getElementById('typeSelect').value;
+            const difficulty = document.getElementById('difficultySelect').value;
+            
+            let filteredQuestions = questionBank;
+            
+            if (type !== 'all') {
+                filteredQuestions = filteredQuestions.filter(q => q.type === type);
+            }
+            
+            if (difficulty !== 'mixed') {
+                filteredQuestions = filteredQuestions.filter(q => q.difficulty === difficulty);
+            }
+            
+            const randomIndex = Math.floor(Math.random() * filteredQuestions.length);
+            currentQuestion = filteredQuestions[randomIndex];
+            
+            const questionArea = document.getElementById('questionArea');
+            const typeNames = {
+                basic: '基础计算',
+                relation: '圆柱圆锥关系',
+                application: '生活应用',
+                comprehensive: '综合压轴'
+            };
+            const difficultyNames = {
+                easy: '简单',
+                medium: '中等',
+                hard: '困难'
+            };
+            
+            questionArea.innerHTML = `
+                <span class="question-number">第 ${currentQuestion.id} 题</span>
+                <span class="question-type">${typeNames[currentQuestion.type]}</span>
+                <span style="background: #f0f0f0; color: #666; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem;">${difficultyNames[currentQuestion.difficulty]}</span>
+                <p style="margin-top: 15px;">${currentQuestion.question}</p>
+            `;
+            
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'block';
+            document.getElementById('continueBtn').style.display = 'none';
+            document.getElementById('answerInput').focus();
+        }
+        
+        // 提交答案
+        function submitAnswer() {
+            const userAnswer = parseFloat(document.getElementById('answerInput').value);
+            const feedback = document.getElementById('feedback');
+            const solutionArea = document.getElementById('solutionArea');
+            const solutionSteps = document.getElementById('solutionSteps');
+            
+            stats.total++;
+            
+            if (currentQuestion.byType) {
+                const type = currentQuestion.type;
+                stats.byType[type].total++;
+            }
+            
+            const isCorrect = Math.abs(userAnswer - currentQuestion.answer) < 0.01;
+            
+            if (isCorrect) {
+                stats.correct++;
+                const oldCorrect = stats.correct - 1;
+                
+                if (currentQuestion.byType) {
+                    const type = currentQuestion.type;
+                    stats.byType[type].correct++;
+                }
+                
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `
+                    <strong>🎉 回答正确！</strong><br>
+                    正确答案：${currentQuestion.answer}${currentQuestion.unit || ''}
+                `;
+                
+                showFireworks();
+                checkStageUpgrade(stats.correct, oldCorrect);
+            } else {
+                stats.wrong++;
+                
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `
+                    <strong>😅 回答错误</strong><br>
+                    你的答案：${userAnswer}<br>
+                    正确答案：${currentQuestion.answer}${currentQuestion.unit || ''}
+                `;
+                
+                // 添加到错题本
+                mistakes.push({
+                    question: currentQuestion.question,
+                    userAnswer: userAnswer,
+                    correctAnswer: currentQuestion.answer,
+                    unit: currentQuestion.unit,
+                    type: currentQuestion.type,
+                    solution: currentQuestion.solution
+                });
+                
+                saveData();
+            }
+            
+            // 显示解题思路
+            solutionSteps.innerHTML = '';
+            currentQuestion.solution.forEach((step, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'solution-step';
+                stepDiv.innerHTML = `<strong>${index + 1}.</strong> ${step}`;
+                solutionSteps.appendChild(stepDiv);
+            });
+            
+            solutionArea.style.display = 'block';
+            solutionArea.className = isCorrect ? 'solution-area' : 'solution-area error';
+            
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('continueBtn').style.display = 'block';
+            
+            updateStageProgress();
+            updateMistakesList();
+        }
+        
+        // 处理回车提交
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                if (document.getElementById('submitBtn').style.display !== 'none') {
+                    submitAnswer();
+                } else {
+                    generateQuestion();
+                }
+            }
+        }
+        
+        // 显示礼花动画
+        function showFireworks() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#a29bfe', '#fd79a8'];
+            const container = document.createElement('div');
+            container.className = 'fireworks-container';
+            document.body.appendChild(container);
+            
+            for (let i = 0; i < 30; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'particle';
+                firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.left = `${50 + (Math.random() - 0.5) * 20}%`;
+                firework.style.top = `${50 + (Math.random() - 0.5) * 20}%`;
+                firework.style.setProperty('--endX', `${(Math.random() - 0.5) * 400}px`);
+                firework.style.setProperty('--endY', `${(Math.random() - 0.5) * 400}px`);
+                firework.style.animation = 'particle-fly 1s ease-out forwards';
+                container.appendChild(firework);
+            }
+            
+            setTimeout(() => {
+                document.body.removeChild(container);
+            }, 1000);
+        }
+        
+        // 计算器相关函数
+        function updateInputFields() {
+            const inputType = document.getElementById('inputType').value;
+            const label1 = document.getElementById('label1');
+            const label2 = document.getElementById('label2');
+            
+            if (inputType === 'radius') {
+                label1.textContent = '半径 r (cm)';
+                label2.textContent = '高 h (cm)';
+            } else if (inputType === 'diameter') {
+                label1.textContent = '直径 d (cm)';
+                label2.textContent = '高 h (cm)';
+            } else if (inputType === 'circumference') {
+                label1.textContent = '周长 C (cm)';
+                label2.textContent = '高 h (cm)';
+            }
+            
+            document.getElementById('param1').value = '';
+            document.getElementById('param2').value = '';
+            document.getElementById('resultDisplay').innerHTML = '<p style="text-align: center; color: #999;">请输入参数并点击计算</p>';
+        }
+        
+        function calculate() {
+            const inputType = document.getElementById('inputType').value;
+            const param1 = parseFloat(document.getElementById('param1').value);
+            const param2 = parseFloat(document.getElementById('param2').value);
+            const resultDisplay = document.getElementById('resultDisplay');
+            
+            if (isNaN(param1) || isNaN(param2) || param1 <= 0 || param2 <= 0) {
+                resultDisplay.innerHTML = '<p style="text-align: center; color: #dc3545;">请输入有效的正数</p>';
+                return;
+            }
+            
+            const pi = 3.14;
+            let r, h, volume, baseArea;
+            
+            h = param2;
+            
+            if (inputType === 'radius') {
+                r = param1;
+            } else if (inputType === 'diameter') {
+                r = param1 / 2;
+            } else if (inputType === 'circumference') {
+                r = param1 / (2 * pi);
+            }
+            
+            baseArea = pi * r * r;
+            volume = (1 / 3) * baseArea * h;
+            
+            resultDisplay.innerHTML = `
+                <div class="result-item">
+                    <span class="result-label">半径 r</span>
+                    <span class="result-value">${r.toFixed(2)} cm</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">高 h</span>
+                    <span class="result-value">${h.toFixed(2)} cm</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">底面积</span>
+                    <span class="result-value">${baseArea.toFixed(2)} cm²</span>
+                </div>
+                <div class="result-item" style="background: #fff3e0; padding: 10px; border-radius: 8px;">
+                    <span class="result-label">圆锥体积</span>
+                    <span class="result-value" style="color: #e65100;">${volume.toFixed(2)} cm³</span>
+                </div>
+            `;
+        }
+        
+        // 更新错题列表
+        function updateMistakesList() {
+            const mistakesList = document.getElementById('mistakesList');
+            
+            if (mistakes.length === 0) {
+                mistakesList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>';
+            } else {
+                mistakesList.innerHTML = mistakes.map((mistake, index) => `
+                    <div class="mistake-item">
+                        <div class="mistake-question"><strong>第${index + 1}题：</strong>${mistake.question}</div>
+                        <div>
+                            <span class="mistake-answer">你的答案：${mistake.userAnswer}</span>
+                            <span class="mistake-correct">正确答案：${mistake.correctAnswer}${mistake.unit || ''}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // 统计各类型错题数量
+            const basicCount = mistakes.filter(m => m.type === 'basic').length;
+            const relationCount = mistakes.filter(m => m.type === 'relation').length;
+            const applicationCount = mistakes.filter(m => m.type === 'application').length;
+            const comprehensiveCount = mistakes.filter(m => m.type === 'comprehensive').length;
+            
+            updateWeakPointAnalysis(basicCount, relationCount, applicationCount, comprehensiveCount);
+        }
+        
+        // 更新薄弱点分析
+        function updateWeakPointAnalysis(basicCount, relationCount, applicationCount, comprehensiveCount) {
+            const total = basicCount + relationCount + applicationCount + comprehensiveCount;
+            
+            // 更新基础计算统计
+            const basicProgress = document.getElementById('basicMistakeProgress');
+            const basicCountEl = document.getElementById('basicMistakeCount');
+            if (basicProgress) {
+                basicProgress.style.width = total > 0 ? `${(basicCount / total) * 100}%` : '0%';
+            }
+            if (basicCountEl) {
+                basicCountEl.textContent = `${basicCount}题`;
+            }
+            
+            // 更新关系题统计
+            const relationProgress = document.getElementById('relationMistakeProgress');
+            const relationCountEl = document.getElementById('relationMistakeCount');
+            if (relationProgress) {
+                relationProgress.style.width = total > 0 ? `${(relationCount / total) * 100}%` : '0%';
+            }
+            if (relationCountEl) {
+                relationCountEl.textContent = `${relationCount}题`;
+            }
+            
+            // 更新应用题统计
+            const applicationProgress = document.getElementById('applicationMistakeProgress');
+            const applicationCountEl = document.getElementById('applicationMistakeCount');
+            if (applicationProgress) {
+                applicationProgress.style.width = total > 0 ? `${(applicationCount / total) * 100}%` : '0%';
+            }
+            if (applicationCountEl) {
+                applicationCountEl.textContent = `${applicationCount}题`;
+            }
+            
+            // 更新综合题统计
+            const comprehensiveProgress = document.getElementById('comprehensiveMistakeProgress');
+            const comprehensiveCountEl = document.getElementById('comprehensiveMistakeCount');
+            if (comprehensiveProgress) {
+                comprehensiveProgress.style.width = total > 0 ? `${(comprehensiveCount / total) * 100}%` : '0%';
+            }
+            if (comprehensiveCountEl) {
+                comprehensiveCountEl.textContent = `${comprehensiveCount}题`;
+            }
+        }
+        
+        // 复习错题
+        function reviewMistakes() {
+            if (mistakes.length === 0) {
+                alert('错题本为空！');
+                return;
+            }
+            
+            showTab('practice');
+            
+            const randomIndex = Math.floor(Math.random() * mistakes.length);
+            const mistake = mistakes[randomIndex];
+            
+            currentQuestion = {
+                id: `错题${randomIndex + 1}`,
+                type: mistake.type,
+                difficulty: 'review',
+                question: mistake.question,
+                answer: mistake.correctAnswer,
+                unit: mistake.unit,
+                solution: mistake.solution || ['请根据题目自行分析解题步骤']
+            };
+            
+            const questionArea = document.getElementById('questionArea');
+            const typeNames = {
+                basic: '基础计算',
+                relation: '圆柱圆锥关系',
+                application: '生活应用',
+                comprehensive: '综合压轴'
+            };
+            
+            questionArea.innerHTML = `
+                <span class="question-number" style="background: #dc3545;">错题复习</span>
+                <span class="question-type">${typeNames[currentQuestion.type]}</span>
+                <p style="margin-top: 15px;">${currentQuestion.question}</p>
+            `;
+            
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'block';
+            document.getElementById('continueBtn').style.display = 'none';
+            document.getElementById('answerInput').focus();
+        }
+        
+        // 清空错题本
+        function clearMistakes() {
+            if (confirm('确定要清空所有错题记录吗？')) {
+                mistakes = [];
+                saveData();
+                updateMistakesList();
+            }
+        }
+        
+        // 清空统计数据
+        function clearStats() {
+            if (confirm('确定要重置所有统计数据吗？')) {
+                stats = {
+                    total: 0,
+                    correct: 0,
+                    wrong: 0,
+                    byType: {
+                        basic: { total: 0, correct: 0 },
+                        relation: { total: 0, correct: 0 },
+                        application: { total: 0, correct: 0 },
+                        comprehensive: { total: 0, correct: 0 }
+                    }
+                };
+                saveData();
+                updateStageProgress();
+            }
+        }
+        
+        // 保存数据
+        function saveData() {
+            localStorage.setItem('coneStats', JSON.stringify(stats));
+            localStorage.setItem('coneMistakes', JSON.stringify(mistakes));
+        }
+        
+        // 加载数据
+        function loadData() {
+            const savedStats = localStorage.getItem('coneStats');
+            const savedMistakes = localStorage.getItem('coneMistakes');
+            
+            if (savedStats) {
+                stats = JSON.parse(savedStats);
+            }
+            if (savedMistakes) {
+                mistakes = JSON.parse(savedMistakes);
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            validateQuestionBank();
+            loadData();
+            updateStageProgress();
+            updateMistakesList();
+        });
+    </script>
+    
+    <!-- 底部页脚 开始 -->
+    <footer style="
+      width: 100%;
+      background-color: #f8f8f8;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 12px;
+      color: #666;
+      border-top: 1px solid #e5e5e5;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 999;
+    ">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+        <a href="#" style="color:#666; text-decoration:none;">关于我们</a>
+        <span style="color: #ddd;">|</span>
+        <a href="#" style="color:#666; text-decoration:none;">使用说明</a>
+        <span style="color: #ddd;">|</span>
+        <a href="#" style="color:#666; text-decoration:none;">隐私政策</a>
+        <span style="color: #ddd;">|</span>
+        <span>© 陈胡氏HTML工具 版权所有</span>
+      </div>
+    </footer>
+    <!-- 底部页脚 结束 -->
+</body>
+</html>

@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>古诗词大战僵尸 · 诗韵保卫战</title>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #c41e3a;
+            --gold-color: #ffd700;
+            --bg-dark: #1a1a2e;
+            --road-color: #5a4a3a;
+            --zombie-color: #5a8a5a;
+            --boss-color: #8b4513;
+            --brick-color: #8b7355;
+            --text-color: #ffffff;
+            --correct-color: #4CAF50;
+            --wrong-color: #ff9a9e;
+            --dragon-orange: #ff6b35;
+            --dragon-red: #c41e3a;
+            --dragon-yellow: #ffd700;
+            --dragon-green: #228b22;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-dark);
+            font-family: 'ZCOOL KuaiLe', 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #game-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧刷题区 */
+        #quiz-panel {
+            width: 40%;
+            background: linear-gradient(180deg, #2d2d44 0%, #1a1a2e 100%);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 3px solid var(--primary-color);
+        }
+
+        #quiz-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #quiz-title {
+            font-size: 1.8rem;
+            color: var(--gold-color);
+            text-shadow: 0 0 10px var(--gold-color);
+            margin: 0;
+        }
+
+        #score-display {
+            font-size: 1.5rem;
+            color: var(--gold-color);
+            margin-top: 10px;
+        }
+
+        #combo-display {
+            font-size: 1.2rem;
+            color: #ffaa00;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        #question-area {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 积分排行榜 - 缩小版 */
+        #leaderboard {
+            position: absolute;
+            top: 60px;
+            right: 15px;
+            width: 160px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid var(--gold-color);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.15);
+            z-index: 20;
+        }
+
+        #leaderboard-title {
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--gold-color);
+            margin-bottom: 6px;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .leaderboard-items {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.2s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.02);
+        }
+
+        .leaderboard-item:first-child {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .leaderboard-item:nth-child(2) {
+            background: linear-gradient(90deg, rgba(192, 192, 192, 0.15), rgba(192, 192, 192, 0.05));
+            border: 1px solid rgba(192, 192, 192, 0.2);
+        }
+
+        .leaderboard-item:nth-child(3) {
+            background: linear-gradient(90deg, rgba(205, 127, 50, 0.15), rgba(205, 127, 50, 0.05));
+            border: 1px solid rgba(205, 127, 50, 0.2);
+        }
+
+        .rank {
+            font-size: 1rem;
+            width: 22px;
+            text-align: center;
+        }
+
+        .name {
+            flex: 1;
+            font-size: 0.7rem;
+            color: var(--text-color);
+            font-weight: bold;
+            padding-left: 4px;
+        }
+
+        .score {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--gold-color);
+            font-family: 'Courier New', monospace;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        #question-text {
+            font-size: 1.6rem;
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'KaiTi', 'STKaiti', serif;
+            line-height: 1.6;
+        }
+
+        #options-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border: 2px solid #444;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'KaiTi', 'STKaiti', serif;
+        }
+
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--gold-color);
+        }
+
+        .option-btn.selected {
+            background: var(--gold-color);
+            color: #333;
+            border-color: var(--gold-color);
+        }
+
+        .option-btn.correct {
+            background: var(--correct-color);
+            border-color: var(--correct-color);
+        }
+
+        .option-btn.wrong {
+            background: var(--wrong-color);
+            border-color: var(--wrong-color);
+        }
+
+        #feedback-area {
+            margin-top: 15px;
+            text-align: center;
+            min-height: 40px;
+        }
+
+        #feedback-text {
+            font-size: 1.1rem;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #poem-detail {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            display: none;
+        }
+
+        #poem-title {
+            font-size: 1.3rem;
+            color: var(--gold-color);
+            margin-bottom: 5px;
+        }
+
+        #poem-author {
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        #poem-content {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            font-family: 'KaiTi', 'STKaiti', serif;
+            line-height: 1.8;
+        }
+
+        /* 右侧游戏区 */
+        #game-area {
+            width: 60%;
+            position: relative;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 100%);
+            overflow: hidden;
+        }
+
+        #canvas-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 道路覆盖层 - 1条加宽道路 */
+        .road-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .road {
+            width: 80%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(90, 74, 58, 0.8) 5%, rgba(90, 74, 58, 0.8) 95%, transparent 100%);
+            border-left: 4px solid rgba(255, 215, 0, 0.5);
+            border-right: 4px solid rgba(255, 215, 0, 0.5);
+            position: relative;
+        }
+
+        .road::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 50px,
+                rgba(255, 215, 0, 0.1) 50px,
+                rgba(255, 215, 0, 0.1) 52px
+            );
+        }
+
+        /* 底部防线 */
+        #defense-line {
+            position: absolute;
+            bottom: 140px;
+            left: 5%;
+            right: 5%;
+            height: 8px;
+            background: linear-gradient(90deg, transparent, var(--dragon-orange), var(--dragon-red), transparent);
+            box-shadow: 0 0 30px var(--dragon-orange);
+            border-radius: 4px;
+        }
+
+        /* 喷火龙 */
+        #energy-core {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
+        }
+
+        .dragon-container {
+            position: relative;
+            width: 160px;
+            height: 120px;
+        }
+
+        /* 喷火龙身体 */
+        .dragon-body {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 50px;
+            background: linear-gradient(180deg, #ff6b35 0%, #c41e3a 100%);
+            border-radius: 40px 40px 20px 20px;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.3);
+        }
+
+        /* 喷火龙头部 */
+        .dragon-head {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(180deg, #ff6b35 0%, #c41e3a 100%);
+            border-radius: 50%;
+            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.3);
+        }
+
+        /* 喷火龙眼睛 */
+        .dragon-eye {
+            position: absolute;
+            top: 15px;
+            width: 12px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .dragon-eye.left { left: 8px; }
+        .dragon-eye.right { right: 8px; }
+
+        .dragon-pupil {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 6px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+        }
+
+        /* 喷火龙鼻子 */
+        .dragon-nose {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 8px;
+            background: #000;
+            border-radius: 6px;
+        }
+
+        /* 喷火龙嘴巴 */
+        .dragon-mouth {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 10px;
+            background: #2d130a;
+            border-radius: 0 0 10px 10px;
+            overflow: hidden;
+        }
+
+        .dragon-tooth {
+            position: absolute;
+            bottom: 0;
+            width: 6px;
+            height: 4px;
+            background: #fff;
+            border-radius: 0 0 3px 3px;
+        }
+
+        .dragon-tooth.left { left: 3px; }
+        .dragon-tooth.right { right: 3px; }
+
+        /* 喷火龙角 */
+        .dragon-horn {
+            position: absolute;
+            top: -15px;
+            width: 8px;
+            height: 20px;
+            background: linear-gradient(180deg, #8b4513 0%, #5d3a1a 100%);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .dragon-horn.left { 
+            left: 8px; 
+            transform: rotate(-15deg);
+        }
+        .dragon-horn.right { 
+            right: 8px; 
+            transform: rotate(15deg);
+        }
+
+        /* 喷火龙翅膀 */
+        .dragon-wing {
+            position: absolute;
+            top: 25px;
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(135deg, #ff4500 0%, #8b0000 100%);
+            border-radius: 50% 0 50% 50%;
+            opacity: 0.8;
+        }
+
+        .dragon-wing.left { 
+            left: 0; 
+            transform: rotate(-30deg);
+            animation: wingFlapLeft 0.5s ease-in-out infinite;
+        }
+        .dragon-wing.right { 
+            right: 0; 
+            transform: rotate(30deg) scaleX(-1);
+            animation: wingFlapRight 0.5s ease-in-out infinite;
+        }
+
+        @keyframes wingFlapLeft {
+            0%, 100% { transform: rotate(-30deg); }
+            50% { transform: rotate(-15deg); }
+        }
+
+        @keyframes wingFlapRight {
+            0%, 100% { transform: rotate(30deg) scaleX(-1); }
+            50% { transform: rotate(15deg) scaleX(-1); }
+        }
+
+        /* 喷火龙尾巴 */
+        .dragon-tail {
+            position: absolute;
+            bottom: 20px;
+            right: -30px;
+            width: 40px;
+            height: 15px;
+            background: linear-gradient(90deg, #ff6b35 0%, #c41e3a 100%);
+            border-radius: 0 20px 20px 0;
+            transform: rotate(-10deg);
+            animation: tailWag 0.3s ease-in-out infinite;
+        }
+
+        @keyframes tailWag {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(-20deg); }
+        }
+
+        /* 喷火龙腿 */
+        .dragon-leg {
+            position: absolute;
+            bottom: 0;
+            width: 15px;
+            height: 20px;
+            background: linear-gradient(180deg, #ff6b35 0%, #c41e3a 100%);
+            border-radius: 3px;
+        }
+
+        .dragon-leg.front-left { left: 25%; }
+        .dragon-leg.front-right { right: 25%; }
+        .dragon-leg.back-left { left: 15%; }
+        .dragon-leg.back-right { right: 15%; }
+
+        /* 喷火龙脚爪 */
+        .dragon-claw {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 3px;
+        }
+
+        .claw {
+            width: 4px;
+            height: 8px;
+            background: #333;
+            border-radius: 2px;
+        }
+
+        /* 喷火龙发光效果 */
+        .dragon-glow {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.4) 0%, transparent 70%);
+            animation: dragonGlow 2s infinite;
+        }
+
+        @keyframes dragonGlow {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.3); opacity: 0.8; }
+        }
+
+        /* 喷火龙血条 */
+        #crystal-health-bar {
+            position: absolute;
+            bottom: 135px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 25px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--dragon-orange);
+            box-shadow: 0 0 15px var(--dragon-orange);
+        }
+
+        #crystal-health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #4CAF50, #ff9800, #f44336);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        #crystal-health-text {
+            position: absolute;
+            bottom: 135px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            text-align: center;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 5px #000;
+            font-size: 0.9rem;
+        }
+
+        /* 喷火龙受伤效果 */
+        .dragon-hurt {
+            animation: dragonHurt 0.3s ease-in-out;
+        }
+
+        @keyframes dragonHurt {
+            0%, 100% { filter: brightness(1); }
+            25% { filter: brightness(2) saturate(3) hue-rotate(10deg); }
+            50% { filter: brightness(1); }
+            75% { filter: brightness(2) saturate(3) hue-rotate(10deg); }
+        }
+
+        /* 游戏结束弹窗 */
+        #game-over-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        #game-over-title {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        #final-score {
+            font-size: 2rem;
+            color: var(--gold-color);
+            margin-bottom: 30px;
+        }
+
+        #restart-btn {
+            padding: 15px 50px;
+            font-size: 1.5rem;
+            background: linear-gradient(180deg, var(--primary-color) 0%, #8b0000 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'ZCOOL KuaiLe', sans-serif;
+            transition: transform 0.2s;
+        }
+
+        #restart-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* 粒子效果 */
+        #particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: particleFly 1s ease-out forwards;
+        }
+
+        @keyframes particleFly {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-150px) scale(0); }
+        }
+
+        /* 砖块动画 */
+        .brick {
+            position: absolute;
+            width: 60px;
+            height: 40px;
+            background: linear-gradient(180deg, #c0a080 0%, #806040 100%);
+            border-radius: 5px;
+            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.7);
+            animation: brickFall 0.4s ease-in forwards;
+        }
+
+        @keyframes brickFall {
+            0% { top: -50px; opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* 砸击震动效果 */
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* 音效控制按钮 */
+        #sound-control {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--gold-color);
+            border-radius: 20px;
+            color: var(--text-color);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #sound-control:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            #game-container {
+                flex-direction: column;
+            }
+            #quiz-panel {
+                width: 100%;
+                height: 45%;
+                border-right: none;
+                border-bottom: 3px solid var(--primary-color);
+            }
+            #game-area {
+                width: 100%;
+                height: 55%;
+            }
+            #question-text {
+                font-size: 1.3rem;
+            }
+            .option-btn {
+                font-size: 1rem;
+                padding: 10px 15px;
+            }
+            .road {
+                width: 40%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- 左侧刷题区 -->
+        <div id="quiz-panel">
+            <div id="quiz-header">
+                <h1 id="quiz-title">📜 诗词大战僵尸 🧟</h1>
+                <div id="score-display">🏆 积分: <span id="score">0</span></div>
+                <div id="combo-display" style="display:none">🔥 连击 x<span id="combo">0</span></div>
+            </div>
+            <div id="question-area">
+                <div id="question-text">点击开始游戏开始答题！</div>
+                <div id="options-area"></div>
+                <div id="feedback-area"><span id="feedback-text"></span></div>
+                <div id="poem-detail">
+                    <div id="poem-title"></div>
+                    <div id="poem-author"></div>
+                    <div id="poem-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧游戏区 -->
+        <div id="game-area">
+            <button id="sound-control" onclick="toggleSound()">🎵 音效: 开</button>
+            <!-- 积分排行榜 - 缩小版 -->
+            <div id="leaderboard">
+                <div id="leaderboard-title">🏆 排行榜</div>
+                <div class="leaderboard-items">
+                    <div class="leaderboard-item">
+                        <span class="rank">🥇</span>
+                        <span class="name">冠军</span>
+                        <span class="score">0</span>
+                    </div>
+                    <div class="leaderboard-item">
+                        <span class="rank">🥈</span>
+                        <span class="name">亚军</span>
+                        <span class="score">0</span>
+                    </div>
+                    <div class="leaderboard-item">
+                        <span class="rank">🥉</span>
+                        <span class="name">季军</span>
+                        <span class="score">0</span>
+                    </div>
+                </div>
+            </div>
+            <div id="canvas-wrapper">
+                <canvas id="game-canvas"></canvas>
+            </div>
+            <div class="road-overlay">
+                <div class="road"></div>
+            </div>
+            <div id="defense-line"></div>
+            <div id="crystal-health-bar">
+                <div id="crystal-health-fill" style="width: 100%"></div>
+            </div>
+            <div id="crystal-health-text">❤️ x 3</div>
+            <div id="energy-core">
+                <div class="dragon-glow"></div>
+                <div class="dragon-container">
+                    <!-- 尾巴 -->
+                    <div class="dragon-tail"></div>
+                    
+                    <!-- 翅膀 -->
+                    <div class="dragon-wing left"></div>
+                    <div class="dragon-wing right"></div>
+                    
+                    <!-- 身体 -->
+                    <div class="dragon-body">
+                        <div class="dragon-leg front-left">
+                            <div class="dragon-claw">
+                                <div class="claw"></div>
+                                <div class="claw"></div>
+                                <div class="claw"></div>
+                            </div>
+                        </div>
+                        <div class="dragon-leg front-right">
+                            <div class="dragon-claw">
+                                <div class="claw"></div>
+                                <div class="claw"></div>
+                                <div class="claw"></div>
+                            </div>
+                        </div>
+                        <div class="dragon-leg back-left">
+                            <div class="dragon-claw">
+                                <div class="claw"></div>
+                                <div class="claw"></div>
+                                <div class="claw"></div>
+                            </div>
+                        </div>
+                        <div class="dragon-leg back-right">
+                            <div class="dragon-claw">
+                                <div class="claw"></div>
+                                <div class="claw"></div>
+                                <div class="claw"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 头部 -->
+                    <div class="dragon-head">
+                        <!-- 角 -->
+                        <div class="dragon-horn left"></div>
+                        <div class="dragon-horn right"></div>
+                        
+                        <!-- 眼睛 -->
+                        <div class="dragon-eye left">
+                            <div class="dragon-pupil"></div>
+                        </div>
+                        <div class="dragon-eye right">
+                            <div class="dragon-pupil"></div>
+                        </div>
+                        
+                        <!-- 鼻子 -->
+                        <div class="dragon-nose"></div>
+                        
+                        <!-- 嘴巴 -->
+                        <div class="dragon-mouth">
+                            <div class="dragon-tooth left"></div>
+                            <div class="dragon-tooth right"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="particles-container"></div>
+        </div>
+    </div>
+
+    <!-- 游戏结束弹窗 -->
+    <div id="game-over-overlay">
+        <h1 id="game-over-title">💀 喷火龙已倒下</h1>
+        <div id="final-score">最终得分: <span id="final-score-value">0</span></div>
+        <button id="restart-btn" onclick="restartGame()">🔄 重新开始</button>
+    </div>
+
+    <script>
+        // ========== 诗词题库 (150首) ==========
+        const POEM_LIBRARY = [
+            { q: "床前明月光", a: "疑是地上霜", title: "静夜思", author: "李白·唐" },
+            { q: "白日依山尽", a: "黄河入海流", title: "登鹳雀楼", author: "王之涣·唐" },
+            { q: "春眠不觉晓", a: "处处闻啼鸟", title: "春晓", author: "孟浩然·唐" },
+            { q: "锄禾日当午", a: "汗滴禾下土", title: "悯农", author: "李绅·唐" },
+            { q: "离离原上草", a: "一岁一枯荣", title: "赋得古原草送别", author: "白居易·唐" },
+            { q: "小时不识月", a: "呼作白玉盘", title: "古朗月行", author: "李白·唐" },
+            { q: "夜来风雨声", a: "花落知多少", title: "春晓", author: "孟浩然·唐" },
+            { q: "举头望明月", a: "低头思故乡", title: "静夜思", author: "李白·唐" },
+            { q: "野火烧不尽", a: "春风吹又生", title: "赋得古原草送别", author: "白居易·唐" },
+            { q: "远看山有色", a: "近听水无声", title: "画", author: "王维·唐" },
+            { q: "小荷才露尖尖角", a: "早有蜻蜓立上头", title: "小池", author: "杨万里·宋" },
+            { q: "两个黄鹂鸣翠柳", a: "一行白鹭上青天", title: "绝句", author: "杜甫·唐" },
+            { q: "朝辞白帝彩云间", a: "千里江陵一日还", title: "早发白帝城", author: "李白·唐" },
+            { q: "窗含西岭千秋雪", a: "门泊东吴万里船", title: "绝句", author: "杜甫·唐" },
+            { q: "欲穷千里目", a: "更上一层楼", title: "登鹳雀楼", author: "王之涣·唐" },
+            { q: "明月几时有", a: "把酒问青天", title: "水调歌头", author: "苏轼·宋" },
+            { q: "大漠沙如雪", a: "燕山月似钩", title: "马诗", author: "李贺·唐" },
+            { q: "千山鸟飞绝", a: "万径人踪灭", title: "江雪", author: "柳宗元·唐" },
+            { q: "危楼高百尺", a: "手可摘星辰", title: "夜宿山寺", author: "李白·唐" },
+            { q: "空山不见人", a: "但闻人语响", title: "鹿柴", author: "王维·唐" },
+            { q: "独坐幽篁里", a: "弹琴复长啸", title: "竹里馆", author: "王维·唐" },
+            { q: "月黑雁飞高", a: "单于夜遁逃", title: "塞下曲", author: "卢纶·唐" },
+            { q: "林暗草惊风", a: "将军夜引弓", title: "塞下曲", author: "卢纶·唐" },
+            { q: "日照香炉生紫烟", a: "遥看瀑布挂前川", title: "望庐山瀑布", author: "李白·唐" },
+            { q: "飞流直下三千尺", a: "疑是银河落九天", title: "望庐山瀑布", author: "李白·唐" },
+            { q: "故人西辞黄鹤楼", a: "烟花三月下扬州", title: "黄鹤楼送孟浩然之广陵", author: "李白·唐" },
+            { q: "天门中断楚江开", a: "碧水东流至此回", title: "望天门山", author: "李白·唐" },
+            { q: "毕竟西湖六月中", a: "风光不与四时同", title: "晓出净慈寺送林子方", author: "杨万里·宋" },
+            { q: "接天莲叶无穷碧", a: "映日荷花别样红", title: "晓出净慈寺送林子方", author: "杨万里·宋" },
+            { q: "胜日寻芳泗水滨", a: "无边光景一时新", title: "春日", author: "朱熹·宋" },
+            { q: "等闲识得东风面", a: "万紫千红总是春", title: "春日", author: "朱熹·宋" },
+            { q: "京口瓜洲一水间", a: "钟山只隔数重山", title: "泊船瓜洲", author: "王安石·宋" },
+            { q: "春风又绿江南岸", a: "明月何时照我还", title: "泊船瓜洲", author: "王安石·宋" },
+            { q: "葡萄美酒夜光杯", a: "欲饮琵琶马上催", title: "凉州词", author: "王翰·唐" },
+            { q: "醉卧沙场君莫笑", a: "古来征战几人回", title: "凉州词", author: "王翰·唐" },
+            { q: "黄河远上白云间", a: "一片孤城万仞山", title: "凉州词", author: "王之涣·唐" },
+            { q: "羌笛何须怨杨柳", a: "春风不度玉门关", title: "凉州词", author: "王之涣·唐" },
+            { q: "秦时明月汉时关", a: "万里长征人未还", title: "出塞", author: "王昌龄·唐" },
+            { q: "但使龙城飞将在", a: "不教胡马度阴山", title: "出塞", author: "王昌龄·唐" },
+            { q: "烟笼寒水月笼沙", a: "夜泊秦淮近酒家", title: "泊秦淮", author: "杜牧·唐" },
+            { q: "商女不知亡国恨", a: "隔江犹唱后庭花", title: "泊秦淮", author: "杜牧·唐" },
+            { q: "折戟沉沙铁未销", a: "自将磨洗认前朝", title: "赤壁", author: "杜牧·唐" },
+            { q: "东风不与周郎便", a: "铜雀春深锁二乔", title: "赤壁", author: "杜牧·唐" },
+            { q: "君问归期未有期", a: "巴山夜雨涨秋池", title: "夜雨寄北", author: "李商隐·唐" },
+            { q: "何当共剪西窗烛", a: "却话巴山夜雨时", title: "夜雨寄北", author: "李商隐·唐" },
+            { q: "僵卧孤村不自哀", a: "尚思为国戍轮台", title: "十一月四日风雨大作", author: "陆游·宋" },
+            { q: "夜阑卧听风吹雨", a: "铁马冰河入梦来", title: "十一月四日风雨大作", author: "陆游·宋" },
+            { q: "死去元知万事空", a: "但悲不见九州同", title: "示儿", author: "陆游·宋" },
+            { q: "王师北定中原日", a: "家祭无忘告乃翁", title: "示儿", author: "陆游·宋" },
+            { q: "三万里河东入海", a: "五千仞岳上摩天", title: "秋夜将晓出篱门迎凉有感", author: "陆游·宋" },
+            { q: "遗民泪尽胡尘里", a: "南望王师又一年", title: "秋夜将晓出篱门迎凉有感", author: "陆游·宋" },
+            { q: "草长莺飞二月天", a: "拂堤杨柳醉春烟", title: "村居", author: "高鼎·清" },
+            { q: "儿童散学归来早", a: "忙趁东风放纸鸢", title: "村居", author: "高鼎·清" },
+            { q: "牧童骑黄牛", a: "歌声振林樾", title: "所见", author: "袁枚·清" },
+            { q: "意欲捕鸣蝉", a: "忽然闭口立", title: "所见", author: "袁枚·清" },
+            { q: "蓬头稚子学垂纶", a: "侧坐莓苔草映身", title: "小儿垂钓", author: "胡令能·唐" },
+            { q: "路人借问遥招手", a: "怕得鱼惊不应人", title: "小儿垂钓", author: "胡令能·唐" },
+            { q: "萧萧梧叶送寒声", a: "江上秋风动客情", title: "夜书所见", author: "叶绍翁·宋" },
+            { q: "知有儿童挑促织", a: "夜深篱落一灯明", title: "夜书所见", author: "叶绍翁·宋" },
+            { q: "独在异乡为异客", a: "每逢佳节倍思亲", title: "九月九日忆山东兄弟", author: "王维·唐" },
+            { q: "遥知兄弟登高处", a: "遍插茱萸少一人", title: "九月九日忆山东兄弟", author: "王维·唐" },
+            { q: "李白乘舟将欲行", a: "忽闻岸上踏歌声", title: "赠汪伦", author: "李白·唐" },
+            { q: "桃花潭水深千尺", a: "不及汪伦送我情", title: "赠汪伦", author: "李白·唐" },
+            { q: "故园东望路漫漫", a: "双袖龙钟泪不干", title: "逢入京使", author: "岑参·唐" },
+            { q: "马上相逢无纸笔", a: "凭君传语报平安", title: "逢入京使", author: "岑参·唐" },
+            { q: "九州生气恃风雷", a: "万马齐喑究可哀", title: "己亥杂诗", author: "龚自珍·清" },
+            { q: "我劝天公重抖擞", a: "不拘一格降人才", title: "己亥杂诗", author: "龚自珍·清" },
+            { q: "咬定青山不放松", a: "立根原在破岩中", title: "竹石", author: "郑燮·清" },
+            { q: "千磨万击还坚劲", a: "任尔东西南北风", title: "竹石", author: "郑燮·清" },
+            { q: "千锤万凿出深山", a: "烈火焚烧若等闲", title: "石灰吟", author: "于谦·明" },
+            { q: "粉骨碎身浑不怕", a: "要留清白在人间", title: "石灰吟", author: "于谦·明" },
+            { q: "我家洗砚池头树", a: "朵朵花开淡墨痕", title: "墨梅", author: "王冕·元" },
+            { q: "不要人夸颜色好", a: "只留清气满乾坤", title: "墨梅", author: "王冕·元" },
+            { q: "牧童归去横牛背", a: "短笛无腔信口吹", title: "村晚", author: "雷震·宋" },
+            { q: "稚子金盆脱晓冰", a: "彩丝穿取当银钲", title: "稚子弄冰", author: "杨万里·宋" },
+            { q: "敲成玉磬穿林响", a: "忽作玻璃碎地声", title: "稚子弄冰", author: "杨万里·宋" },
+            { q: "昼出耘田夜绩麻", a: "村庄儿女各当家", title: "四时田园杂兴", author: "范成大·宋" },
+            { q: "童孙未解供耕织", a: "也傍桑阴学种瓜", title: "四时田园杂兴", author: "范成大·宋" },
+            { q: "梅子金黄杏子肥", a: "麦花雪白菜花稀", title: "四时田园杂兴", author: "范成大·宋" },
+            { q: "日长篱落无人过", a: "惟有蜻蜓蛱蝶飞", title: "四时田园杂兴", author: "范成大·宋" },
+            { q: "月落乌啼霜满天", a: "江枫渔火对愁眠", title: "枫桥夜泊", author: "张继·唐" },
+            { q: "姑苏城外寒山寺", a: "夜半钟声到客船", title: "枫桥夜泊", author: "张继·唐" },
+            { q: "西塞山前白鹭飞", a: "桃花流水鳜鱼肥", title: "渔歌子", author: "张志和·唐" },
+            { q: "青箬笠绿蓑衣", a: "斜风细雨不须归", title: "渔歌子", author: "张志和·唐" },
+            { q: "湖光秋月两相和", a: "潭面无风镜未磨", title: "望洞庭", author: "刘禹锡·唐" },
+            { q: "遥望洞庭山水翠", a: "白银盘里一青螺", title: "望洞庭", author: "刘禹锡·唐" },
+            { q: "江南好", a: "风景旧曾谙", title: "忆江南", author: "白居易·唐" },
+            { q: "日出江花红胜火", a: "春来江水绿如蓝", title: "忆江南", author: "白居易·唐" },
+            { q: "春来江水绿如蓝", a: "能不忆江南", title: "忆江南", author: "白居易·唐" },
+            { q: "泉眼无声惜细流", a: "树阴照水爱晴柔", title: "小池", author: "杨万里·宋" },
+            { q: "山外青山楼外楼", a: "西湖歌舞几时休", title: "题临安邸", author: "林升·宋" },
+            { q: "暖风熏得游人醉", a: "直把杭州作汴州", title: "题临安邸", author: "林升·宋" },
+            { q: "青海长云暗雪山", a: "孤城遥望玉门关", title: "从军行", author: "王昌龄·唐" },
+            { q: "黄沙百战穿金甲", a: "不破楼兰终不还", title: "从军行", author: "王昌龄·唐" },
+            { q: "寒雨连江夜入吴", a: "平明送客楚山孤", title: "芙蓉楼送辛渐", author: "王昌龄·唐" },
+            { q: "洛阳亲友如相问", a: "一片冰心在玉壶", title: "芙蓉楼送辛渐", author: "王昌龄·唐" },
+            { q: "渭城朝雨浥轻尘", a: "客舍青青柳色新", title: "送元二使安西", author: "王维·唐" },
+            { q: "劝君更尽一杯酒", a: "西出阳关无故人", title: "送元二使安西", author: "王维·唐" },
+            { q: "独怜幽草涧边生", a: "上有黄鹂深树鸣", title: "滁州西涧", author: "韦应物·唐" },
+            { q: "春潮带雨晚来急", a: "野渡无人舟自横", title: "滁州西涧", author: "韦应物·唐" },
+            { q: "朱雀桥边野草花", a: "乌衣巷口夕阳斜", title: "乌衣巷", author: "刘禹锡·唐" },
+            { q: "旧时王谢堂前燕", a: "飞入寻常百姓家", title: "乌衣巷", author: "刘禹锡·唐" },
+            { q: "九曲黄河万里沙", a: "浪淘风簸自天涯", title: "浪淘沙", author: "刘禹锡·唐" },
+            { q: "如今直上银河去", a: "同到牵牛织女家", title: "浪淘沙", author: "刘禹锡·唐" },
+            { q: "天街小雨润如酥", a: "草色遥看近却无", title: "早春呈水部张十八员外", author: "韩愈·唐" },
+            { q: "最是一年春好处", a: "绝胜烟柳满皇都", title: "早春呈水部张十八员外", author: "韩愈·唐" },
+            { q: "清明时节雨纷纷", a: "路上行人欲断魂", title: "清明", author: "杜牧·唐" },
+            { q: "借问酒家何处有", a: "牧童遥指杏花村", title: "清明", author: "杜牧·唐" },
+            { q: "千里莺啼绿映红", a: "水村山郭酒旗风", title: "江南春", author: "杜牧·唐" },
+            { q: "南朝四百八十寺", a: "多少楼台烟雨中", title: "江南春", author: "杜牧·唐" },
+            { q: "云淡风轻近午天", a: "傍花随柳过前川", title: "春日偶成", author: "程颢·宋" },
+            { q: "时人不识余心乐", a: "将谓偷闲学少年", title: "春日偶成", author: "程颢·宋" },
+            { q: "爆竹声中一岁除", a: "春风送暖入屠苏", title: "元日", author: "王安石·宋" },
+            { q: "千门万户曈曈日", a: "总把新桃换旧符", title: "元日", author: "王安石·宋" },
+            { q: "黑云翻墨未遮山", a: "白雨跳珠乱入船", title: "六月二十七日望湖楼醉书", author: "苏轼·宋" },
+            { q: "卷地风来忽吹散", a: "望湖楼下水如天", title: "六月二十七日望湖楼醉书", author: "苏轼·宋" },
+            { q: "水光潋滟晴方好", a: "山色空蒙雨亦奇", title: "饮湖上初晴后雨", author: "苏轼·宋" },
+            { q: "欲把西湖比西子", a: "淡妆浓抹总相宜", title: "饮湖上初晴后雨", author: "苏轼·宋" },
+            { q: "横看成岭侧成峰", a: "远近高低各不同", title: "题西林壁", author: "苏轼·宋" },
+            { q: "不识庐山真面目", a: "只缘身在此山中", title: "题西林壁", author: "苏轼·宋" },
+            { q: "生当作人杰", a: "死亦为鬼雄", title: "夏日绝句", author: "李清照·宋" },
+            { q: "至今思项羽", a: "不肯过江东", title: "夏日绝句", author: "李清照·宋" },
+            { q: "梅雪争春未肯降", a: "骚人阁笔费评章", title: "雪梅", author: "卢梅坡·宋" },
+            { q: "梅须逊雪三分白", a: "雪却输梅一段香", title: "雪梅", author: "卢梅坡·宋" },
+            { q: "半亩方塘一鉴开", a: "天光云影共徘徊", title: "观书有感", author: "朱熹·宋" },
+            { q: "问渠那得清如许", a: "为有源头活水来", title: "观书有感", author: "朱熹·宋" },
+            { q: "昨夜江边春水生", a: "艨艟巨舰一毛轻", title: "观书有感", author: "朱熹·宋" },
+            { q: "向来枉费推移力", a: "此日中流自在行", title: "观书有感", author: "朱熹·宋" },
+            { q: "少年易老学难成", a: "一寸光阴不可轻", title: "劝学诗", author: "朱熹·宋" },
+            { q: "未觉池塘春草梦", a: "阶前梧叶已秋声", title: "劝学诗", author: "朱熹·宋" },
+            { q: "山重水复疑无路", a: "柳暗花明又一村", title: "游山西村", author: "陆游·宋" },
+            { q: "箫鼓追随春社近", a: "衣冠简朴古风存", title: "游山西村", author: "陆游·宋" },
+            { q: "从今若许闲乘月", a: "拄杖无时夜叩门", title: "游山西村", author: "陆游·宋" },
+            { q: "莫笑农家腊酒浑", a: "丰年留客足鸡豚", title: "游山西村", author: "陆游·宋" },
+            { q: "采得百花成蜜后", a: "为谁辛苦为谁甜", title: "蜂", author: "罗隐·唐" },
+            { q: "不论平地与山尖", a: "无限风光尽被占", title: "蜂", author: "罗隐·唐" },
+            { q: "垂緌饮清露", a: "流响出疏桐", title: "蝉", author: "虞世南·唐" },
+            { q: "居高声自远", a: "非是藉秋风", title: "蝉", author: "虞世南·唐" },
+            { q: "解落三秋叶", a: "能开二月花", title: "风", author: "李峤·唐" },
+            { q: "过江千尺浪", a: "入竹万竿斜", title: "风", author: "李峤·唐" },
+            { q: "鹅鹅鹅", a: "曲项向天歌", title: "咏鹅", author: "骆宾王·唐" },
+            { q: "白毛浮绿水", a: "红掌拨清波", title: "咏鹅", author: "骆宾王·唐" },
+            { q: "江南可采莲", a: "莲叶何田田", title: "江南", author: "汉乐府" },
+            { q: "鱼戏莲叶间", a: "鱼戏莲叶东", title: "江南", author: "汉乐府" },
+            { q: "青青园中葵", a: "朝露待日晞", title: "长歌行", author: "汉乐府" },
+            { q: "阳春布德泽", a: "万物生光辉", title: "长歌行", author: "汉乐府" },
+            { q: "常恐秋节至", a: "焜黄华叶衰", title: "长歌行", author: "汉乐府" },
+            { q: "百川东到海", a: "何时复西归", title: "长歌行", author: "汉乐府" },
+            { q: "少壮不努力", a: "老大徒伤悲", title: "长歌行", author: "汉乐府" },
+            { q: "煮豆燃豆萁", a: "豆在釜中泣", title: "七步诗", author: "曹植·三国" },
+            { q: "本是同根生", a: "相煎何太急", title: "七步诗", author: "曹植·三国" },
+            { q: "敕勒川", a: "阴山下", title: "敕勒歌", author: "北朝民歌" },
+            { q: "天似穹庐", a: "笼盖四野", title: "敕勒歌", author: "北朝民歌" },
+            { q: "天苍苍", a: "野茫茫", title: "敕勒歌", author: "北朝民歌" },
+            { q: "天苍苍，野茫茫", a: "风吹草低见牛羊", title: "敕勒歌", author: "北朝民歌" },
+            { q: "江上往来人", a: "但爱鲈鱼美", title: "江上渔者", author: "范仲淹·宋" },
+            { q: "君看一叶舟", a: "出没风波里", title: "江上渔者", author: "范仲淹·宋" },
+            { q: "向晚意不适", a: "驱车登古原", title: "乐游原", author: "李商隐·唐" },
+            { q: "夕阳无限好", a: "只是近黄昏", title: "乐游原", author: "李商隐·唐" },
+            { q: "平明寻白羽", a: "没在石棱中", title: "塞下曲", author: "卢纶·唐" },
+            { q: "欲将轻骑逐", a: "大雪满弓刀", title: "塞下曲", author: "卢纶·唐" },
+            { q: "秋丛绕舍似陶家", a: "遍绕篱边日渐斜", title: "菊花", author: "元稹·唐" },
+            { q: "不是花中偏爱菊", a: "此花开尽更无花", title: "菊花", author: "元稹·唐" },
+            { q: "荷尽已无擎雨盖", a: "菊残犹有傲霜枝", title: "赠刘景文", author: "苏轼·宋" },
+            { q: "一年好景君须记", a: "最是橙黄橘绿时", title: "赠刘景文", author: "苏轼·宋" }
+        ];
+
+        // ========== 音效管理器 ==========
+        const SoundManager = {
+            ctx: null,
+            isMuted: false,
+            bgmPlaying: false,
+            
+            init() {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioContext();
+            },
+            
+            playTone(freq, type = 'sine', duration = 0.2, vol = 0.1) {
+                if (!this.ctx || this.isMuted) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            },
+            
+            playCorrect() {
+                // 悦耳的和弦进行：C大调三和弦 + 五声音阶旋律
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                
+                // 播放和弦基础音
+                notes.slice(0, 3).forEach(f => this.playTone(f, 'sine', 0.4, 0.12));
+                
+                // 延迟播放高音，形成琶音效果
+                setTimeout(() => this.playTone(1046.50, 'triangle', 0.5, 0.1), 150);
+                
+                // 添加装饰音，增加音乐感
+                setTimeout(() => this.playTone(1108.73, 'sine', 0.2, 0.08), 300); // D#6
+                setTimeout(() => this.playTone(1046.50, 'sine', 0.3, 0.1), 400); // C6
+                
+                // 播放一个欢快的收尾音
+                setTimeout(() => {
+                    this.playTone(1244.51, 'sine', 0.25, 0.1); // F6
+                    this.playTone(1396.91, 'sine', 0.3, 0.08); // G6
+                }, 500);
+            },
+            
+            playWrong() {
+                this.playTone(150, 'sawtooth', 0.3, 0.1);
+            },
+            
+            playFlame() {
+                this.playTone(150, 'sawtooth', 0.3, 0.15);
+                setTimeout(() => this.playTone(200, 'sawtooth', 0.2, 0.1), 100);
+            },
+            
+            playZombieHit() {
+                this.playTone(200, 'sawtooth', 0.2, 0.1);
+            },
+            
+            playZombieAttack() {
+                this.playTone(180, 'triangle', 0.4, 0.1);
+            },
+            
+            playGameOver() {
+                [200, 150, 100].forEach((f, i) => {
+                    setTimeout(() => this.playTone(f, 'sawtooth', 0.3, 0.1), i * 200);
+                });
+            },
+            
+            playBGM() {
+                if (!this.ctx || this.isMuted || this.bgmPlaying) return;
+                this.bgmPlaying = true;
+                const notes = [261, 294, 330, 349, 392, 440, 440, 392];
+                let idx = 0;
+                const play = () => {
+                    if (!this.bgmPlaying) return;
+                    this.playTone(notes[idx], 'triangle', 0.4, 0.03);
+                    idx = (idx + 1) % notes.length;
+                    setTimeout(play, 500);
+                };
+                play();
+            },
+            
+            stopBGM() {
+                this.bgmPlaying = false;
+            },
+            
+            toggle() {
+                if (!this.ctx) this.init();
+                this.isMuted = !this.isMuted;
+                const btn = document.getElementById('sound-control');
+                btn.textContent = this.isMuted ? '🔇 音效: 关' : '🎵 音效: 开';
+                if (!this.isMuted && !this.bgmPlaying) {
+                    this.playBGM();
+                }
+            }
+        };
+
+        // ========== 积分排行榜 ==========
+        const Leaderboard = {
+            // 初始排行榜数据
+            scores: [
+                { rank: 1, name: '冠军', score: 0 },
+                { rank: 2, name: '亚军', score: 0 },
+                { rank: 3, name: '季军', score: 0 }
+            ],
+            
+            // 加载排行榜（从localStorage）
+            load() {
+                const saved = localStorage.getItem('poemZombieLeaderboard');
+                if (saved) {
+                    this.scores = JSON.parse(saved);
+                }
+                this.updateDisplay();
+            },
+            
+            // 保存排行榜（到localStorage）
+            save() {
+                localStorage.setItem('poemZombieLeaderboard', JSON.stringify(this.scores));
+            },
+            
+            // 尝试添加新分数
+            addScore(newScore) {
+                const playerName = '玩家';
+                const newEntry = { rank: 4, name: playerName, score: newScore };
+                
+                // 添加到排行榜
+                this.scores.push(newEntry);
+                
+                // 按分数从高到低排序
+                this.scores.sort((a, b) => b.score - a.score);
+                
+                // 只保留前三名
+                this.scores = this.scores.slice(0, 3);
+                
+                // 更新排名
+                this.scores.forEach((entry, index) => {
+                    entry.rank = index + 1;
+                });
+                
+                // 保存并更新显示
+                this.save();
+                this.updateDisplay();
+                
+                // 返回是否进入排行榜
+                return this.scores.some(entry => entry.score === newScore && entry.name === playerName);
+            },
+            
+            // 更新排行榜显示
+            updateDisplay() {
+                const leaderboard = document.getElementById('leaderboard');
+                if (!leaderboard) return;
+                
+                const items = leaderboard.querySelectorAll('.leaderboard-item');
+                items.forEach((item, index) => {
+                    const entry = this.scores[index];
+                    if (entry) {
+                        item.querySelector('.rank').textContent = this.getRankEmoji(entry.rank);
+                        item.querySelector('.name').textContent = entry.name;
+                        item.querySelector('.score').textContent = entry.score;
+                    }
+                });
+            },
+            
+            // 获取排名表情符号
+            getRankEmoji(rank) {
+                switch(rank) {
+                    case 1: return '🥇';
+                    case 2: return '🥈';
+                    case 3: return '🥉';
+                    default: return `${rank}`;
+                }
+            },
+            
+            // 重置排行榜
+            reset() {
+                this.scores = [
+                    { rank: 1, name: '冠军', score: 0 },
+                    { rank: 2, name: '亚军', score: 0 },
+                    { rank: 3, name: '季军', score: 0 }
+                ];
+                this.save();
+                this.updateDisplay();
+            }
+        };
+
+        // ========== 游戏状态 ==========
+        let score = 0;
+        let combo = 0;
+        let currentQuestion = null;
+        let zombies = [];
+        let flames = [];
+        let particles = [];
+        let gameRunning = false;
+        let zombieSpawnTimer = null;
+        let gameLoop = null;
+        let difficulty = 1;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let crystalHealth = 3;
+        let animationFrame = 0;
+
+        // ========== DOM元素 ==========
+        const scoreElement = document.getElementById('score');
+        const comboElement = document.getElementById('combo');
+        const comboDisplay = document.getElementById('combo-display');
+        const questionText = document.getElementById('question-text');
+        const optionsArea = document.getElementById('options-area');
+        const feedbackText = document.getElementById('feedback-text');
+        const poemDetail = document.getElementById('poem-detail');
+        const poemTitle = document.getElementById('poem-title');
+        const poemAuthor = document.getElementById('poem-author');
+        const poemContent = document.getElementById('poem-content');
+        const gameCanvas = document.getElementById('game-canvas');
+        const gameCtx = gameCanvas.getContext('2d');
+        const particlesContainer = document.getElementById('particles-container');
+        const gameOverOverlay = document.getElementById('game-over-overlay');
+        const finalScoreValue = document.getElementById('final-score-value');
+        const crystalHealthFill = document.getElementById('crystal-health-fill');
+        const crystalHealthText = document.getElementById('crystal-health-text');
+        const energyCore = document.getElementById('energy-core');
+
+        // ========== 游戏配置 ==========
+        const GAME_CONFIG = {
+            roadCount: 1,  // 单条道路
+            zombieBaseSpeed: 0.5,  // 降低僵尸速度
+            zombieSpawnInterval: 4000,  // 僵尸生成间隔4秒
+            flameSpeed: 15,
+            canvasWidth: 800,
+            canvasHeight: 600
+        };
+
+        // ========== 初始化游戏 ==========
+        function initGame() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            showStartScreen();
+            SoundManager.init();
+            Leaderboard.load();  // 加载排行榜
+        }
+
+        function resizeCanvas() {
+            const gameArea = document.getElementById('game-area');
+            gameCanvas.width = gameArea.clientWidth;
+            gameCanvas.height = gameArea.clientHeight;
+            GAME_CONFIG.canvasWidth = gameCanvas.width;
+            GAME_CONFIG.canvasHeight = gameCanvas.height;
+        }
+
+        function showStartScreen() {
+            questionText.innerHTML = "📜 准备好保卫诗词水晶了吗？<br>点击下方按钮开始游戏！";
+            optionsArea.innerHTML = '<button class="option-btn" onclick="startGame()">🎮 开始游戏</button>';
+        }
+
+        // ========== 开始游戏 ==========
+        function startGame() {
+            score = 0;
+            combo = 0;
+            zombies = [];
+            flames = [];
+            particles = [];
+            difficulty = 1;
+            correctCount = 0;
+            wrongCount = 0;
+            crystalHealth = 3;
+            gameRunning = true;
+            animationFrame = 0;
+            
+            updateScore();
+            updateCrystalHealth();
+            showQuestion();
+            spawnZombies();
+            startGameLoop();
+            SoundManager.playBGM();
+        }
+
+        // ========== 生成题目 ==========
+        function showQuestion() {
+            const availablePoems = POEM_LIBRARY.filter(p => !p.used);
+            const poem = availablePoems.length > 0 
+                ? availablePoems[Math.floor(Math.random() * availablePoems.length)]
+                : POEM_LIBRARY[Math.floor(Math.random() * POEM_LIBRARY.length)];
+            
+            poem.used = true;
+            currentQuestion = poem;
+
+            const options = generateOptions(poem);
+            
+            questionText.innerHTML = `📖 上句：<br>「${poem.q}」<br><br>请选择正确的下句：`;
+            
+            optionsArea.innerHTML = '';
+            options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => selectOption(index);
+                optionsArea.appendChild(btn);
+            });
+
+            poemDetail.style.display = 'none';
+        }
+
+        function generateOptions(poem) {
+            const options = [poem.a];
+            const distractors = POEM_LIBRARY
+                .filter(p => p.a !== poem.a)
+                .map(p => p.a);
+            
+            while (options.length < 4) {
+                const randomDistractor = distractors[Math.floor(Math.random() * distractors.length)];
+                if (!options.includes(randomDistractor)) {
+                    options.push(randomDistractor);
+                }
+            }
+            return options.sort(() => Math.random() - 0.5);
+        }
+
+        function selectOption(index) {
+            if (!gameRunning) return;
+
+            const options = document.querySelectorAll('.option-btn');
+            const selectedAnswer = options[index].textContent;
+            const isCorrect = selectedAnswer === currentQuestion.a;
+
+            options.forEach(btn => btn.onclick = null);
+
+            if (isCorrect) {
+                handleCorrectAnswer(index);
+            } else {
+                handleWrongAnswer(index);
+            }
+        }
+
+        function handleCorrectAnswer(selectedIndex) {
+            const options = document.querySelectorAll('.option-btn');
+            options[selectedIndex].classList.add('correct');
+            
+            combo++;
+            const baseScore = 10;
+            const comboBonus = Math.min(combo - 1, 5) * 5;
+            score += baseScore + comboBonus;
+            correctCount++;
+            
+            updateScore();
+            showCombo();
+            
+            feedbackText.innerHTML = `✅ 正确！+${baseScore + comboBonus}分`;
+            feedbackText.style.color = '#4CAF50';
+            
+            showPoemDetail();
+            spawnFlame();
+            createParticles('correct');
+            SoundManager.playCorrect();
+            SoundManager.playFlame();
+            
+            if (correctCount % 5 === 0) {
+                difficulty = Math.min(5, difficulty + 1);
+                adjustDifficulty();
+            }
+            
+            setTimeout(() => {
+                showQuestion();
+                feedbackText.textContent = '';
+            }, 1500);
+        }
+
+        function handleWrongAnswer(selectedIndex) {
+            const options = document.querySelectorAll('.option-btn');
+            options[selectedIndex].classList.add('wrong');
+            options.forEach((btn) => {
+                if (btn.textContent === currentQuestion.a) {
+                    btn.classList.add('correct');
+                }
+            });
+            
+            combo = 0;
+            comboDisplay.style.display = 'none';
+            wrongCount++;
+            
+            feedbackText.innerHTML = '❌ 答错了！再接再厉！';
+            feedbackText.style.color = '#ff9a9e';
+            
+            zombies.forEach(zombie => {
+                zombie.speed *= 1.05;
+            });
+            
+            SoundManager.playWrong();
+            
+            if (wrongCount >= 5 || checkGameOver()) {
+                endGame();
+                return;
+            }
+            
+            setTimeout(() => {
+                showQuestion();
+                feedbackText.textContent = '';
+            }, 1500);
+        }
+
+        function showPoemDetail() {
+            poemTitle.textContent = currentQuestion.title;
+            poemAuthor.textContent = currentQuestion.author;
+            poemContent.innerHTML = `${currentQuestion.q}，<br>${currentQuestion.a}。`;
+            poemDetail.style.display = 'block';
+        }
+
+        function updateScore() {
+            scoreElement.textContent = score;
+        }
+
+        function showCombo() {
+            if (combo >= 3) {
+                comboElement.textContent = combo;
+                comboDisplay.style.display = 'block';
+            }
+        }
+
+        // ========== 僵尸系统 - PVZ风格 ==========
+        function spawnZombies() {
+            if (!gameRunning) return;
+
+            const roadIndex = Math.floor(Math.random() * GAME_CONFIG.roadCount);
+            const isBoss = Math.random() < 0.5;  // 50%概率出现Boss
+            
+            const roadX = getRoadX(roadIndex);
+            zombies.push({
+                x: roadX,
+                startX: roadX,  // 记录初始道路位置
+                y: -80,
+                width: isBoss ? 70 : 50,
+                height: isBoss ? 100 : 70,
+                speed: GAME_CONFIG.zombieBaseSpeed * (0.8 + difficulty * 0.15),
+                health: isBoss ? 2 : 1,  // Boss僵尸2次攻击死亡
+                maxHealth: isBoss ? 2 : 1,
+                isBoss: isBoss,
+                roadIndex: roadIndex,
+                frame: 0,
+                armSwing: 0,
+                moveDirection: 1,  // 1=向右, -1=向左
+                moveTimer: 0,      // 移动计时器
+                moveDuration: 60 + Math.random() * 120,  // 随机移动持续时间
+                isDodging: false,   // 是否正在闪避
+                dodgeCooldown: 0    // 闪避冷却
+            });
+
+            const interval = Math.max(3000, GAME_CONFIG.zombieSpawnInterval - difficulty * 1000);
+            zombieSpawnTimer = setTimeout(spawnZombies, interval);
+        }
+
+        function getRoadX(roadIndex) {
+            const roadWidth = GAME_CONFIG.canvasWidth / GAME_CONFIG.roadCount;
+            return roadWidth * roadIndex + roadWidth / 2;
+        }
+
+        // ========== 喷火系统 ==========
+        function spawnFlame() {
+            // 为每条道路生成两道火焰
+            for (let roadIndex = 0; roadIndex < GAME_CONFIG.roadCount; roadIndex++) {
+                const roadX = getRoadX(roadIndex);
+                
+                // 获取当前道路上的所有僵尸（按距离排序）
+                const roadZombies = zombies.filter(z => z.roadIndex === roadIndex)
+                                          .sort((a, b) => b.y - a.y);  // 按距离从近到远排序
+                
+                // 两道火焰：左侧、右侧（更大范围覆盖）
+                const offsets = [-80, 80];  // 两道火焰的水平偏移
+                
+                offsets.forEach((offset, index) => {
+                    // 自动锁敌：为每道火焰分配目标僵尸
+                    let targetZombie = null;
+                    if (roadZombies.length > 0) {
+                        // 根据火焰位置选择目标：优先选择当前位置或附近的僵尸
+                        const flameInitialX = roadX + offset;
+                        targetZombie = roadZombies.find(z => 
+                            Math.abs(z.x - flameInitialX) < 120
+                        ) || roadZombies[0];  // 如果没有附近的僵尸，选择最前面的
+                    }
+                    
+                    flames.push({
+                        x: roadX + offset,
+                        y: GAME_CONFIG.canvasHeight - 180,
+                        width: 140,  // 增大火焰宽度
+                        height: 180, // 增大火焰高度
+                        speed: (GAME_CONFIG.flameSpeed + difficulty * 1.5) * 0.36,  // 减慢火焰移动速度（再降低40%）
+                        frame: index * 15,  // 错开动画帧，使火焰看起来不统一
+                        roadIndex: roadIndex,
+                        flameIndex: index,  // 标记火焰位置（0=左, 1=右）
+                        targetZombie: targetZombie,  // 锁定的目标僵尸
+                        homingStrength: 0.12,  // 增加追踪强度（因为速度慢了）
+                        isHoming: targetZombie !== null  // 是否启用追踪
+                    });
+                });
+            }
+        }
+
+        // ========== 粒子系统 ==========
+        function createParticles(type, x = null, y = null) {
+            const colors = type === 'correct' 
+                ? ['#ffd700', '#ffaa00', '#ff6b6b', '#4CAF50'] 
+                : ['#ff9a9e', '#ff6b6b', '#c41e3a'];
+            const container = particlesContainer;
+            const centerX = x !== null ? x : Math.random() * 100;
+            const centerY = y !== null ? y : 50;
+            
+            for (let i = 0; i < 20; i++) {  // 增加粒子数量
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = `${centerX}%`;
+                particle.style.top = `${centerY}%`;
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.width = `${Math.random() * 15 + 5}px`;
+                particle.style.height = particle.style.width;
+                particle.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 1500);
+            }
+        }
+
+        // ========== 游戏循环 ==========
+        function startGameLoop() {
+            function loop() {
+                if (!gameRunning) return;
+                
+                updateGame();
+                renderGame();
+                animationFrame++;
+                
+                gameLoop = requestAnimationFrame(loop);
+            }
+            loop();
+        }
+
+        function updateGame() {
+            zombies = zombies.filter(zombie => {
+                zombie.y += zombie.speed;
+                zombie.frame++;
+                zombie.armSwing = Math.sin(zombie.frame * 0.1) * 15;
+                
+                // 僵尸大幅度左右移动
+                zombie.moveTimer++;
+                
+                // 检查是否需要改变方向
+                if (zombie.moveTimer >= zombie.moveDuration) {
+                    zombie.moveDirection *= -1;
+                    zombie.moveTimer = 0;
+                    zombie.moveDuration = 60 + Math.random() * 120;
+                }
+                
+                // 基础左右移动
+                zombie.x += zombie.moveDirection * 2;
+                
+                // 限制僵尸在道路范围内移动（道路宽度为游戏区域的80%）
+                const roadWidth = GAME_CONFIG.canvasWidth * 0.8;
+                const roadLeft = GAME_CONFIG.canvasWidth * 0.1;
+                const roadRight = GAME_CONFIG.canvasWidth * 0.9;
+                
+                if (zombie.x < roadLeft + zombie.width/2) {
+                    zombie.x = roadLeft + zombie.width/2;
+                    zombie.moveDirection = 1;
+                }
+                if (zombie.x > roadRight - zombie.width/2) {
+                    zombie.x = roadRight - zombie.width/2;
+                    zombie.moveDirection = -1;
+                }
+                
+                // 30%几率触发闪避攻击
+                if (!zombie.isDodging && zombie.dodgeCooldown <= 0) {
+                    if (Math.random() < 0.3) {
+                        zombie.isDodging = true;
+                        zombie.dodgeStartX = zombie.x;
+                        zombie.dodgeEndX = zombie.x + (Math.random() > 0.5 ? 1 : -1) * 80;
+                        zombie.dodgeProgress = 0;
+                    }
+                }
+                
+                // 执行闪避动作
+                if (zombie.isDodging) {
+                    zombie.dodgeProgress += 0.08;
+                    const easeProgress = 1 - Math.pow(1 - zombie.dodgeProgress, 3);  // ease-out
+                    zombie.x = zombie.dodgeStartX + (zombie.dodgeEndX - zombie.dodgeStartX) * easeProgress;
+                    
+                    // 确保闪避后仍在道路范围内
+                    zombie.x = Math.max(roadLeft + zombie.width/2, Math.min(roadRight - zombie.width/2, zombie.x));
+                    
+                    if (zombie.dodgeProgress >= 1) {
+                        zombie.isDodging = false;
+                        zombie.dodgeCooldown = 120;  // 2秒冷却
+                    }
+                }
+                
+                // 更新闪避冷却
+                if (zombie.dodgeCooldown > 0) {
+                    zombie.dodgeCooldown--;
+                }
+                
+                // 检查僵尸是否到达水晶
+                if (zombie.y > GAME_CONFIG.canvasHeight - 150) {
+                    // 僵尸攻击水晶
+                    SoundManager.playZombieAttack();
+                    damageCrystal();
+                    zombies = zombies.filter(z => z !== zombie);
+                    return false;
+                }
+                
+                return true;
+            });
+
+            flames = flames.filter(flame => {
+                flame.y -= flame.speed;
+                flame.frame++;
+                
+                // 自动锁敌追踪：如果火焰有锁定目标且目标仍存活，动态追踪目标位置
+                if (flame.isHoming && flame.targetZombie) {
+                    // 检查目标僵尸是否仍存活
+                    const targetStillAlive = zombies.includes(flame.targetZombie);
+                    
+                    if (targetStillAlive) {
+                        // 动态追踪：计算目标位置与火焰当前位置的差值
+                        const targetX = flame.targetZombie.x;
+                        const targetY = flame.targetZombie.y;
+                        const dx = targetX - flame.x;
+                        const dy = targetY - flame.y;
+                        
+                        // 预测目标位置（考虑僵尸移动速度）
+                        const predictedX = targetX + flame.targetZombie.moveDirection * 2;
+                        const predictedY = targetY + flame.targetZombie.speed;
+                        
+                        // 计算预测位置与火焰的差值
+                        const predictDx = predictedX - flame.x;
+                        const predictDy = predictedY - flame.y;
+                        
+                        // 攻击引导：使用预测位置进行追踪
+                        // 追踪强度随时间增加，确保火焰最终命中
+                        const homingFactor = Math.min(flame.homingStrength + flame.frame * 0.002, 0.3);
+                        
+                        // 水平追踪
+                        flame.x += predictDx * homingFactor;
+                        
+                        // 垂直微调：加速向目标方向移动
+                        if (Math.abs(predictDy) > 10) {
+                            flame.y += predictDy * homingFactor * 0.5;
+                        }
+                    } else {
+                        // 目标已死亡，停止追踪
+                        flame.isHoming = false;
+                        flame.targetZombie = null;
+                    }
+                }
+                
+                // 检查火焰与僵尸的碰撞 - 基于实际位置检测
+                const hitZombie = zombies.find(z => 
+                    z.roadIndex === flame.roadIndex &&
+                    Math.abs(flame.x - z.x) < flame.width / 2 + z.width / 2 &&
+                    Math.abs(flame.y - z.y) < z.height / 2 + 30
+                );
+                
+                if (hitZombie) {
+                    hitZombie.health--;
+                    createParticles('correct', hitZombie.x / GAME_CONFIG.canvasWidth * 100, hitZombie.y / GAME_CONFIG.canvasHeight * 100);
+                    SoundManager.playZombieHit();
+                    
+                    const zombieScore = hitZombie.isBoss ? 300 : 100;
+                    score += zombieScore;
+                    updateScore();
+                    
+                    if (hitZombie.health <= 0) {
+                        zombies = zombies.filter(z => z !== hitZombie);
+                    }
+                    
+                    return false;
+                }
+                
+                return flame.y > -150;  // 考虑到火焰更大，增加消失边界
+            });
+
+            if (checkGameOver()) {
+                endGame();
+            }
+        }
+
+        function damageCrystal() {
+            crystalHealth--;
+            updateCrystalHealth();
+            
+            // 喷火龙受伤效果
+            energyCore.classList.add('shake', 'dragon-hurt');
+            setTimeout(() => {
+                energyCore.classList.remove('shake', 'dragon-hurt');
+            }, 300);
+        }
+
+        function updateCrystalHealth() {
+            const healthPercent = (crystalHealth / 3) * 100;
+            crystalHealthFill.style.width = `${healthPercent}%`;
+            crystalHealthText.innerHTML = `❤️ x ${crystalHealth}`;
+            
+            // 改变血条颜色
+            if (crystalHealth === 3) {
+                crystalHealthFill.style.background = 'linear-gradient(90deg, #4CAF50, #4CAF50, #4CAF50)';
+            } else if (crystalHealth === 2) {
+                crystalHealthFill.style.background = 'linear-gradient(90deg, #4CAF50, #4CAF50, #ff9800)';
+            } else {
+                crystalHealthFill.style.background = 'linear-gradient(90deg, #4CAF50, #ff9800, #f44336)';
+            }
+        }
+
+        // ========== 渲染系统 - PVZ风格僵尸 ==========
+        function renderGame() {
+            gameCtx.clearRect(0, 0, GAME_CONFIG.canvasWidth, GAME_CONFIG.canvasHeight);
+
+            // 绘制僵尸
+            zombies.forEach(zombie => {
+                // 绘制僵尸身体
+                const bodyColor = zombie.isBoss ? '#8b4513' : '#5a8a5a';
+                
+                // 头部
+                gameCtx.fillStyle = '#c0a080';
+                gameCtx.beginPath();
+                gameCtx.arc(zombie.x, zombie.y + 15, zombie.width / 2.5, 0, Math.PI * 2);
+                gameCtx.fill();
+                
+                // 眼睛眼白
+                gameCtx.fillStyle = '#fff';
+                gameCtx.beginPath();
+                gameCtx.ellipse(zombie.x - 8, zombie.y + 12, 6, 8, 0, 0, Math.PI * 2);
+                gameCtx.ellipse(zombie.x + 8, zombie.y + 12, 6, 8, 0, 0, Math.PI * 2);
+                gameCtx.fill();
+                
+                // 眼睛瞳孔 (PVZ风格斜眼)
+                gameCtx.fillStyle = '#000';
+                gameCtx.beginPath();
+                gameCtx.ellipse(zombie.x - 10, zombie.y + 14, 3, 5, 0.3, 0, Math.PI * 2);
+                gameCtx.ellipse(zombie.x + 6, zombie.y + 14, 3, 5, -0.3, 0, Math.PI * 2);
+                gameCtx.fill();
+                
+                // 嘴巴
+                gameCtx.strokeStyle = '#4a2c2a';
+                gameCtx.lineWidth = 2;
+                gameCtx.beginPath();
+                gameCtx.arc(zombie.x, zombie.y + 25, 8, 0.2, Math.PI - 0.2);
+                gameCtx.stroke();
+                
+                // 牙齿
+                gameCtx.fillStyle = '#fff';
+                for (let i = 0; i < 3; i++) {
+                    gameCtx.beginPath();
+                    gameCtx.moveTo(zombie.x - 6 + i * 4, zombie.y + 26);
+                    gameCtx.lineTo(zombie.x - 4 + i * 4, zombie.y + 30);
+                    gameCtx.lineTo(zombie.x - 2 + i * 4, zombie.y + 26);
+                    gameCtx.fill();
+                }
+                
+                // 身体
+                gameCtx.fillStyle = bodyColor;
+                gameCtx.beginPath();
+                gameCtx.roundRect(
+                    zombie.x - zombie.width / 2.2,
+                    zombie.y + 30,
+                    zombie.width / 1.1,
+                    zombie.height * 0.6,
+                    5
+                );
+                gameCtx.fill();
+                
+                // 衣服纹理
+                gameCtx.strokeStyle = zombie.isBoss ? '#5a3010' : '#3a6a3a';
+                gameCtx.lineWidth = 1;
+                gameCtx.strokeRect(
+                    zombie.x - zombie.width / 2.5,
+                    zombie.y + 35,
+                    zombie.width / 1.25,
+                    zombie.height * 0.5
+                );
+                
+                // 左臂 (摆动动画)
+                gameCtx.fillStyle = bodyColor;
+                gameCtx.save();
+                gameCtx.translate(zombie.x - zombie.width / 2.5, zombie.y + 45);
+                gameCtx.rotate(zombie.armSwing * 0.05);
+                gameCtx.beginPath();
+                gameCtx.roundRect(-5, 0, 12, zombie.height * 0.35, 3);
+                gameCtx.fill();
+                gameCtx.restore();
+                
+                // 右臂
+                gameCtx.save();
+                gameCtx.translate(zombie.x + zombie.width / 2.5, zombie.y + 45);
+                gameCtx.rotate(-zombie.armSwing * 0.05);
+                gameCtx.beginPath();
+                gameCtx.roundRect(-7, 0, 12, zombie.height * 0.35, 3);
+                gameCtx.fill();
+                gameCtx.restore();
+                
+                // 左腿
+                gameCtx.fillStyle = zombie.isBoss ? '#4a2510' : '#4a7a4a';
+                gameCtx.save();
+                gameCtx.translate(zombie.x - 8, zombie.y + zombie.height - 5);
+                gameCtx.rotate(Math.sin(zombie.frame * 0.08) * 0.3);
+                gameCtx.beginPath();
+                gameCtx.roundRect(-5, -zombie.height * 0.25, 10, zombie.height * 0.25, 3);
+                gameCtx.fill();
+                gameCtx.restore();
+                
+                // 右腿
+                gameCtx.save();
+                gameCtx.translate(zombie.x + 8, zombie.y + zombie.height - 5);
+                gameCtx.rotate(-Math.sin(zombie.frame * 0.08) * 0.3);
+                gameCtx.beginPath();
+                gameCtx.roundRect(-5, -zombie.height * 0.25, 10, zombie.height * 0.25, 3);
+                gameCtx.fill();
+                gameCtx.restore();
+                
+                // 绘制血条 - 所有僵尸都显示
+            const healthBarWidth = zombie.width * 1.2;
+            const healthBarHeight = 8;
+            
+            // 背景
+            gameCtx.fillStyle = '#333';
+            gameCtx.fillRect(zombie.x - healthBarWidth/2, zombie.y - 15, healthBarWidth, healthBarHeight);
+            
+            // 血量填充
+            const healthWidth = healthBarWidth * (zombie.health / zombie.maxHealth);
+            const healthColor = zombie.health >= zombie.maxHealth ? '#4CAF50' : 
+                               zombie.health > zombie.maxHealth / 2 ? '#ff9800' : '#f44336';
+            gameCtx.fillStyle = healthColor;
+            gameCtx.fillRect(zombie.x - healthBarWidth/2, zombie.y - 15, healthWidth, healthBarHeight);
+            
+            // 边框
+            gameCtx.strokeStyle = '#fff';
+            gameCtx.lineWidth = 1;
+            gameCtx.strokeRect(zombie.x - healthBarWidth/2, zombie.y - 15, healthBarWidth, healthBarHeight);
+            
+            // 血量文字
+            gameCtx.fillStyle = '#fff';
+            gameCtx.font = 'bold 10px Arial';
+            gameCtx.textAlign = 'center';
+            gameCtx.fillText(`${zombie.health}/${zombie.maxHealth}`, zombie.x, zombie.y - 18);
+        });
+
+            // 绘制火焰
+            flames.forEach(flame => {
+                gameCtx.save();
+                gameCtx.translate(flame.x, flame.y);
+                
+                const flicker = Math.sin(flame.frame * 0.3) * 0.2 + 0.8;
+                
+                // 火焰主体
+                const gradient = gameCtx.createLinearGradient(0, flame.height/2, 0, -flame.height/2);
+                gradient.addColorStop(0, '#1a1a1a');
+                gradient.addColorStop(0.3, '#ff4500');
+                gradient.addColorStop(0.6, '#ff6b35');
+                gradient.addColorStop(0.8, '#ffd700');
+                gradient.addColorStop(1, '#fff');
+                
+                gameCtx.fillStyle = gradient;
+                
+                // 绘制火焰形状
+                gameCtx.beginPath();
+                const width = flame.width * flicker;
+                const height = flame.height * flicker;
+                
+                // 火焰左半部分
+                gameCtx.moveTo(0, height/2);
+                gameCtx.quadraticCurveTo(-width/2, 0, 0, -height/2 * 0.8);
+                gameCtx.quadraticCurveTo(-width/3, -height/2, 0, -height/2);
+                
+                // 火焰右半部分
+                gameCtx.quadraticCurveTo(width/3, -height/2, 0, -height/2 * 0.8);
+                gameCtx.quadraticCurveTo(width/2, 0, 0, height/2);
+                
+                gameCtx.fill();
+                
+                // 火焰光晕效果
+                const glowGradient = gameCtx.createRadialGradient(0, 0, 0, 0, 0, height);
+                glowGradient.addColorStop(0, 'rgba(255, 107, 53, 0.5)');
+                glowGradient.addColorStop(0.5, 'rgba(255, 69, 0, 0.3)');
+                glowGradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                
+                gameCtx.fillStyle = glowGradient;
+                gameCtx.beginPath();
+                gameCtx.ellipse(0, -height/4, width * 0.8, height * 0.6, 0, 0, Math.PI * 2);
+                gameCtx.fill();
+                
+                gameCtx.restore();
+            });
+        }
+
+        // ========== 难度调整 ==========
+        function adjustDifficulty() {
+            GAME_CONFIG.zombieBaseSpeed = 0.5 + difficulty * 0.12;  // 降低基础速度
+            GAME_CONFIG.zombieSpawnInterval = Math.max(2000, 4000 - difficulty * 300);  // 基于4秒基准
+        }
+
+        // ========== 游戏结束检查 ==========
+        function checkGameOver() {
+            return crystalHealth <= 0;
+        }
+
+        // ========== 结束游戏 ==========
+        function endGame() {
+            gameRunning = false;
+            
+            if (zombieSpawnTimer) {
+                clearTimeout(zombieSpawnTimer);
+            }
+            if (gameLoop) {
+                cancelAnimationFrame(gameLoop);
+            }
+            
+            SoundManager.stopBGM();
+            SoundManager.playGameOver();
+            
+            // 将分数添加到排行榜
+            Leaderboard.addScore(score);
+            
+            finalScoreValue.textContent = score;
+            gameOverOverlay.style.display = 'flex';
+        }
+
+        // ========== 全局函数 ==========
+        function toggleSound() {
+            SoundManager.toggle();
+        }
+
+        function restartGame() {
+            gameOverOverlay.style.display = 'none';
+            startGame();
+        }
+
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

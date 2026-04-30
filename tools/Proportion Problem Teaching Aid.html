@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比例问题教育辅助工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .tab {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding-bottom: 60px;
+        }
+        
+        .main-content.practice-layout {
+            grid-template-columns: 1fr 3fr;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .question-area {
+            min-height: 150px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .question-area .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .question-area .question-type {
+            display: inline-block;
+            background: #e7f3ff;
+            color: #0c63e4;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .answer-area {
+            margin-bottom: 20px;
+        }
+        
+        .answer-area input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .solution-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .solution-area h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .solution-step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .stat-card .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .mistakes-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .mistake-item {
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .mistake-item .mistake-question {
+            font-size: 0.9rem;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+        
+        .mistake-item .mistake-answer {
+            font-size: 0.85rem;
+            color: #dc3545;
+            margin-right: 15px;
+        }
+        
+        .mistake-item .mistake-correct {
+            font-size: 0.85rem;
+            color: #28a745;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        /* 礼花动画样式 */
+        .fireworks-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        
+        .firework {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: explode 1.5s ease-out forwards;
+        }
+        
+        @keyframes explode {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        /* 错误时解题思路高亮样式 */
+        .solution-area.error h3 {
+            color: #dc3545 !important;
+            font-size: 1.56rem !important;
+            background: #fff5f5;
+            border: 2px solid #dc3545;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            animation: pulse-red 0.5s ease-in-out;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.3);
+        }
+        
+        @keyframes pulse-red {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        /* 反馈动画 */
+        .feedback {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 粒子飞散动画 */
+        @keyframes particle-fly {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--endX), var(--endY)) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        /* 学习阶段进度条样式 */
+        .stage-progress-container {
+            margin-bottom: 20px;
+        }
+        
+        .stage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .stage-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .stage-progress-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .stage-progress-bar {
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stage-progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        /* 阶段颜色 */
+        .stage-novice {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        }
+        
+        .stage-apprentice {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+        
+        .stage-expert {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+        
+        .stage-master {
+            background: linear-gradient(90deg, #9C27B0, #CE93D8);
+        }
+        
+        /* 阶段徽章 */
+        .stage-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .badge-novice {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4CAF50;
+        }
+        
+        .badge-apprentice {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 2px solid #2196F3;
+        }
+        
+        .badge-expert {
+            background: #fff3e0;
+            color: #e65100;
+            border: 2px solid #FF9800;
+        }
+        
+        .badge-master {
+            background: #f3e5f5;
+            color: #6a1b9a;
+            border: 2px solid #9C27B0;
+        }
+        
+        /* 成就卡片 */
+        .achievement-card {
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .achievement-card.locked {
+            opacity: 0.5;
+            filter: grayscale(0.7);
+        }
+        
+        .achievement-card.unlocked {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .achievement-card.unlocked::before {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 25px;
+            height: 25px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        /* 成就解锁提示 */
+        .achievement-notification {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 10000;
+            animation: pop-in 0.5s ease-out forwards;
+        }
+        
+        @keyframes pop-in {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .achievement-notification .emoji {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .achievement-notification .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .achievement-notification .description {
+            font-size: 1rem;
+            color: #666;
+        }
+        
+        /* 阶段统计卡片 */
+        .stage-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stage-stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stage-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stage-stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 比例问题教育辅助工具</h1>
+            <p>掌握正比例、反比例、按比例分配解题技巧</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('practice')">练习模式</button>
+            <button class="tab" onclick="showTab('mistakes')">错题本</button>
+        </div>
+        
+        <!-- 练习模式 -->
+        <div id="practice" class="main-content" style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
+            <!-- 左列：生成器、学习成就、练习统计 -->
+            <div style="display: flex; flex-direction: column; gap: 8px; height: 100%;">
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">🎯 题目生成器</h2>
+                    
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">选择模式</label>
+                        <select id="modeSelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="random">随机生成</option>
+                            <option value="custom">自定义</option>
+                            <option value="bank">题库练习</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">题目类型</label>
+                        <select id="typeSelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="all">全部类型</option>
+                            <option value="direct">正比例</option>
+                            <option value="inverse">反比例</option>
+                            <option value="allocation">按比例分配</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 6px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">难度级别</label>
+                        <select id="difficultySelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="mixed">混合难度</option>
+                            <option value="easy">简单</option>
+                            <option value="medium">中等</option>
+                            <option value="hard">困难</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="generateQuestion()" style="width: 100%; font-size: 0.75rem; padding: 5px 8px;">生成题目</button>
+                </div>
+                
+                <!-- 学习成就 -->
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">🏆 学习成就</h2>
+                    
+                    <!-- 当前阶段 -->
+                    <div style="display: flex; justify-content: center; margin-bottom: 6px;">
+                        <span id="currentStageBadgeMini" class="stage-badge badge-novice" style="font-size: 0.7rem; padding: 4px 10px;">
+                            🌱 新手保护期
+                        </span>
+                    </div>
+                    
+                    <!-- 阶段进度 -->
+                    <div style="margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span style="font-size: 0.7rem; color: #666;">当前进度</span>
+                            <span id="stageProgressTextMini" style="font-size: 0.7rem; font-weight: bold;">0 / 9 题</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="stageProgressFillMini" class="stage-progress-fill stage-novice" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 快速统计 -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                        <div style="background: #e8f4fd; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="totalCorrectMini" style="font-size: 0.9rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.55rem; color: #666;">累计答对</div>
+                        </div>
+                        <div style="background: #e8f5e9; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="currentStageProgressMini" style="font-size: 0.9rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.55rem; color: #666;">阶段进度</div>
+                        </div>
+                        <div style="background: #fff3e0; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="nextStageNeedMini" style="font-size: 0.9rem; font-weight: bold; color: #856404;">10</div>
+                            <div style="font-size: 0.55rem; color: #666;">距下一阶段</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 练习统计 -->
+                <div class="card" style="padding: 8px; flex: 1; display: flex; flex-direction: column;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">📊 练习统计</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px;">
+                        <div style="background: #e7f3ff; padding: 5px; border-radius: 4px; text-align: center;">
+                            <div id="totalCountMini" style="font-size: 0.95rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.6rem; color: #666;">总练习次数</div>
+                        </div>
+                        <div style="background: #d4edda; padding: 5px; border-radius: 4px; text-align: center;">
+                            <div id="accuracyMini" style="font-size: 0.95rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.6rem; color: #666;">正确率</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 5px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span style="font-size: 0.65rem; color: #666;">正确率进度</span>
+                            <span style="font-size: 0.65rem;">目标：80%以上</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="progressFillMini" style="width: 0%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 按题型统计 -->
+                    <div style="margin-top: 6px;">
+                        <h4 style="font-size: 0.7rem; margin-bottom: 5px;">📈 按题型统计</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                            <div style="background: #e7f3ff; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #0c63e4; font-weight: bold;">正比例</div>
+                                <div id="directAccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #d4edda; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #155724; font-weight: bold;">反比例</div>
+                                <div id="inverseAccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #fff3cd; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #856404; font-weight: bold;">按比例分配</div>
+                                <div id="allocationAccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="clearStats()" style="margin-top: auto; width: 100%; font-size: 0.65rem; padding: 4px 8px;">重置统计数据</button>
+                </div>
+            </div>
+            
+            <!-- 右列：答题区 -->
+            <div style="height: 100%;">
+                <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                    <h2 style="font-size: 1.1rem; margin-bottom: 12px;">📝 答题区</h2>
+                
+                <div class="question-area" id="questionArea">
+                    <p style="color: #999; text-align: center; line-height: 150px;">点击"生成题目"开始练习</p>
+                </div>
+                
+                <div class="answer-area">
+                    <input type="text" id="answerInput" placeholder="请输入答案" onkeyup="handleEnter(event)">
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">提交答案</button>
+                    <button class="btn btn-secondary" id="continueBtn" onclick="generateQuestion()" style="display: none;">
+                        ➡️ 继续答题
+                    </button>
+                </div>
+                
+                <div class="feedback" id="feedback"></div>
+                
+                <div class="solution-area" id="solutionArea" style="display: none;">
+                    <h3>💡 解题思路</h3>
+                    <div id="solutionSteps"></div>
+                </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 错题本 -->
+        <div id="mistakes" class="main-content" style="display: none;">
+            <div class="card">
+                <h2>📚 错题本</h2>
+                
+                <div class="mistakes-list" id="mistakesList">
+                    <p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="reviewMistakes()">复习错题</button>
+                    <button class="btn btn-secondary" onclick="clearMistakes()">清空错题本</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🎯 薄弱点分析</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>错题类型分布</h3>
+                    <div style="display: grid; gap: 10px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #e7f3ff; padding: 10px; border-radius: 8px; text-align: center;">正比例</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="directMistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="directMistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #d4edda; padding: 10px; border-radius: 8px; text-align: center;">反比例</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="inverseMistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="inverseMistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #fff3cd; padding: 10px; border-radius: 8px; text-align: center;">按比例分配</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="allocationMistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="allocationMistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>💡 针对性练习建议</h3>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <span style="color: #667eea; font-weight: bold;">•</span> 
+                            多练习反比例题目，注意"总量不变"的特点
+                        </li>
+                        <li style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <span style="color: #667eea; font-weight: bold;">•</span> 
+                            按比例分配问题要注意"总份数"的计算
+                        </li>
+                        <li style="background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                            <span style="color: #667eea; font-weight: bold;">•</span> 
+                            建立比例式时要注意对应关系
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 题库数据
+        const questionBank = [
+            // 正比例题目 (1-20)
+            { id: 1, type: 'direct', difficulty: 'easy', question: '一辆汽车3小时行驶180千米，照这样的速度，5小时能行驶多少千米？', answer: 300, solution: ['速度一定，路程与时间成正比例关系', '设5小时行驶x千米，则：3/180 = 5/x', '解得：x = (180 × 5) ÷ 3 = 300'] },
+            { id: 2, type: 'direct', difficulty: 'easy', question: '小明买4支铅笔花了6元，买同样的铅笔10支需要多少钱？', answer: 15, solution: ['单价一定，总价与数量成正比例关系', '设买10支需要x元，则：4/6 = 10/x', '解得：x = (6 × 10) ÷ 4 = 15'] },
+            { id: 3, type: 'direct', difficulty: 'easy', question: '一台机器5小时生产零件200个，照这样计算，8小时能生产多少个零件？', answer: 320, solution: ['效率一定，产量与时间成正比例关系', '设8小时生产x个，则：5/200 = 8/x', '解得：x = (200 × 8) ÷ 5 = 320'] },
+            { id: 4, type: 'direct', difficulty: 'medium', question: '一辆汽车2小时行驶120千米，照这样的速度，行驶300千米需要几小时？', answer: 5, solution: ['速度一定，路程与时间成正比例关系', '设需要x小时，则：2/120 = x/300', '解得：x = (2 × 300) ÷ 120 = 5'] },
+            { id: 5, type: 'direct', difficulty: 'medium', question: '某工厂3天生产零件450个，照这样计算，一周能生产多少个零件？', answer: 1050, solution: ['效率一定，产量与时间成正比例关系', '一周=7天，设一周生产x个，则：3/450 = 7/x', '解得：x = (450 × 7) ÷ 3 = 1050'] },
+            { id: 6, type: 'direct', difficulty: 'medium', question: '小明从家到学校，每分钟走60米，需要15分钟，如果每分钟走90米，需要几分钟？', answer: 10, solution: ['路程一定，速度与时间成反比例关系', '设需要x分钟，则：60 × 15 = 90 × x', '解得：x = (60 × 15) ÷ 90 = 10'] },
+            { id: 7, type: 'direct', difficulty: 'hard', question: '一辆汽车行驶100千米耗油8升，行驶500千米需要耗油多少升？', answer: 40, solution: ['每千米耗油量一定，总耗油量与路程成正比例', '设需要x升油，则：100/8 = 500/x', '解得：x = (8 × 500) ÷ 100 = 40'] },
+            { id: 8, type: 'direct', difficulty: 'hard', question: '一列火车4小时行驶360千米，照这样的速度，行驶540千米需要几小时？', answer: 6, solution: ['速度一定，路程与时间成正比例关系', '设需要x小时，则：4/360 = x/540', '解得：x = (4 × 540) ÷ 360 = 6'] },
+            
+            // 反比例题目 (9-16)
+            { id: 9, type: 'inverse', difficulty: 'easy', question: '一间教室用边长为4dm的正方形地砖铺地，需要360块。如果改用边长为6dm的地砖，需要多少块？', answer: 160, solution: ['教室面积不变，地砖面积与块数成反比例', '4dm地砖面积=16dm²，6dm地砖面积=36dm²', '设需要x块，则：16 × 360 = 36 × x', '解得：x = (16 × 360) ÷ 36 = 160'] },
+            { id: 10, type: 'inverse', difficulty: 'easy', question: '工厂生产一批零件，每天生产50个，需要20天完成。如果每天生产80个，需要多少天完成？', answer: 12.5, solution: ['零件总数不变，每天产量与天数成反比例', '设需要x天，则：50 × 20 = 80 × x', '解得：x = (50 × 20) ÷ 80 = 12.5'] },
+            { id: 11, type: 'inverse', difficulty: 'easy', question: '一辆汽车从甲地到乙地，每小时行驶60千米，需要4小时到达。如果每小时行驶80千米，需要几小时到达？', answer: 3, solution: ['路程不变，速度与时间成反比例', '设需要x小时，则：60 × 4 = 80 × x', '解得：x = (60 × 4) ÷ 80 = 3'] },
+            { id: 12, type: 'inverse', difficulty: 'medium', question: '一个房间用面积是9平方分米的地砖铺地，需要200块。如果改用面积是16平方分米的地砖，需要多少块？', answer: 112.5, solution: ['房间面积不变，地砖面积与块数成反比例', '设需要x块，则：9 × 200 = 16 × x', '解得：x = (9 × 200) ÷ 16 = 112.5'] },
+            { id: 13, type: 'inverse', difficulty: 'medium', question: '某工厂生产一批产品，计划每天生产100件，15天完成。实际每天生产150件，实际需要多少天完成？', answer: 10, solution: ['产品总数不变，每天产量与天数成反比例', '设需要x天，则：100 × 15 = 150 × x', '解得：x = (100 × 15) ÷ 150 = 10'] },
+            { id: 14, type: 'inverse', difficulty: 'hard', question: '一个会议室用边长为5dm的正方形地砖铺地，需要288块。如果改用边长为6dm的地砖，需要多少块？', answer: 200, solution: ['会议室面积不变，地砖面积与块数成反比例', '5dm地砖面积=25dm²，6dm地砖面积=36dm²', '设需要x块，则：25 × 288 = 36 × x', '解得：x = (25 × 288) ÷ 36 = 200'] },
+            { id: 15, type: 'inverse', difficulty: 'hard', question: '某工程队修一条公路，每天修200米，30天完成。如果每天修300米，需要多少天完成？', answer: 20, solution: ['公路长度不变，每天修的长度与天数成反比例', '设需要x天，则：200 × 30 = 300 × x', '解得：x = (200 × 30) ÷ 300 = 20'] },
+            
+            // 按比例分配题目 (17-24)
+            { id: 17, type: 'allocation', difficulty: 'easy', question: '一个班级男生和女生人数比是3:2，全班共有45人，男生有多少人？', answer: 27, solution: ['男生占总人数的3/(3+2)=3/5', '男生人数=45 × 3/5 = 27人'] },
+            { id: 18, type: 'allocation', difficulty: 'easy', question: '一种药水由药粉和水按1:20的比例配制而成，要配制这种药水420克，需要药粉多少克？', answer: 20, solution: ['药粉占总重量的1/(1+20)=1/21', '药粉重量=420 × 1/21 = 20克'] },
+            { id: 19, type: 'allocation', difficulty: 'easy', question: '果园里苹果树和梨树的棵数比是5:3，苹果树比梨树多40棵，果园里共有多少棵树？', answer: 160, solution: ['苹果树比梨树多5-3=2份，对应40棵', '每份=40 ÷ 2 = 20棵', '总棵树=20 × (5+3) = 160棵'] },
+            { id: 20, type: 'allocation', difficulty: 'medium', question: '甲乙丙三人合伙做生意，投资比例是2:3:5，共盈利15万元，丙能分得多少万元？', answer: 7.5, solution: ['丙占总投资的5/(2+3+5)=5/10=1/2', '丙分得=15 × 1/2 = 7.5万元'] },
+            { id: 21, type: 'allocation', difficulty: 'medium', question: '一个三角形三条边的长度比是3:4:5，周长是36厘米，最短的边是多少厘米？', answer: 9, solution: ['最短边占周长的3/(3+4+5)=3/12=1/4', '最短边=36 × 1/4 = 9厘米'] },
+            { id: 22, type: 'allocation', difficulty: 'medium', question: '学校图书馆故事书和科技书的比是4:5，故事书有1200本，科技书有多少本？', answer: 1500, solution: ['设科技书有x本，则：4/5 = 1200/x', '解得：x = (1200 × 5) ÷ 4 = 1500'] },
+            { id: 23, type: 'allocation', difficulty: 'hard', question: '某工厂男工和女工人数比是5:4，全厂共有810人，男工有多少人？', answer: 450, solution: ['男工占总人数的5/(5+4)=5/9', '男工人数=810 × 5/9 = 450人'] },
+            { id: 24, type: 'allocation', difficulty: 'hard', question: '一种混凝土由水泥、沙子和石子按2:3:5的比例混合而成，要配制60吨混凝土，需要水泥多少吨？', answer: 12, solution: ['水泥占总重量的2/(2+3+5)=2/10=1/5', '水泥重量=60 × 1/5 = 12吨'] },
+            
+            // 更多题目
+            { id: 25, type: 'direct', difficulty: 'easy', question: '一种布料每米售价15元，买5米需要多少钱？', answer: 75, solution: ['单价一定，总价与数量成正比例', '总价=15 × 5 = 75元'] },
+            { id: 26, type: 'direct', difficulty: 'easy', question: '一台电视机的价格是2400元，买3台需要多少钱？', answer: 7200, solution: ['单价一定，总价与数量成正比例', '总价=2400 × 3 = 7200元'] },
+            { id: 27, type: 'inverse', difficulty: 'easy', question: '一本书15天看完，每天看20页，如果每天看30页，几天能看完？', answer: 10, solution: ['总页数不变，每天看的页数与天数成反比例', '设需要x天，则：15 × 20 = 30 × x', '解得：x = 10'] },
+            { id: 28, type: 'allocation', difficulty: 'easy', question: '小红和小丽共有零花钱180元，她们的钱数比是4:5，小红有多少钱？', answer: 80, solution: ['小红占总钱数的4/(4+5)=4/9', '小红的钱=180 × 4/9 = 80元'] },
+            { id: 29, type: 'direct', difficulty: 'medium', question: '小明做10道数学题用了15分钟，照这样计算，做25道题需要多少分钟？', answer: 37.5, solution: ['做题速度一定，时间与题数成正比例', '设需要x分钟，则：10/15 = 25/x', '解得：x = 37.5'] },
+            { id: 30, type: 'inverse', difficulty: 'medium', question: '一台打印机每分钟打印20页，打印300页需要多少分钟？', answer: 15, solution: ['打印速度一定，时间与页数成正比例', '设需要x分钟，则：20/1 = 300/x', '解得：x = 15'] },
+            { id: 31, type: 'allocation', difficulty: 'medium', question: '甲乙两地相距360千米，一辆汽车从甲地到乙地，已行路程和未行路程的比是3:5，还剩多少千米？', answer: 225, solution: ['未行路程占总路程的5/(3+5)=5/8', '未行路程=360 × 5/8 = 225千米'] },
+            { id: 32, type: 'direct', difficulty: 'hard', question: '某商店卖出5件衣服收入900元，照这样计算，卖出8件衣服能收入多少元？', answer: 1440, solution: ['单价一定，收入与数量成正比例', '设收入x元，则：5/900 = 8/x', '解得：x = 1440'] },
+            { id: 33, type: 'inverse', difficulty: 'hard', question: '一辆汽车行驶一段路程，每小时行驶50千米，需要8小时。如果每小时行驶40千米，需要几小时？', answer: 10, solution: ['路程不变，速度与时间成反比例', '设需要x小时，则：50 × 8 = 40 × x', '解得：x = 10'] },
+            { id: 34, type: 'allocation', difficulty: 'hard', question: '一本书已读页数和未读页数的比是2:3，这本书共有150页，已读多少页？', answer: 60, solution: ['已读页数占总页数的2/(2+3)=2/5', '已读页数=150 × 2/5 = 60页'] },
+        ];
+
+        // 当前题目
+        let currentQuestion = null;
+        
+        // 统计数据
+        let stats = {
+            total: 0,
+            correct: 0,
+            wrong: 0,
+            byType: {
+                direct: { total: 0, correct: 0 },
+                inverse: { total: 0, correct: 0 },
+                allocation: { total: 0, correct: 0 }
+            }
+        };
+        
+        // 错题本
+        let mistakes = [];
+        
+        // 学习阶段配置（target表示进入该阶段所需的答对数量）
+        const stages = [
+            { id: 'novice', name: '新手保护期', target: 1, emoji: '🌱', color: 'novice' },
+            { id: 'apprentice', name: '学徒期', target: 10, emoji: '📚', color: 'apprentice' },
+            { id: 'expert', name: '学霸期', target: 25, emoji: '⭐', color: 'expert' },
+            { id: 'master', name: '学神期', target: 49, emoji: '👑', color: 'master' }
+        ];
+        
+        // 当前已解锁的阶段
+        let unlockedStages = ['novice'];
+
+        // 获取当前阶段
+        function getCurrentStage(correctCount) {
+            // 新手保护期：1-9道题
+            if (correctCount >= 1 && correctCount <= 9) {
+                return stages[0];
+            }
+            // 学徒期：10-24道题
+            if (correctCount >= 10 && correctCount <= 24) {
+                return stages[1];
+            }
+            // 学霸期：25-48道题
+            if (correctCount >= 25 && correctCount <= 48) {
+                return stages[2];
+            }
+            // 学神期：49道及以上
+            if (correctCount >= 49) {
+                return stages[3];
+            }
+            return stages[0];
+        }
+        
+        // 获取下一阶段
+        function getNextStage(correctCount) {
+            if (correctCount < 10) return stages[1];  // 新手保护期的下一阶段是学徒期
+            if (correctCount < 25) return stages[2];  // 学徒期的下一阶段是学霸期
+            if (correctCount < 49) return stages[3];  // 学霸期的下一阶段是学神期
+            return null;  // 已达到最高阶段
+        }
+        
+        // 更新阶段进度显示
+        function updateStageProgress() {
+            const correctCount = stats.correct;
+            const currentStage = getCurrentStage(correctCount);
+            const nextStage = getNextStage(correctCount);
+            
+            // 更新当前阶段徽章（数据统计页面）
+            const badge = document.getElementById('currentStageBadge');
+            if (badge) {
+                badge.textContent = `${currentStage.emoji} ${currentStage.name}`;
+                badge.className = `stage-badge badge-${currentStage.color}`;
+            }
+            
+            // 更新阶段名称（数据统计页面）
+            const stageName = document.getElementById('stageName');
+            if (stageName) {
+                stageName.textContent = `🎯 ${currentStage.name}`;
+            }
+            
+            // 计算当前阶段进度
+            let progress = 0;
+            let progressText = '';
+            let nextNeed = 0;
+            
+            // 根据阶段计算进度
+            if (correctCount >= 49) {
+                // 学神期
+                progress = 100;
+                progressText = `${correctCount} 题 (已满级)`;
+                nextNeed = 0;
+            } else if (correctCount >= 25) {
+                // 学霸期：25-48道题（共24题）
+                progress = Math.min(((correctCount - 24) / 24) * 100, 100);
+                progressText = `${correctCount} / 48 题`;
+                nextNeed = 49 - correctCount;
+            } else if (correctCount >= 10) {
+                // 学徒期：10-24道题（共15题）
+                progress = Math.min(((correctCount - 9) / 15) * 100, 100);
+                progressText = `${correctCount} / 24 题`;
+                nextNeed = 25 - correctCount;
+            } else if (correctCount >= 1) {
+                // 新手保护期：1-9道题（共9题）
+                progress = Math.min((correctCount / 9) * 100, 100);
+                progressText = `${correctCount} / 9 题`;
+                nextNeed = 10 - correctCount;
+            } else {
+                progress = 0;
+                progressText = `0 / 9 题`;
+                nextNeed = 10;
+            }
+            
+            // 更新进度文本（数据统计页面）
+            const stageProgressText = document.getElementById('stageProgressText');
+            if (stageProgressText) {
+                stageProgressText.textContent = progressText;
+            }
+            
+            // 更新进度条（数据统计页面）
+            const stageProgressFill = document.getElementById('stageProgressFill');
+            if (stageProgressFill) {
+                stageProgressFill.style.width = `${progress}%`;
+                // 根据阶段显示不同的进度文本
+                if (correctCount >= 49) {
+                    stageProgressFill.textContent = `${correctCount}题`;
+                } else if (correctCount >= 25) {
+                    stageProgressFill.textContent = `${correctCount}/48`;
+                } else if (correctCount >= 10) {
+                    stageProgressFill.textContent = `${correctCount}/24`;
+                } else {
+                    stageProgressFill.textContent = `${correctCount}/9`;
+                }
+                stageProgressFill.className = `stage-progress-fill stage-${currentStage.color}`;
+            }
+            
+            // 更新统计数据（数据统计页面）
+            const totalCorrect = document.getElementById('totalCorrect');
+            if (totalCorrect) {
+                totalCorrect.textContent = correctCount;
+            }
+            
+            const currentStageProgress = document.getElementById('currentStageProgress');
+            if (currentStageProgress) {
+                currentStageProgress.textContent = `${Math.round(progress)}%`;
+            }
+            
+            const nextStageNeed = document.getElementById('nextStageNeed');
+            if (nextStageNeed) {
+                nextStageNeed.textContent = nextNeed > 0 ? nextNeed : '已满级';
+            }
+            
+            // 更新练习模式页面的迷你阶段进度
+            const badgeMini = document.getElementById('currentStageBadgeMini');
+            if (badgeMini) {
+                badgeMini.textContent = `${currentStage.emoji} ${currentStage.name}`;
+                badgeMini.className = `stage-badge badge-${currentStage.color}`;
+            }
+            
+            const stageProgressTextMini = document.getElementById('stageProgressTextMini');
+            if (stageProgressTextMini) {
+                stageProgressTextMini.textContent = progressText;
+            }
+            
+            const stageProgressFillMini = document.getElementById('stageProgressFillMini');
+            if (stageProgressFillMini) {
+                stageProgressFillMini.style.width = `${progress}%`;
+                stageProgressFillMini.className = `stage-progress-fill stage-${currentStage.color}`;
+            }
+            
+            const totalCorrectMini = document.getElementById('totalCorrectMini');
+            if (totalCorrectMini) {
+                totalCorrectMini.textContent = correctCount;
+            }
+            
+            const currentStageProgressMini = document.getElementById('currentStageProgressMini');
+            if (currentStageProgressMini) {
+                currentStageProgressMini.textContent = `${Math.round(progress)}%`;
+            }
+            
+            const nextStageNeedMini = document.getElementById('nextStageNeedMini');
+            if (nextStageNeedMini) {
+                nextStageNeedMini.textContent = nextNeed > 0 ? nextNeed : '已满级';
+            }
+            
+            // 更新成就卡片状态
+            // 新手保护期：答对1题以上解锁
+            const noviceCard = document.getElementById('achievementNovice');
+            if (noviceCard) {
+                if (correctCount >= 1) {
+                    noviceCard.classList.remove('locked');
+                    noviceCard.classList.add('unlocked');
+                }
+            }
+            // 学徒期：答对10题以上解锁
+            const apprenticeCard = document.getElementById('achievementApprentice');
+            if (apprenticeCard) {
+                if (correctCount >= 10) {
+                    apprenticeCard.classList.remove('locked');
+                    apprenticeCard.classList.add('unlocked');
+                }
+            }
+            // 学霸期：答对25题以上解锁
+            const expertCard = document.getElementById('achievementExpert');
+            if (expertCard) {
+                if (correctCount >= 25) {
+                    expertCard.classList.remove('locked');
+                    expertCard.classList.add('unlocked');
+                }
+            }
+            // 学神期：答对49题以上解锁
+            const masterCard = document.getElementById('achievementMaster');
+            if (masterCard) {
+                if (correctCount >= 49) {
+                    masterCard.classList.remove('locked');
+                    masterCard.classList.add('unlocked');
+                }
+            }
+        }
+        
+        // 检查阶段升级并显示提示
+        function checkStageUpgrade(newCorrectCount, oldCorrectCount) {
+            // 进入学徒期（答对第10题时）
+            if (newCorrectCount >= 10 && oldCorrectCount < 10) {
+                showAchievementNotification(stages[1]);
+            }
+            // 进入学霸期（答对第25题时）
+            if (newCorrectCount >= 25 && oldCorrectCount < 25) {
+                showAchievementNotification(stages[2]);
+            }
+            // 进入学神期（答对第49题时）
+            if (newCorrectCount >= 49 && oldCorrectCount < 49) {
+                showAchievementNotification(stages[3]);
+            }
+        }
+        
+        // 显示成就解锁提示
+        function showAchievementNotification(stage) {
+            const notification = document.createElement('div');
+            notification.className = 'achievement-notification';
+            notification.innerHTML = `
+                <div class="emoji">${stage.emoji}</div>
+                <div class="title">🎉 ${stage.name} 解锁！</div>
+                <div class="description">恭喜你累计答对${stage.target}道题！</div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // 3秒后移除提示
+            setTimeout(() => {
+                notification.style.animation = 'pop-in 0.3s ease-in reverse forwards';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // 显示标签页
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+            
+            document.querySelectorAll('.main-content').forEach(content => {
+                content.style.display = 'none';
+                content.classList.remove('practice-layout');
+            });
+            
+            const activeContent = document.getElementById(tabName);
+            activeContent.style.display = 'grid';
+            
+            // 仅练习模式使用1:3布局
+            if (tabName === 'practice') {
+                activeContent.classList.add('practice-layout');
+            }
+        }
+
+        // 生成题目
+        function generateQuestion() {
+            const mode = document.getElementById('modeSelect').value;
+            const type = document.getElementById('typeSelect').value;
+            const difficulty = document.getElementById('difficultySelect').value;
+            
+            let filteredQuestions = questionBank;
+            
+            // 按类型筛选
+            if (type !== 'all') {
+                filteredQuestions = filteredQuestions.filter(q => q.type === type);
+            }
+            
+            // 按难度筛选
+            if (difficulty !== 'mixed') {
+                filteredQuestions = filteredQuestions.filter(q => q.difficulty === difficulty);
+            }
+            
+            // 随机选择一道题
+            const randomIndex = Math.floor(Math.random() * filteredQuestions.length);
+            currentQuestion = filteredQuestions[randomIndex];
+            
+            // 显示题目
+            const questionArea = document.getElementById('questionArea');
+            const typeNames = {
+                direct: '正比例',
+                inverse: '反比例',
+                allocation: '按比例分配'
+            };
+            const difficultyNames = {
+                easy: '简单',
+                medium: '中等',
+                hard: '困难'
+            };
+            
+            questionArea.innerHTML = `
+                <span class="question-number">第 ${currentQuestion.id} 题</span>
+                <span class="question-type">${typeNames[currentQuestion.type]}</span>
+                <span style="background: #f0f0f0; color: #666; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem;">${difficultyNames[currentQuestion.difficulty]}</span>
+                <p style="margin-top: 15px;">${currentQuestion.question}</p>
+            `;
+            
+            // 清空答案和反馈
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            
+            // 隐藏继续答题按钮
+            document.getElementById('continueBtn').style.display = 'none';
+            
+            // 启用提交答案按钮（新题目时允许提交）
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+            
+            // 聚焦输入框
+            document.getElementById('answerInput').focus();
+        }
+
+        // 提交答案
+        function submitAnswer() {
+            if (!currentQuestion) return;
+            
+            const userAnswer = parseFloat(document.getElementById('answerInput').value);
+            const feedback = document.getElementById('feedback');
+            const solutionArea = document.getElementById('solutionArea');
+            const solutionSteps = document.getElementById('solutionSteps');
+            
+            // 更新统计
+            stats.total++;
+            stats.byType[currentQuestion.type].total++;
+            
+            // 记录之前的正确数量（用于检查阶段升级）
+            const oldCorrectCount = stats.correct;
+            
+            if (Math.abs(userAnswer - currentQuestion.answer) < 0.01) {
+                // 正确
+                stats.correct++;
+                stats.byType[currentQuestion.type].correct++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '✅ 回答正确！太棒了！';
+                
+                // 移除错误样式
+                solutionArea.classList.remove('error');
+                
+                // 播放礼花动画
+                showFireworks();
+                
+                // 检查阶段升级
+                checkStageUpgrade(stats.correct, oldCorrectCount);
+            } else {
+                // 错误
+                stats.wrong++;
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `❌ 回答错误！正确答案是：${currentQuestion.answer}`;
+                
+                // 添加到错题本
+                mistakes.push({
+                    question: currentQuestion.question,
+                    userAnswer: userAnswer,
+                    correctAnswer: currentQuestion.answer,
+                    type: currentQuestion.type,
+                    solution: currentQuestion.solution
+                });
+                
+                // 添加错误样式
+                solutionArea.classList.add('error');
+            }
+            
+            // 显示解析
+            solutionArea.style.display = 'block';
+            let stepsHtml = '';
+            currentQuestion.solution.forEach((step, index) => {
+                stepsHtml += `<div class="solution-step"><strong>步骤${index + 1}：</strong>${step}</div>`;
+            });
+            solutionSteps.innerHTML = stepsHtml;
+            
+            // 显示继续答题按钮
+            document.getElementById('continueBtn').style.display = 'block';
+            
+            // 禁用提交答案按钮（防止重复提交）
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+            
+            // 保存数据
+            saveData();
+            
+            // 更新统计显示
+            updateStatsDisplay();
+            
+            // 更新错题本显示
+            updateMistakesDisplay();
+        }
+
+        // 礼花动画效果
+        function showFireworks() {
+            // 移除之前的礼花容器
+            const existingContainer = document.getElementById('fireworks-container');
+            if (existingContainer) {
+                existingContainer.remove();
+            }
+            
+            // 创建礼花容器
+            const container = document.createElement('div');
+            container.id = 'fireworks-container';
+            container.className = 'fireworks-container';
+            document.body.appendChild(container);
+            
+            // 定义颜色渐变
+            const colors = [
+                '#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', 
+                '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3',
+                '#ff9f43', '#ee5a24', '#c44569', '#f8b500'
+            ];
+            
+            // 在两侧创建礼花
+            const positions = [
+                { x: 5, y: 50 },   // 左侧
+                { x: 95, y: 50 }   // 右侧
+            ];
+            
+            positions.forEach(pos => {
+                // 创建多个礼花爆炸点
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        createFirework(pos.x, pos.y, colors);
+                    }, i * 100);
+                }
+            });
+            
+            // 1.5秒后移除容器
+            setTimeout(() => {
+                container.remove();
+            }, 1500);
+        }
+        
+        // 创建单个礼花爆炸效果
+        function createFirework(startX, startY, colors) {
+            const container = document.getElementById('fireworks-container');
+            if (!container) return;
+            
+            const particleCount = 20;
+            const angleStep = (Math.PI * 2) / particleCount;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // 随机颜色
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.backgroundColor = color;
+                
+                // 计算粒子扩散角度和距离
+                const angle = angleStep * i + (Math.random() - 0.5) * 0.3;
+                const distance = 80 + Math.random() * 120;
+                
+                // 设置起始位置（百分比）
+                particle.style.left = `${startX}%`;
+                particle.style.top = `${startY}%`;
+                
+                // 设置动画 - 使用JavaScript动画
+                const duration = 1200 + Math.random() * 300;
+                const endX = Math.cos(angle) * distance;
+                const endY = Math.sin(angle) * distance;
+                
+                animateParticle(particle, endX, endY, duration);
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // 粒子动画函数
+        function animateParticle(particle, endX, endY, duration) {
+            const startLeft = parseFloat(particle.style.left);
+            const startTop = parseFloat(particle.style.top);
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 使用缓动函数
+                const eased = 1 - Math.pow(1 - progress, 3);
+                
+                // 更新位置
+                particle.style.left = `${startLeft + endX * eased * 0.3}%`;
+                particle.style.top = `${startTop + endY * eased * 0.3}%`;
+                
+                // 更新透明度和大小
+                particle.style.opacity = 1 - progress;
+                particle.style.transform = `scale(${1 - progress * 0.8})`;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        // 处理回车键
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                submitAnswer();
+            }
+        }
+
+        // 更新统计显示
+        function updateStatsDisplay() {
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            
+            // 更新练习统计（数据统计页面）
+            const totalCount = document.getElementById('totalCount');
+            if (totalCount) totalCount.textContent = stats.total;
+            
+            const correctCount = document.getElementById('correctCount');
+            if (correctCount) correctCount.textContent = stats.correct;
+            
+            const wrongCount = document.getElementById('wrongCount');
+            if (wrongCount) wrongCount.textContent = stats.wrong;
+            
+            const accuracyEl = document.getElementById('accuracy');
+            if (accuracyEl) accuracyEl.textContent = accuracy + '%';
+            
+            const progressFill = document.getElementById('progressFill');
+            if (progressFill) progressFill.style.width = accuracy + '%';
+            
+            // 更新各题型正确率（数据统计页面）
+            const directAcc = stats.byType.direct.total > 0 
+                ? Math.round((stats.byType.direct.correct / stats.byType.direct.total) * 100) 
+                : 0;
+            const inverseAcc = stats.byType.inverse.total > 0 
+                ? Math.round((stats.byType.inverse.correct / stats.byType.inverse.total) * 100) 
+                : 0;
+            const allocationAcc = stats.byType.allocation.total > 0 
+                ? Math.round((stats.byType.allocation.correct / stats.byType.allocation.total) * 100) 
+                : 0;
+            
+            const directAccuracy = document.getElementById('directAccuracy');
+            if (directAccuracy) directAccuracy.textContent = directAcc + '%';
+            
+            const inverseAccuracy = document.getElementById('inverseAccuracy');
+            if (inverseAccuracy) inverseAccuracy.textContent = inverseAcc + '%';
+            
+            const allocationAccuracy = document.getElementById('allocationAccuracy');
+            if (allocationAccuracy) allocationAccuracy.textContent = allocationAcc + '%';
+            
+            // 更新各题型答题数量（数据统计页面）
+            const directCount = document.getElementById('directCount');
+            if (directCount) directCount.textContent = `${stats.byType.direct.correct}/${stats.byType.direct.total} 题`;
+            
+            const inverseCount = document.getElementById('inverseCount');
+            if (inverseCount) inverseCount.textContent = `${stats.byType.inverse.correct}/${stats.byType.inverse.total} 题`;
+            
+            const allocationCount = document.getElementById('allocationCount');
+            if (allocationCount) allocationCount.textContent = `${stats.byType.allocation.correct}/${stats.byType.allocation.total} 题`;
+            
+            // 更新练习模式页面的迷你统计
+            const totalCountMini = document.getElementById('totalCountMini');
+            if (totalCountMini) totalCountMini.textContent = stats.total;
+            
+            const accuracyMini = document.getElementById('accuracyMini');
+            if (accuracyMini) accuracyMini.textContent = accuracy + '%';
+            
+            const progressFillMini = document.getElementById('progressFillMini');
+            if (progressFillMini) progressFillMini.style.width = accuracy + '%';
+            
+            const directAccuracyMini = document.getElementById('directAccuracyMini');
+            if (directAccuracyMini) directAccuracyMini.textContent = directAcc + '%';
+            
+            const inverseAccuracyMini = document.getElementById('inverseAccuracyMini');
+            if (inverseAccuracyMini) inverseAccuracyMini.textContent = inverseAcc + '%';
+            
+            const allocationAccuracyMini = document.getElementById('allocationAccuracyMini');
+            if (allocationAccuracyMini) allocationAccuracyMini.textContent = allocationAcc + '%';
+            
+            // 更新阶段进度
+            updateStageProgress();
+        }
+
+        // 更新错题本显示
+        function updateMistakesDisplay() {
+            const mistakesList = document.getElementById('mistakesList');
+            
+            if (mistakes.length === 0) {
+                mistakesList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>';
+                // 重置薄弱点分析数据
+                updateWeaknessAnalysis();
+                return;
+            }
+            
+            let html = '';
+            mistakes.forEach((mistake, index) => {
+                const typeNames = {
+                    direct: '正比例',
+                    inverse: '反比例',
+                    allocation: '按比例分配'
+                };
+                html += `
+                    <div class="mistake-item">
+                        <div class="mistake-question"><strong>第${index + 1}题：</strong>${mistake.question}</div>
+                        <div>
+                            <span class="mistake-answer">你的答案：${mistake.userAnswer}</span>
+                            <span class="mistake-correct">正确答案：${mistake.correctAnswer}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            mistakesList.innerHTML = html;
+            
+            // 更新薄弱点分析数据
+            updateWeaknessAnalysis();
+        }
+        
+        // 更新薄弱点分析
+        function updateWeaknessAnalysis() {
+            // 统计各类型错题数量
+            const mistakeCounts = {
+                direct: mistakes.filter(m => m.type === 'direct').length,
+                inverse: mistakes.filter(m => m.type === 'inverse').length,
+                allocation: mistakes.filter(m => m.type === 'allocation').length
+            };
+            
+            // 计算最大数量（用于进度条比例）
+            const maxCount = Math.max(mistakeCounts.direct, mistakeCounts.inverse, mistakeCounts.allocation, 1);
+            
+            // 更新正比例错题数据
+            const directProgress = (mistakeCounts.direct / maxCount) * 100;
+            document.getElementById('directMistakeProgress').style.width = `${directProgress}%`;
+            document.getElementById('directMistakeCount').textContent = `${mistakeCounts.direct}题`;
+            
+            // 更新反比例错题数据
+            const inverseProgress = (mistakeCounts.inverse / maxCount) * 100;
+            document.getElementById('inverseMistakeProgress').style.width = `${inverseProgress}%`;
+            document.getElementById('inverseMistakeCount').textContent = `${mistakeCounts.inverse}题`;
+            
+            // 更新按比例分配错题数据
+            const allocationProgress = (mistakeCounts.allocation / maxCount) * 100;
+            document.getElementById('allocationMistakeProgress').style.width = `${allocationProgress}%`;
+            document.getElementById('allocationMistakeCount').textContent = `${mistakeCounts.allocation}题`;
+        }
+
+        // 保存数据
+        function saveData() {
+            localStorage.setItem('ratioStats', JSON.stringify(stats));
+            localStorage.setItem('ratioMistakes', JSON.stringify(mistakes));
+        }
+
+        // 加载数据
+        function loadData() {
+            const savedStats = localStorage.getItem('ratioStats');
+            const savedMistakes = localStorage.getItem('ratioMistakes');
+            
+            if (savedStats) {
+                stats = JSON.parse(savedStats);
+            }
+            if (savedMistakes) {
+                mistakes = JSON.parse(savedMistakes);
+            }
+            
+            updateStatsDisplay();
+            updateMistakesDisplay();
+        }
+
+        // 清空统计数据
+        function clearStats() {
+            if (confirm('确定要重置所有统计数据吗？')) {
+                stats = {
+                    total: 0,
+                    correct: 0,
+                    wrong: 0,
+                    byType: {
+                        direct: { total: 0, correct: 0 },
+                        inverse: { total: 0, correct: 0 },
+                        allocation: { total: 0, correct: 0 }
+                    }
+                };
+                saveData();
+                updateStatsDisplay();
+            }
+        }
+
+        // 清空错题本
+        function clearMistakes() {
+            if (confirm('确定要清空错题本吗？')) {
+                mistakes = [];
+                saveData();
+                updateMistakesDisplay();
+            }
+        }
+
+        // 复习错题
+        function reviewMistakes() {
+            if (mistakes.length === 0) {
+                alert('错题本为空！');
+                return;
+            }
+            
+            // 切换到练习模式并显示第一道错题
+            showTab('practice');
+            
+            // 创建临时错题题目
+            const randomIndex = Math.floor(Math.random() * mistakes.length);
+            const mistake = mistakes[randomIndex];
+            
+            currentQuestion = {
+                id: `错题${randomIndex + 1}`,
+                type: mistake.type,
+                difficulty: 'review',
+                question: mistake.question,
+                answer: mistake.correctAnswer,
+                solution: mistake.solution || ['请根据题目自行分析解题步骤']
+            };
+            
+            // 显示题目
+            const questionArea = document.getElementById('questionArea');
+            const typeNames = {
+                direct: '正比例',
+                inverse: '反比例',
+                allocation: '按比例分配'
+            };
+            
+            questionArea.innerHTML = `
+                <span class="question-number" style="background: #dc3545;">错题复习</span>
+                <span class="question-type">${typeNames[currentQuestion.type]}</span>
+                <p style="margin-top: 15px;">${currentQuestion.question}</p>
+            `;
+            
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('answerInput').focus();
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+    </script>
+    
+    <!-- 底部页脚 开始 -->
+    <footer style="
+      width: 100%;
+      background-color: #f8f8f8;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 12px;
+      color: #666;
+      border-top: 1px solid #e5e5e5;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 999;
+    ">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+        <a href="#" style="color:#666; text-decoration:none;">关于我们</a>
+        <span style="color: #ddd;">|</span>
+        <a href="#" style="color:#666; text-decoration:none;">使用说明</a>
+        <span style="color: #ddd;">|</span>
+        <a href="#" style="color:#666; text-decoration:none;">隐私政策</a>
+        <span style="color: #ddd;">|</span>
+        <span>© 陈胡氏HTML工具 版权所有</span>
+      </div>
+    </footer>
+    <!-- 底部页脚 结束 -->
+</body>
+</html>

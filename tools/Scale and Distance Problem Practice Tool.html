@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比例尺与行程问题教育辅助工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .tab {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding-bottom: 60px;
+        }
+        
+        .main-content.practice-layout {
+            grid-template-columns: 1fr 3fr;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .question-area {
+            min-height: 150px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .question-area .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .question-area .question-type {
+            display: inline-block;
+            background: #e7f3ff;
+            color: #0c63e4;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .answer-area {
+            margin-bottom: 20px;
+        }
+        
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .solution-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .solution-area h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .solution-step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .solution-area.error h3 {
+            color: #dc3545 !important;
+            font-size: 1.56rem !important;
+            background: #fff5f5;
+            border: 2px solid #dc3545;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            animation: pulse-red 0.5s ease-in-out;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.3);
+        }
+        
+        @keyframes pulse-red {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+        
+        .stage-progress-container {
+            margin-bottom: 20px;
+        }
+        
+        .stage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .stage-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .stage-progress-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .stage-progress-bar {
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stage-progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .stage-novice {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        }
+        
+        .stage-apprentice {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+        
+        .stage-expert {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+        
+        .stage-master {
+            background: linear-gradient(90deg, #9C27B0, #CE93D8);
+        }
+        
+        .stage-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .badge-novice {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4CAF50;
+        }
+        
+        .badge-apprentice {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 2px solid #2196F3;
+        }
+        
+        .badge-expert {
+            background: #fff3e0;
+            color: #e65100;
+            border: 2px solid #FF9800;
+        }
+        
+        .badge-master {
+            background: #f3e5f5;
+            color: #6a1b9a;
+            border: 2px solid #9C27B0;
+        }
+        
+        /* 礼花动画样式 */
+        .fireworks-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        
+        .firework {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: explode 1.5s ease-out forwards;
+        }
+        
+        @keyframes explode {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        @keyframes particle-fly {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--endX), var(--endY)) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        /* 成就解锁提示 */
+        .achievement-notification {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 10000;
+            animation: pop-in 0.5s ease-out forwards;
+        }
+        
+        @keyframes pop-in {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .achievement-notification .emoji {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .achievement-notification .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .achievement-notification .description {
+            font-size: 1rem;
+            color: #666;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .stat-card {
+            background: #e8f4fd;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .type-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .type-stat-card {
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .mistake-item {
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .mistake-item .mistake-question {
+            font-size: 0.9rem;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+        
+        .mistake-item .mistake-answer {
+            font-size: 0.85rem;
+            color: #dc3545;
+            margin-right: 15px;
+        }
+        
+        .mistake-item .mistake-correct {
+            font-size: 0.85rem;
+            color: #28a745;
+        }
+        
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            z-index: 999;
+            backdrop-filter: blur(10px);
+        }
+        
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 比例尺与行程问题练习工具</h1>
+            <p>掌握比例尺换算，提升行程问题解题能力</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('practice')">练习模式</button>
+            <button class="tab" onclick="showTab('mistakes')">错题本</button>
+        </div>
+        
+        <div id="practice" class="main-content practice-layout">
+            <div style="display: flex; flex-direction: column; gap: 12px; height: 100%;">
+                <div class="card" style="padding: 15px;">
+                    <h3 style="font-size: 0.95rem; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px;">🎯 题目生成器</h3>
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 0.8rem;">选择模式</label>
+                        <select id="modeSelect" style="width: 100%; padding: 6px; font-size: 0.8rem;">
+                            <option value="random">随机生成</option>
+                            <option value="bank">题库练习</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 0.8rem;">难度级别</label>
+                        <select id="difficultySelect" style="width: 100%; padding: 6px; font-size: 0.8rem;">
+                            <option value="mixed">混合难度</option>
+                            <option value="easy">简单</option>
+                            <option value="medium">中等</option>
+                            <option value="hard">困难</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateQuestion()" style="width: 100%; padding: 8px 15px; font-size: 0.85rem;">生成题目</button>
+                </div>
+                
+                <div class="card" style="padding: 15px;">
+                    <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px;">🏆 学习成就</h3>
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <span id="currentStageBadgeMini" class="stage-badge badge-novice">🌱 新手保护期</span>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                            <span style="font-size: 0.75rem; color: #666;">当前进度</span>
+                            <span id="stageProgressTextMini" style="font-size: 0.75rem; font-weight: bold;">0 / 9 题</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="stageProgressFillMini" class="stage-progress-fill stage-novice" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card" style="padding: 8px;">
+                            <div id="totalCorrectMini" style="font-size: 1rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.65rem; color: #666;">累计答对</div>
+                        </div>
+                        <div class="stat-card" style="padding: 8px;">
+                            <div id="currentStageProgressMini" style="font-size: 1rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.65rem; color: #666;">阶段进度</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="flex: 1; display: flex; flex-direction: column; padding: 15px;">
+                    <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px;">📊 练习统计</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card" style="padding: 8px;">
+                            <div id="totalCountMini" style="font-size: 1rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.65rem; color: #666;">总练习次数</div>
+                        </div>
+                        <div class="stat-card" style="padding: 8px;">
+                            <div id="accuracyMini" style="font-size: 1rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.65rem; color: #666;">正确率</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                            <span style="font-size: 0.7rem; color: #666;">正确率进度</span>
+                            <span style="font-size: 0.7rem;">目标：80%以上</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="progressFillMini" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <h4 style="font-size: 0.75rem; margin-bottom: 6px;">📈 按难度统计</h4>
+                        <div class="type-stats">
+                            <div class="type-stat-card" style="background: #e7f3ff; padding: 6px;">
+                                <div style="font-size: 0.6rem; color: #0c63e4; font-weight: bold;">简单</div>
+                                <div id="easyAccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div class="type-stat-card" style="background: #d4edda; padding: 6px;">
+                                <div style="font-size: 0.6rem; color: #155724; font-weight: bold;">中等</div>
+                                <div id="mediumAccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div class="type-stat-card" style="background: #fff3cd; padding: 6px;">
+                                <div style="font-size: 0.6rem; color: #856404; font-weight: bold;">困难</div>
+                                <div id="hardAccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="clearStats()" style="margin-top: auto; width: 100%; padding: 6px 12px; font-size: 0.7rem;">重置统计数据</button>
+                </div>
+            </div>
+            
+            <div style="height: 100%;">
+                <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 15px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">📝 答题区</h3>
+                    <div class="question-area" id="questionArea">
+                        <p style="color: #999; text-align: center; line-height: 180px;">点击"生成题目"开始练习</p>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <input type="number" id="answerInput" placeholder="请输入答案" step="any">
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">提交答案</button>
+                            <button class="btn btn-secondary" id="continueBtn" onclick="generateQuestion()" style="display: none;">继续答题</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback"></div>
+                    <div class="solution-area" id="solutionArea" style="display: none; margin-top: 15px;">
+                        <h3>💡 解题思路</h3>
+                        <div id="solutionSteps" class="solution-steps"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mistakes" class="main-content" style="display: none;">
+            <div class="card">
+                <h2>📚 错题本</h2>
+                <div class="mistakes-list" id="mistakesList">
+                    <p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="reviewMistakes()">复习错题</button>
+                    <button class="btn btn-secondary" onclick="clearMistakes()">清空错题本</button>
+                </div>
+            </div>
+            <div class="card">
+                <h2>🎯 薄弱点分析</h2>
+                <div style="margin-bottom: 20px;">
+                    <h3>错题难度分布</h3>
+                    <div style="display: grid; gap: 10px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 60px; background: #e7f3ff; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.8rem;">简单</div>
+                            <div style="flex: 1; height: 15px; background: #e9ecef; border-radius: 8px; margin-left: 10px; overflow: hidden;">
+                                <div id="easyMistakeProgress" style="width: 0%; background: #4a90d9;"></div>
+                            </div>
+                            <div style="margin-left: 10px; font-size: 0.85rem;" id="easyMistakeCount">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 60px; background: #d4edda; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.8rem;">中等</div>
+                            <div style="flex: 1; height: 15px; background: #e9ecef; border-radius: 8px; margin-left: 10px; overflow: hidden;">
+                                <div id="mediumMistakeProgress" style="width: 0%; background: #28a745;"></div>
+                            </div>
+                            <div style="margin-left: 10px; font-size: 0.85rem;" id="mediumMistakeCount">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 60px; background: #fff3cd; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.8rem;">困难</div>
+                            <div style="flex: 1; height: 15px; background: #e9ecef; border-radius: 8px; margin-left: 10px; overflow: hidden;">
+                                <div id="hardMistakeProgress" style="width: 0%; background: #ffc107;"></div>
+                            </div>
+                            <div style="margin-left: 10px; font-size: 0.85rem;" id="hardMistakeCount">0题</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3>针对性练习建议</h3>
+                    <div id="practiceSuggestions" style="background: #fff3e0; padding: 15px; border-radius: 8px;">
+                        <p style="color: #856404;">完成更多练习后，系统将根据您的错题情况提供针对性练习建议</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <a href="#" onclick="showInstructions()" style="color:#667eea; text-decoration:none; transition: color 0.3s;">📖 使用说明</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" onclick="showAbout()" style="color:#667eea; text-decoration:none; transition: color 0.3s;">ℹ️ 关于我们</a>
+            <span style="color: #ddd;">|</span>
+            <span>© 陈胡氏HTML工具 比例尺与行程问题练习工具 | 助力数学学习</span>
+        </div>
+    </footer>
+    
+    <script>
+        let stats = {
+            total: 0,
+            correct: 0,
+            wrong: 0,
+            byDifficulty: {
+                easy: { correct: 0, total: 0 },
+                medium: { correct: 0, total: 0 },
+                hard: { correct: 0, total: 0 }
+            }
+        };
+        let mistakes = [];
+        let currentQuestion = null;
+        let bankIndex = 0;
+        let bankFiltered = [];
+        
+        const stages = [
+            { id: 'novice', name: '新手保护期', target: 9, emoji: '🌱', color: 'novice' },
+            { id: 'apprentice', name: '学徒期', target: 24, emoji: '📚', color: 'apprentice' },
+            { id: 'expert', name: '学霸期', target: 48, emoji: '⭐', color: 'expert' },
+            { id: 'master', name: '学神期', target: 49, emoji: '👑', color: 'master' }
+        ];
+        
+        const questionTemplates = [
+            {
+                type: 'direct',
+                difficulty: 'easy',
+                generate: function() {
+                    const scales = [50000, 100000, 150000, 200000, 300000, 400000, 500000];
+                    let scale, scaleKm, mapDist, actualDist, speed, time, timeMinutes;
+                    
+                    do {
+                        scale = scales[Math.floor(Math.random() * scales.length)];
+                        scaleKm = scale / 100000;
+                        mapDist = Math.floor(Math.random() * 20) + 5;
+                        actualDist = mapDist * scaleKm;
+                        speed = [30, 40, 45, 50, 60, 72][Math.floor(Math.random() * 6)];
+                        time = actualDist / speed;
+                        timeMinutes = time * 60;
+                    } while (timeMinutes % 1 !== 0 || timeMinutes <= 0);
+                    
+                    return {
+                        content: `在比例尺是1:${scale}的地图上，量得A、B两地的距离是${mapDist}厘米，一辆汽车以每小时${speed}千米的速度从A地开往B地，需要多少分钟到达？`,
+                        answer: timeMinutes,
+                        difficulty: 'easy',
+                        solution: `第一步：单位换算，${scale}cm = ${scaleKm}km\n第二步：实际距离 = ${mapDist} × ${scaleKm} = ${actualDist}km\n第三步：时间 = ${actualDist} ÷ ${speed} = ${time}小时 = ${timeMinutes}分钟`
+                    };
+                }
+            },
+            {
+                type: 'direct',
+                difficulty: 'easy',
+                generate: function() {
+                    const scales = [50000, 100000, 200000, 250000, 300000, 400000];
+                    const scale = scales[Math.floor(Math.random() * scales.length)];
+                    const scaleKm = scale / 100000;
+                    const mapDist = Math.floor(Math.random() * 15) + 5;
+                    const actualDist = mapDist * scaleKm;
+                    
+                    return {
+                        content: `一幅地图的比例尺是1:${scale}，图上距离是${mapDist}厘米，实际距离是多少千米？`,
+                        answer: actualDist,
+                        difficulty: 'easy',
+                        solution: `第一步：单位换算，${scale}cm = ${scaleKm}km\n第二步：实际距离 = ${mapDist} × ${scaleKm} = ${actualDist}km`
+                    };
+                }
+            },
+            {
+                type: 'direct',
+                difficulty: 'easy',
+                generate: function() {
+                    const scales = [100000, 200000, 250000, 500000, 1000000];
+                    const scale = scales[Math.floor(Math.random() * scales.length)];
+                    const actualDist = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50][Math.floor(Math.random() * 10)];
+                    const mapDist = (actualDist * 100000) / scale;
+                    
+                    return {
+                        content: `实际距离是${actualDist}千米，在比例尺1:${scale}的地图上，图上距离是多少厘米？`,
+                        answer: mapDist,
+                        difficulty: 'easy',
+                        solution: `第一步：实际距离换算，${actualDist}km = ${actualDist * 100000}cm\n第二步：图上距离 = ${actualDist * 100000} ÷ ${scale} = ${mapDist}cm`
+                    };
+                }
+            },
+            {
+                type: 'inverse',
+                difficulty: 'medium',
+                generate: function() {
+                    const scales = [50000, 100000, 200000, 250000, 300000, 400000, 500000];
+                    let scale, scaleKm, mapDist, actualDist, speed, time, timeMinutes;
+                    
+                    do {
+                        scale = scales[Math.floor(Math.random() * scales.length)];
+                        scaleKm = scale / 100000;
+                        mapDist = Math.floor(Math.random() * 20) + 5;
+                        actualDist = mapDist * scaleKm;
+                        speed = [30, 40, 45, 50, 60, 72][Math.floor(Math.random() * 6)];
+                        time = actualDist / speed;
+                        timeMinutes = Math.round(time * 60);
+                    } while (timeMinutes % 1 !== 0 || timeMinutes <= 0 || timeMinutes >= 720);
+                    
+                    const startTime = ['8', '9', '10', '11'][Math.floor(Math.random() * 4)];
+                    const startMinute = ['00', '30'][Math.floor(Math.random() * 2)];
+                    const startTotalMinutes = parseInt(startTime) * 60 + parseInt(startMinute);
+                    const arrivalTotalMinutes = startTotalMinutes + timeMinutes;
+                    const arrivalHour = Math.floor(arrivalTotalMinutes / 60);
+                    const arrivalMinute = arrivalTotalMinutes % 60;
+                    
+                    return {
+                        content: `在比例尺1:${scale}的地图上，量得两地距离是${mapDist}厘米。一辆汽车上午${startTime}时${startMinute}分出发，平均每小时行${speed}千米，什么时候能到达？`,
+                        answer: parseFloat(arrivalHour + '.' + (arrivalMinute.toString().padStart(2, '0'))),
+                        difficulty: 'medium',
+                        solution: `第一步：单位换算，${scale}cm = ${scaleKm}km\n第二步：实际距离 = ${mapDist} × ${scaleKm} = ${actualDist}km\n第三步：时间 = ${actualDist} ÷ ${speed} = ${time}小时 = ${timeMinutes}分钟\n第四步：到达时间 = ${startTime}:${startMinute} + ${timeMinutes}分钟 = ${arrivalHour}时${arrivalMinute}分`
+                    };
+                }
+            },
+            {
+                type: 'allocation',
+                difficulty: 'hard',
+                generate: function() {
+                    const scales = [100000, 150000, 200000, 250000, 300000, 400000, 500000];
+                    let scale, scaleKm, mapDist, actualDist, speed1, time1, distance1, remainingDist, speed2, time2;
+                    
+                    do {
+                        scale = scales[Math.floor(Math.random() * scales.length)];
+                        scaleKm = scale / 100000;
+                        mapDist = Math.floor(Math.random() * 15) + 5;
+                        actualDist = mapDist * scaleKm;
+                        speed1 = [30, 40, 45, 50, 60][Math.floor(Math.random() * 5)];
+                        time1 = Math.floor(Math.random() * 2) + 1;
+                        distance1 = speed1 * time1;
+                        remainingDist = actualDist - distance1;
+                        
+                        if (remainingDist <= 0) continue;
+                        
+                        const speeds2 = [30, 40, 45, 50, 60, 72, 80];
+                        const validSpeeds = speeds2.filter(s => remainingDist % s === 0);
+                        if (validSpeeds.length === 0) continue;
+                        
+                        speed2 = validSpeeds[Math.floor(Math.random() * validSpeeds.length)];
+                        time2 = remainingDist / speed2;
+                        
+                    } while (distance1 >= actualDist || actualDist <= 0 || !Number.isInteger(time2));
+                    
+                    return {
+                        content: `在比例尺1:${scale}的地图上，量得A、B两地距离是${mapDist}厘米。一辆汽车从A地出发，每小时行${speed1}千米，行了${time1}小时后，剩下的路程如果每小时行${speed2}千米，还要几小时到达？`,
+                        answer: time2,
+                        difficulty: 'hard',
+                        solution: `第一步：实际距离 = ${mapDist} × ${scaleKm} = ${actualDist}km\n第二步：已行驶距离 = ${speed1} × ${time1} = ${distance1}km\n第三步：剩余距离 = ${actualDist} - ${distance1} = ${remainingDist}km\n第四步：还需时间 = ${remainingDist} ÷ ${speed2} = ${time2}小时`
+                    };
+                }
+            },
+            {
+                type: 'allocation',
+                difficulty: 'hard',
+                generate: function() {
+                    const scale = [200000, 250000, 300000, 400000, 500000, 600000][Math.floor(Math.random() * 6)];
+                    const scaleKm = scale / 100000;
+                    let mapDist, actualDist, speed1, speed2, time1, time2, avgSpeed;
+                    
+                    do {
+                        mapDist = Math.floor(Math.random() * 15) + 5;
+                        actualDist = mapDist * scaleKm;
+                        speed1 = [30, 40, 45, 50, 60, 72, 80][Math.floor(Math.random() * 7)];
+                        speed2 = [30, 40, 45, 50, 60, 72, 80][Math.floor(Math.random() * 7)];
+                        time1 = actualDist / speed1;
+                        time2 = actualDist / speed2;
+                        avgSpeed = (2 * actualDist) / (time1 + time2);
+                    } while (!isFinite(time1) || !isFinite(time2) || 
+                             (time1 * 100) % 1 !== 0 || (time2 * 100) % 1 !== 0 ||
+                             time1 <= 0 || time2 <= 0);
+                    
+                    return {
+                        content: `在比例尺1:${scale}的地图上，量得甲、乙两地距离是${mapDist}厘米。一辆汽车从甲地到乙地，去时用了${time1}小时，返回时用了${time2}小时，往返平均速度是多少？`,
+                        answer: Math.round(avgSpeed * 100) / 100,
+                        difficulty: 'hard',
+                        solution: `第一步：实际距离 = ${mapDist} × ${scaleKm} = ${actualDist}km\n第二步：总路程 = ${actualDist} × 2 = ${actualDist * 2}km\n第三步：总时间 = ${time1} + ${time2} = ${time1 + time2}小时\n第四步：平均速度 = ${actualDist * 2} ÷ ${time1 + time2} ≈ ${Math.round(avgSpeed * 100) / 100}km/h`
+                    };
+                }
+            },
+            {
+                type: 'inverse',
+                difficulty: 'medium',
+                generate: function() {
+                    const scale = [50000, 100000, 150000, 200000][Math.floor(Math.random() * 4)];
+                    const scaleKm = scale / 100000;
+                    const mapDist = [10, 15, 20, 25, 30][Math.floor(Math.random() * 5)];
+                    const actualDist = mapDist * scaleKm;
+                    const speed = [40, 50, 60, 72][Math.floor(Math.random() * 4)];
+                    const time = actualDist / speed;
+                    const leaveHour = 10;
+                    const leaveMinute = [0, 30][Math.floor(Math.random() * 2)];
+                    const deadlineHour = 11;
+                    const deadlineMinute = [0, 30][Math.floor(Math.random() * 2)];
+                    const leaveTotalMinutes = leaveHour * 60 + leaveMinute;
+                    const deadlineTotalMinutes = deadlineHour * 60 + deadlineMinute;
+                    const travelMinutes = Math.round(time * 60);
+                    const arriveTotalMinutes = leaveTotalMinutes + travelMinutes;
+                    const canArrive = arriveTotalMinutes <= deadlineTotalMinutes;
+                    
+                    return {
+                        content: `笑笑的爸爸上午${leaveHour}时${leaveMinute}分下高速，需要在${deadlineHour}时${deadlineMinute}分前到达酒店。高速出口到酒店的图上距离是${mapDist}厘米，比例尺是1:${scale}。大巴车最高时速是${speed}千米/时，能准时到达吗？（能填1，不能填0）`,
+                        answer: canArrive ? 1 : 0,
+                        difficulty: 'medium',
+                        solution: `第一步：单位换算，${scale}cm = ${scaleKm}km\n第二步：实际距离 = ${mapDist} × ${scaleKm} = ${actualDist}km\n第三步：需要时间 = ${actualDist} ÷ ${speed} = ${time}小时 = ${travelMinutes}分钟\n第四步：到达时间 = ${leaveHour}:${leaveMinute} + ${travelMinutes}分钟 = ${Math.floor(arriveTotalMinutes / 60)}时${arriveTotalMinutes % 60}分\n${canArrive ? '能' : '不能'}准时到达`
+                    };
+                }
+            }
+        ];
+        
+        const bankQuestions = [
+            { content: '在比例尺是1:50000的地图上，量得A、B两地的距离是10厘米，一辆汽车以每小时50千米的速度从A地开往B地，需要多少分钟到达？', answer: 6, difficulty: 'easy', solution: '第一步：50000cm = 0.5km\n第二步：实际距离 = 10 × 0.5 = 5km\n第三步：时间 = 5 ÷ 50 = 0.1小时 = 6分钟' },
+            { content: '一幅地图的比例尺是1:60000，图上距离是15厘米，实际距离是多少千米？', answer: 9, difficulty: 'easy', solution: '第一步：60000cm = 0.6km\n第二步：实际距离 = 15 × 0.6 = 9km' },
+            { content: '实际距离是30千米，在比例尺1:1000000的地图上，图上距离是多少厘米？', answer: 3, difficulty: 'easy', solution: '第一步：30km = 3000000cm\n第二步：图上距离 = 3000000 ÷ 1000000 = 3cm' },
+            { content: '小明从家到学校的实际距离是2千米，在比例尺1:100000的地图上，图上距离是多少厘米？', answer: 2, difficulty: 'easy', solution: '第一步：2km = 200000cm\n第二步：图上距离 = 200000 ÷ 100000 = 2cm' },
+            { content: '地图比例尺为1:200000，图上距离8厘米，实际距离是多少千米？', answer: 16, difficulty: 'easy', solution: '第一步：200000cm = 2km\n第二步：实际距离 = 8 × 2 = 16km' },
+            { content: '一辆汽车以每小时40千米的速度行驶，3小时到达目的地。在比例尺1:3000000的地图上，这段路程的图上距离是多少厘米？', answer: 4, difficulty: 'easy', solution: '第一步：路程 = 40 × 3 = 120km\n第二步：120km = 12000000cm\n第三步：图上距离 = 12000000 ÷ 3000000 = 4cm' },
+            { content: '在比例尺1:40000的地图上，量得两地距离是20厘米。一辆摩托车以每小时40千米的速度行驶，需要多长时间到达？', answer: 0.2, difficulty: 'easy', solution: '第一步：40000cm = 0.4km\n第二步：实际距离 = 20 × 0.4 = 8km\n第三步：时间 = 8 ÷ 40 = 0.2小时' },
+            { content: '实际距离12千米，比例尺1:300000，图上距离是多少厘米？', answer: 4, difficulty: 'easy', solution: '第一步：12km = 1200000cm\n第二步：图上距离 = 1200000 ÷ 300000 = 4cm' },
+            { content: '图上距离6厘米，比例尺1:250000，实际距离是多少千米？', answer: 15, difficulty: 'easy', solution: '第一步：250000cm = 2.5km\n第二步：实际距离 = 6 × 2.5 = 15km' },
+            { content: '一辆自行车每小时行15千米，2小时到达目的地。在比例尺1:200000的地图上，这段路长多少厘米？', answer: 15, difficulty: 'easy', solution: '第一步：路程 = 15 × 2 = 30km\n第二步：30km = 3000000cm\n第三步：图上距离 = 3000000 ÷ 200000 = 15cm' },
+            { content: '比例尺1:500000，图上距离5厘米，实际距离是多少千米？', answer: 25, difficulty: 'easy', solution: '第一步：500000cm = 5km\n第二步：实际距离 = 5 × 5 = 25km' },
+            { content: '实际距离45千米，在比例尺1:900000的地图上，图上距离是多少厘米？', answer: 5, difficulty: 'easy', solution: '第一步：45km = 4500000cm\n第二步：图上距离 = 4500000 ÷ 900000 = 5cm' },
+            { content: '汽车以每小时60千米的速度行驶，1.5小时到达。在比例尺1:450000的地图上，这段路程的图上距离是多少厘米？', answer: 20, difficulty: 'easy', solution: '第一步：路程 = 60 × 1.5 = 90km\n第二步：90km = 9000000cm\n第三步：图上距离 = 9000000 ÷ 450000 = 20cm' },
+            { content: '比例尺1:80000，图上距离12.5厘米，实际距离是多少千米？', answer: 10, difficulty: 'easy', solution: '第一步：80000cm = 0.8km\n第二步：实际距离 = 12.5 × 0.8 = 10km' },
+            { content: '实际距离8千米，比例尺1:200000，图上距离是多少厘米？', answer: 4, difficulty: 'easy', solution: '第一步：8km = 800000cm\n第二步：图上距离 = 800000 ÷ 200000 = 4cm' },
+            { content: '小明骑自行车每小时行12千米，3小时到达公园。在比例尺1:180000的地图上，小明家到公园的距离是多少厘米？', answer: 20, difficulty: 'easy', solution: '第一步：路程 = 12 × 3 = 36km\n第二步：36km = 3600000cm\n第三步：图上距离 = 3600000 ÷ 180000 = 20cm' },
+            { content: '在比例尺1:1000000的地图上，量得两地距离是6厘米，一辆汽车以每小时60千米的速度行驶，需要几小时到达？', answer: 1, difficulty: 'easy', solution: '第一步：1000000cm = 10km\n第二步：实际距离 = 6 × 10 = 60km\n第三步：时间 = 60 ÷ 60 = 1小时' },
+            { content: '图上距离3厘米，比例尺1:400000，实际距离是多少千米？', answer: 12, difficulty: 'easy', solution: '第一步：400000cm = 4km\n第二步：实际距离 = 3 × 4 = 12km' },
+            { content: '实际距离24千米，比例尺1:600000，图上距离是多少厘米？', answer: 4, difficulty: 'easy', solution: '第一步：24km = 2400000cm\n第二步：图上距离 = 2400000 ÷ 600000 = 4cm' },
+            { content: '一辆货车每小时行30千米，4小时到达目的地。在比例尺1:400000的地图上，这段路程长多少厘米？', answer: 30, difficulty: 'easy', solution: '第一步：路程 = 30 × 4 = 120km\n第二步：120km = 12000000cm\n第三步：图上距离 = 12000000 ÷ 400000 = 30cm' },
+            { content: '比例尺1:75000，图上距离8厘米，实际距离是多少千米？', answer: 6, difficulty: 'easy', solution: '第一步：75000cm = 0.75km\n第二步：实际距离 = 8 × 0.75 = 6km' },
+            { content: '实际距离18千米，比例尺1:300000，图上距离是多少厘米？', answer: 6, difficulty: 'easy', solution: '第一步：18km = 1800000cm\n第二步：图上距离 = 1800000 ÷ 300000 = 6cm' },
+            { content: '汽车以每小时50千米的速度行驶2小时，在比例尺1:250000的地图上，这段路程的图上距离是多少厘米？', answer: 40, difficulty: 'easy', solution: '第一步：路程 = 50 × 2 = 100km\n第二步：100km = 10000000cm\n第三步：图上距离 = 10000000 ÷ 250000 = 40cm' },
+            { content: '在比例尺1:120000的地图上，量得两地距离是15厘米，实际距离是多少千米？', answer: 18, difficulty: 'easy', solution: '第一步：120000cm = 1.2km\n第二步：实际距离 = 15 × 1.2 = 18km' },
+            { content: '实际距离72千米，比例尺1:900000，图上距离是多少厘米？', answer: 8, difficulty: 'easy', solution: '第一步：72km = 7200000cm\n第二步：图上距离 = 7200000 ÷ 900000 = 8cm' },
+            { content: '在比例尺1:2000000的地图上，量得北京到天津的距离是5.5厘米，一辆汽车上午8时从北京出发，平均每小时行55千米，什么时候能到达天津？', answer: 10, difficulty: 'medium', solution: '第一步：2000000cm = 20km\n第二步：实际距离 = 5.5 × 20 = 110km\n第三步：时间 = 110 ÷ 55 = 2小时\n第四步：到达时间 = 8 + 2 = 10时' },
+            { content: '一幅地图的线段比例尺是0 50 100 150千米，图上距离是8厘米，实际距离是多少千米？', answer: 400, difficulty: 'medium', solution: '第一步：线段比例尺1厘米代表50千米\n第二步：实际距离 = 8 × 50 = 400km' },
+
+            { content: '一辆汽车从A地到B地，前3小时行了180千米，照这样的速度，还要2小时才能到达。在比例尺1:5000000的地图上，A、B两地的距离是多少厘米？', answer: 6, difficulty: 'medium', solution: '第一步：速度 = 180 ÷ 3 = 60km/h\n第二步：总路程 = 60 × (3 + 2) = 300km\n第三步：300km = 30000000cm\n第四步：图上距离 = 30000000 ÷ 5000000 = 6cm' },
+            { content: '一列火车从甲地开往乙地，每小时行120千米，需要8小时到达。在比例尺1:6000000的地图上，甲、乙两地的距离是多少厘米？', answer: 16, difficulty: 'medium', solution: '第一步：路程 = 120 × 8 = 960km\n第二步：960km = 96000000cm\n第三步：图上距离 = 96000000 ÷ 6000000 = 16cm' },
+            { content: '在比例尺1:500000的地图上，量得一条公路长8厘米。如果把这条公路画在比例尺1:200000的地图上，应该画多少厘米？', answer: 20, difficulty: 'medium', solution: '第一步：实际距离 = 8 × 5 = 40km\n第二步：40km = 4000000cm\n第三步：图上距离 = 4000000 ÷ 200000 = 20cm' },
+            { content: '小明从家到学校，如果每分钟走60米，需要15分钟到达。在比例尺1:15000的地图上，小明家到学校的距离是多少厘米？', answer: 6, difficulty: 'medium', solution: '第一步：路程 = 60 × 15 = 900m = 90000cm\n第二步：图上距离 = 90000 ÷ 15000 = 6cm' },
+            { content: '一幅地图，图上5厘米表示实际距离30千米，这幅地图的比例尺是多少？', answer: '1:600000', difficulty: 'medium', solution: '第一步：30km = 3000000cm\n第二步：比例尺 = 5:3000000 = 1:600000' },
+
+            { content: '在比例尺1:8000000的地图上，量得甲、乙两地距离是6厘米。一列火车从甲地开往乙地，每小时行120千米，需要几小时到达？', answer: 4, difficulty: 'medium', solution: '第一步：8000000cm = 80km\n第二步：实际距离 = 6 × 80 = 480km\n第三步：时间 = 480 ÷ 120 = 4小时' },
+            { content: '一辆汽车从A城到B城，计划每小时行60千米，4小时到达。实际提前1小时到达，实际每小时行多少千米？', answer: 80, difficulty: 'hard', solution: '第一步：路程 = 60 × 4 = 240km\n第二步：实际时间 = 4 - 1 = 3小时\n第三步：实际速度 = 240 ÷ 3 = 80km/h' },
+            { content: '在比例尺1:3000000的地图上，量得甲、乙两地距离是8厘米。一列火车从甲地开往乙地，每小时行100千米，行了2小时后，还要行多少千米才能到达？', answer: 40, difficulty: 'hard', solution: '第一步：3000000cm = 30km\n第二步：实际距离 = 8 × 30 = 240km\n第三步：已行驶距离 = 100 × 2 = 200km\n第四步：剩余距离 = 240 - 200 = 40km' },
+            { content: '两地相距240千米，一辆汽车去时每小时行60千米，返回时每小时行80千米，往返平均速度是多少？', answer: '约68.57', difficulty: 'hard', solution: '第一步：去时时间 = 240 ÷ 60 = 4小时\n第二步：返回时间 = 240 ÷ 80 = 3小时\n第三步：总路程 = 240 × 2 = 480km\n第四步：总时间 = 4 + 3 = 7小时\n第五步：平均速度 = 480 ÷ 7 ≈ 68.57km/h' },
+            { content: '小明从家到学校，先步行10分钟，每分钟走60米，然后坐公交车15分钟，公交车每分钟行400米。小明家到学校的实际距离是多少米？', answer: 6600, difficulty: 'hard', solution: '第一步：步行距离 = 60 × 10 = 600m\n第二步：公交距离 = 400 × 15 = 6000m\n第三步：总距离 = 600 + 6000 = 6600m' },
+            { content: '甲、乙两地在比例尺1:6000000的地图上相距10厘米。一辆汽车从甲地出发，每小时行75千米，行了4小时后，离乙地还有多少千米？', answer: 300, difficulty: 'hard', solution: '第一步：6000000cm = 60km\n第二步：实际距离 = 10 × 60 = 600km\n第三步：已行驶距离 = 75 × 4 = 300km\n第四步：剩余距离 = 600 - 300 = 300km' },
+
+            { content: '一辆汽车从A地到B地，前2小时行了100千米，照这样计算，还要3小时才能到达。A、B两地相距多少千米？', answer: 250, difficulty: 'hard', solution: '第一步：速度 = 100 ÷ 2 = 50km/h\n第二步：总时间 = 2 + 3 = 5小时\n第三步：总路程 = 50 × 5 = 250km' },
+            { content: '在比例尺1:500000的地图上，量得A、B两地距离是18厘米。一辆汽车上午8时从A地出发，下午2时到达B地，平均每小时行多少千米？', answer: 15, difficulty: 'hard', solution: '第一步：500000cm = 5km\n第二步：实际距离 = 18 × 5 = 90km\n第三步：行驶时间 = 14 - 8 = 6小时\n第四步：速度 = 90 ÷ 6 = 15km/h' },
+            { content: '甲、乙两地相距360千米，一辆汽车从甲地出发，每小时行60千米，行了3小时后，速度提高到每小时90千米，还要几小时到达？', answer: 2, difficulty: 'hard', solution: '第一步：已行驶距离 = 60 × 3 = 180km\n第二步：剩余距离 = 360 - 180 = 180km\n第三步：还需时间 = 180 ÷ 90 = 2小时' },
+            { content: '一幅地图的比例尺是1:8000000，量得北京到上海的距离是13.5厘米。一列火车从北京出发，每小时行120千米，需要几小时到达上海？', answer: 9, difficulty: 'hard', solution: '第一步：8000000cm = 80km\n第二步：实际距离 = 13.5 × 80 = 1080km\n第三步：时间 = 1080 ÷ 120 = 9小时' }
+        ];
+        
+        function getCurrentStage(correctCount) {
+            if (correctCount >= 49) return stages[3];
+            if (correctCount >= 25) return stages[2];
+            if (correctCount >= 10) return stages[1];
+            return stages[0];
+        }
+        
+        function generateQuestion() {
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('continueBtn').style.display = 'none';
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+            
+            const mode = document.getElementById('modeSelect').value;
+            const difficulty = document.getElementById('difficultySelect').value;
+            
+            let question;
+            
+            if (mode === 'bank') {
+                if (bankFiltered.length === 0) {
+                    bankFiltered = bankQuestions.filter(q => difficulty === 'mixed' || q.difficulty === difficulty);
+                }
+                if (bankIndex >= bankFiltered.length) {
+                    bankIndex = 0;
+                }
+                question = bankFiltered[bankIndex++];
+            } else {
+                let availableTemplates = questionTemplates;
+                if (difficulty !== 'mixed') {
+                    availableTemplates = questionTemplates.filter(t => t.difficulty === difficulty);
+                }
+                const template = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
+                question = template.generate();
+            }
+            
+            currentQuestion = question;
+            
+            document.getElementById('questionArea').innerHTML = `
+                <p style="font-size: 1rem; line-height: 1.8;">${question.content}</p>
+                <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">难度：${question.difficulty === 'easy' ? '简单' : question.difficulty === 'medium' ? '中等' : '困难'}</p>
+            `;
+        }
+        
+        function submitAnswer() {
+            if (!currentQuestion) return;
+            
+            const userAnswer = parseFloat(document.getElementById('answerInput').value);
+            const submitBtn = document.getElementById('submitBtn');
+            
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+            
+            stats.total++;
+            const questionDifficulty = currentQuestion.difficulty;
+            stats.byDifficulty[questionDifficulty].total++;
+            
+            let isCorrect = false;
+            const answerStr = currentQuestion.answer.toString();
+            
+            if (answerStr.includes(',')) {
+                const answers = answerStr.split(',').map(a => parseFloat(a.trim()));
+                isCorrect = answers.some(a => Math.abs(userAnswer - a) < 0.1);
+            } else if (answerStr.includes('约')) {
+                const approxAnswer = parseFloat(answerStr.replace('约', ''));
+                isCorrect = Math.abs(userAnswer - approxAnswer) < 1;
+            } else {
+                const correctAnswer = parseFloat(answerStr);
+                isCorrect = Math.abs(userAnswer - correctAnswer) < 0.01;
+            }
+            
+            if (isCorrect) {
+                stats.correct++;
+                stats.byDifficulty[questionDifficulty].correct++;
+                showFeedback('correct', '🎉 回答正确！');
+                showFireworks();
+                checkStageProgress(stats.correct - 1, stats.correct);
+            } else {
+                stats.wrong++;
+                showFeedback('wrong', '😢 回答错误，正确答案是：' + currentQuestion.answer);
+                highlightSolution();
+                addToMistakes();
+            }
+            
+            document.getElementById('solutionArea').style.display = 'block';
+            document.getElementById('solutionSteps').innerHTML = currentQuestion.solution.replace(/\n/g, '<div class="solution-step"></div>');
+            document.getElementById('continueBtn').style.display = 'inline-block';
+            
+            saveData();
+            updateStatsDisplay();
+            updateWeaknessAnalysis();
+        }
+        
+        function showFeedback(type, message) {
+            const feedback = document.getElementById('feedback');
+            feedback.className = `feedback ${type}`;
+            feedback.textContent = message;
+        }
+        
+        function showFireworks() {
+            const container = document.createElement('div');
+            container.className = 'fireworks-container';
+            document.body.appendChild(container);
+            
+            const colors = ['#ff6b6b', '#ffda79', '#63d471', '#4ecdc4', '#7a77ff', '#ff9ff3', '#48dbfb'];
+            
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    createFirework(centerX + (Math.random() - 0.5) * 200, centerY + (Math.random() - 0.5) * 200, colors);
+                }, i * 100);
+            }
+            
+            setTimeout(() => {
+                for (let i = 0; i < 25; i++) {
+                    setTimeout(() => {
+                        createFirework(window.innerWidth * Math.random(), window.innerHeight * (0.2 + Math.random() * 0.3), colors);
+                    }, i * 80);
+                }
+            }, 300);
+            
+            setTimeout(() => container.remove(), 2000);
+        }
+        
+        function createFirework(x, y, colors) {
+            const container = document.querySelector('.fireworks-container');
+            if (!container) return;
+            
+            const particleCount = 12;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = (Math.PI * 2 * i) / particleCount;
+                const distance = 100 + Math.random() * 100;
+                const endX = Math.cos(angle) * distance;
+                const endY = Math.sin(angle) * distance + 50;
+                
+                particle.style.setProperty('--endX', endX + 'px');
+                particle.style.setProperty('--endY', endY + 'px');
+                particle.style.animation = `particle-fly 1s ease-out forwards`;
+                particle.style.animationDelay = Math.random() * 0.2 + 's';
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        function highlightSolution() {
+            const solutionArea = document.getElementById('solutionArea');
+            solutionArea.classList.add('error');
+            setTimeout(() => {
+                solutionArea.classList.remove('error');
+            }, 3000);
+        }
+        
+        function addToMistakes() {
+            mistakes.push({
+                question: currentQuestion.content,
+                difficulty: currentQuestion.difficulty,
+                userAnswer: document.getElementById('answerInput').value,
+                correctAnswer: currentQuestion.answer,
+                solution: currentQuestion.solution,
+                timestamp: Date.now()
+            });
+        }
+        
+        function checkStageProgress(oldCorrect, newCorrect) {
+            if (newCorrect === 9 && oldCorrect < 9) {
+                showAchievementNotification('⭐', '见习生 解锁！', '恭喜你累计答对9道题，继续加油！');
+            } else if (newCorrect === 18 && oldCorrect < 18) {
+                showAchievementNotification('🌟', '学徒 解锁！', '恭喜你累计答对18道题，进步明显！');
+            } else if (newCorrect === 30 && oldCorrect < 30) {
+                showAchievementNotification('💫', '专家 解锁！', '恭喜你累计答对30道题，你已经很厉害了！');
+            } else if (newCorrect === 50 && oldCorrect < 50) {
+                showAchievementNotification('🏆', '大师 解锁！', '恭喜你累计答对50道题，你是真正的数学大师！');
+            }
+        }
+        
+        function updateStageProgress() {
+            const correctCount = stats.correct;
+            const currentStage = getCurrentStage(correctCount);
+            
+            const badgeMini = document.getElementById('currentStageBadgeMini');
+            if (badgeMini) {
+                badgeMini.textContent = `${currentStage.emoji} ${currentStage.name}`;
+                badgeMini.className = `stage-badge badge-${currentStage.color}`;
+            }
+            
+            let progress = 0;
+            let progressText = '';
+            let nextNeed = 0;
+            
+            if (correctCount >= 49) {
+                progress = 100;
+                progressText = `${correctCount} 题 (已满级)`;
+                nextNeed = 0;
+            } else if (correctCount >= 25) {
+                progress = Math.min(((correctCount - 24) / 24) * 100, 100);
+                progressText = `${correctCount} / 48 题`;
+                nextNeed = 49 - correctCount;
+            } else if (correctCount >= 10) {
+                progress = Math.min(((correctCount - 9) / 15) * 100, 100);
+                progressText = `${correctCount} / 24 题`;
+                nextNeed = 25 - correctCount;
+            } else if (correctCount >= 1) {
+                progress = Math.min((correctCount / 9) * 100, 100);
+                progressText = `${correctCount} / 9 题`;
+                nextNeed = 10 - correctCount;
+            } else {
+                progress = 0;
+                progressText = '0 / 9 题';
+                nextNeed = 10;
+            }
+            
+            const stageProgressTextMini = document.getElementById('stageProgressTextMini');
+            if (stageProgressTextMini) stageProgressTextMini.textContent = progressText;
+            
+            const stageProgressFillMini = document.getElementById('stageProgressFillMini');
+            if (stageProgressFillMini) {
+                stageProgressFillMini.style.width = `${progress}%`;
+                stageProgressFillMini.className = `stage-progress-fill stage-${currentStage.color}`;
+            }
+            
+            const totalCorrectMini = document.getElementById('totalCorrectMini');
+            if (totalCorrectMini) totalCorrectMini.textContent = correctCount;
+            
+            const currentStageProgressMini = document.getElementById('currentStageProgressMini');
+            if (currentStageProgressMini) currentStageProgressMini.textContent = `${Math.round(progress)}%`;
+            
+            const nextStageNeedMini = document.getElementById('nextStageNeedMini');
+            if (nextStageNeedMini) nextStageNeedMini.textContent = nextNeed > 0 ? nextNeed : '已满级';
+        }
+        
+        function updateStatsDisplay() {
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            
+            const totalCountMini = document.getElementById('totalCountMini');
+            if (totalCountMini) totalCountMini.textContent = stats.total;
+            
+            const accuracyMini = document.getElementById('accuracyMini');
+            if (accuracyMini) accuracyMini.textContent = accuracy + '%';
+            
+            const progressFillMini = document.getElementById('progressFillMini');
+            if (progressFillMini) progressFillMini.style.width = accuracy + '%';
+            
+            const easyAcc = stats.byDifficulty.easy.total > 0 
+                ? Math.round((stats.byDifficulty.easy.correct / stats.byDifficulty.easy.total) * 100) 
+                : 0;
+            const mediumAcc = stats.byDifficulty.medium.total > 0 
+                ? Math.round((stats.byDifficulty.medium.correct / stats.byDifficulty.medium.total) * 100) 
+                : 0;
+            const hardAcc = stats.byDifficulty.hard.total > 0 
+                ? Math.round((stats.byDifficulty.hard.correct / stats.byDifficulty.hard.total) * 100) 
+                : 0;
+            
+            const easyAccuracyMini = document.getElementById('easyAccuracyMini');
+            if (easyAccuracyMini) easyAccuracyMini.textContent = easyAcc + '%';
+            
+            const mediumAccuracyMini = document.getElementById('mediumAccuracyMini');
+            if (mediumAccuracyMini) mediumAccuracyMini.textContent = mediumAcc + '%';
+            
+            const hardAccuracyMini = document.getElementById('hardAccuracyMini');
+            if (hardAccuracyMini) hardAccuracyMini.textContent = hardAcc + '%';
+            
+            updateStageProgress();
+        }
+        
+        function updateWeaknessAnalysis() {
+            const mistakeCounts = {
+                easy: mistakes.filter(m => m.difficulty === 'easy').length,
+                medium: mistakes.filter(m => m.difficulty === 'medium').length,
+                hard: mistakes.filter(m => m.difficulty === 'hard').length
+            };
+            
+            const maxCount = Math.max(...Object.values(mistakeCounts), 1);
+            
+            const easyMistakeProgress = document.getElementById('easyMistakeProgress');
+            if (easyMistakeProgress) easyMistakeProgress.style.width = `${(mistakeCounts.easy / maxCount) * 100}%`;
+            
+            const mediumMistakeProgress = document.getElementById('mediumMistakeProgress');
+            if (mediumMistakeProgress) mediumMistakeProgress.style.width = `${(mistakeCounts.medium / maxCount) * 100}%`;
+            
+            const hardMistakeProgress = document.getElementById('hardMistakeProgress');
+            if (hardMistakeProgress) hardMistakeProgress.style.width = `${(mistakeCounts.hard / maxCount) * 100}%`;
+            
+            const easyMistakeCount = document.getElementById('easyMistakeCount');
+            if (easyMistakeCount) easyMistakeCount.textContent = `${mistakeCounts.easy}题`;
+            
+            const mediumMistakeCount = document.getElementById('mediumMistakeCount');
+            if (mediumMistakeCount) mediumMistakeCount.textContent = `${mistakeCounts.medium}题`;
+            
+            const hardMistakeCount = document.getElementById('hardMistakeCount');
+            if (hardMistakeCount) hardMistakeCount.textContent = `${mistakeCounts.hard}题`;
+            
+            updatePracticeSuggestions(mistakeCounts);
+        }
+        
+        function updatePracticeSuggestions(mistakeCounts) {
+            const suggestions = [];
+            const totalMistakes = Object.values(mistakeCounts).reduce((a, b) => a + b, 0);
+            
+            if (totalMistakes === 0) {
+                document.getElementById('practiceSuggestions').innerHTML = 
+                    '<p style="color: #856404;">完成更多练习后，系统将根据您的错题情况提供针对性练习建议</p>';
+                return;
+            }
+            
+            if (mistakeCounts.easy > mistakeCounts.medium && mistakeCounts.easy > mistakeCounts.hard) {
+                suggestions.push('建议加强【简单题】的练习');
+            }
+            if (mistakeCounts.medium > mistakeCounts.easy && mistakeCounts.medium > mistakeCounts.hard) {
+                suggestions.push('建议加强【中等题】的练习');
+            }
+            if (mistakeCounts.hard > mistakeCounts.easy && mistakeCounts.hard > mistakeCounts.medium) {
+                suggestions.push('建议加强【困难题】的练习');
+            }
+            
+            if (suggestions.length === 0) {
+                suggestions.push('各难度错题分布均匀，继续保持！');
+            }
+            
+            document.getElementById('practiceSuggestions').innerHTML = 
+                suggestions.map(s => `<p style="color: #856404; margin: 5px 0;">• ${s}</p>`).join('');
+        }
+        
+        function renderMistakes() {
+            const mistakesList = document.getElementById('mistakesList');
+            
+            if (mistakes.length === 0) {
+                mistakesList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>';
+                return;
+            }
+            
+            mistakesList.innerHTML = mistakes.map((mistake, index) => `
+                <div class="mistake-item">
+                    <div style="font-weight: bold; margin-bottom: 5px;">第${index + 1}题</div>
+                    <div style="color: #333; margin-bottom: 5px;">${mistake.question}</div>
+                    <div style="font-size: 0.9rem; color: #666;">
+                        你的答案: <span style="color: #dc3545;">${mistake.userAnswer}</span> | 
+                        正确答案: <span style="color: #28a745;">${mistake.correctAnswer}</span>
+                    </div>
+                    <div style="margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                        <div style="font-size: 0.85rem; color: #0c63e4; font-weight: bold;">解题思路</div>
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 4px;">${mistake.solution}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+            
+            document.querySelectorAll('.main-content').forEach(content => content.style.display = 'none');
+            document.getElementById(tabName).style.display = tabName === 'practice' ? 'grid' : 'grid';
+            
+            if (tabName === 'mistakes') {
+                renderMistakes();
+            }
+        }
+        
+        function saveData() {
+            localStorage.setItem('scaleStats', JSON.stringify(stats));
+            localStorage.setItem('scaleMistakes', JSON.stringify(mistakes));
+        }
+        
+        function loadData() {
+            const savedStats = localStorage.getItem('scaleStats');
+            const savedMistakes = localStorage.getItem('scaleMistakes');
+            
+            if (savedStats) stats = JSON.parse(savedStats);
+            if (savedMistakes) mistakes = JSON.parse(savedMistakes);
+            
+            updateStatsDisplay();
+            updateWeaknessAnalysis();
+        }
+        
+        function clearStats() {
+            stats = {
+                total: 0,
+                correct: 0,
+                wrong: 0,
+                byDifficulty: {
+                    easy: { correct: 0, total: 0 },
+                    medium: { correct: 0, total: 0 },
+                    hard: { correct: 0, total: 0 }
+                }
+            };
+            localStorage.removeItem('scaleStats');
+            updateStatsDisplay();
+        }
+        
+        function clearMistakes() {
+            mistakes = [];
+            localStorage.removeItem('scaleMistakes');
+            renderMistakes();
+            updateWeaknessAnalysis();
+        }
+        
+        function reviewMistakes() {
+            if (mistakes.length === 0) return;
+            bankFiltered = mistakes.map(m => ({
+                content: m.question,
+                answer: m.correctAnswer,
+                difficulty: m.difficulty,
+                solution: m.solution
+            }));
+            bankIndex = 0;
+            document.getElementById('modeSelect').value = 'bank';
+            generateQuestion();
+            showTab('practice');
+        }
+        
+        function showAchievementNotification(emoji, title, description) {
+            const notification = document.createElement('div');
+            notification.className = 'achievement-notification';
+            notification.innerHTML = `
+                <div class="emoji">${emoji}</div>
+                <div class="title">${title}</div>
+                <div class="description">${description}</div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translate(-50%, -50%) scale(0)';
+                notification.style.opacity = '0';
+                notification.style.transition = 'all 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        function showInstructions() {
+            alert(`📖 使用说明：\n\n1. 选择练习模式（随机生成或题库练习）\n2. 选择难度级别\n3. 点击"生成题目"开始练习\n4. 在答题区输入答案并提交\n5. 查看解题思路学习正确方法\n\n💡 提示：\n- 答案请输入数字，保留两位小数\n- 部分题目答案为整数\n- 错题会自动记录到错题本\n- 连续答对可获得成就奖励`);
+        }
+        
+        function showAbout() {
+            alert(`ℹ️ 关于我们\n\n这是一款专为六年级学生设计的数学学习辅助工具，帮助学生掌握比例尺与行程问题的解题技巧。\n\n功能特点：\n• 🎯 智能题目生成器\n• 📊 详细学习统计\n• 📚 错题本功能\n• 🏆 成就系统\n• 🎉 答题正确特效\n\n希望这个工具能帮助你提升数学能力！`);
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+# Site settings
+title: 胡水之蒹Blog
+SEOTitle: 胡水之蒹Blog | 小学数学教学分享
+header-img: img/home-bg.jpg
+email: 506867371@qq.com
+description: "小学数学教学分享，记录教学心得和教学工具"
+keyword: "胡水之蒹, 数学教学, 小学数学, 教学工具, 教学博客"
+url: "https://yourdomain.com"
+baseurl: ""
+
+future: true
+
+# SNS settings
+RSS: false
+
+# Build settings
+highlighter: rouge
+permalink: pretty
+paginate: 10
+exclude:
+  [
+    "less",
+    "node_modules",
+    "Gruntfile.js",
+    "package.json",
+    "README.md",
+    "README.zh.md",
+  ]
+anchorjs: true
+
+plugins: [jekyll-paginate]
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter_opts:
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
+
+# Sidebar settings
+sidebar: true
+sidebar-about-description: "你永远不知道明天和意外哪一个先来，过好当下每一天@Hus"
+sidebar-avatar: "/img/Hus.png"
+
+# Featured Tags
+featured-tags: true
+featured-condition-size: 1
+
+# Progressive Web Apps
+chrome-tab-theme-color: "#000000"
+service-worker: true
+
+# MathJax
+page-mathjax: true
+
+# Friends
+friends:
+  - { title: "大圣", href: "https://www.dashengpan.com/#/main/search?restype=1" }
+  - { title: "吾爱", href: "https://www.52pojie.cn/portal.php?from=groupmessage&mobile=no" }
+  - { title: "软仓", href: "https://www.ruancang.net/" }
+  - { title: "知网", href: "https://www.cnki.net/" }
+  - { title: "分类", href: "https://docs.qq.com/sheet/DSG5zcVpwVUNNc1JQ?tab=BB08J2" }
+
+# Tools
+tools:
+  - name: "算术练习工具"
+    items:
+      - { icon: "🧮", title: "加减乘除练习器", description: "帮助学生练习基本的加减乘除运算，支持自定义难度和题目数量。", url: "/tools/calculator.html", tags: ["一年级", "二年级", "口算"] }
