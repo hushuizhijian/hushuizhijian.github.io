@@ -57,3 +57,48 @@
   emoji: 📦
   title: 体积比教学工具
   description: 直观展示不同几何体体积之间的比例关系，加深学生对体积概念的理解。
+
+- filename: Addition within 10.html
+  emoji: ➕
+  title: 10以内加法练习
+  description: 帮助一年级学生练习10以内加法运算，通过趣味互动提高口算能力。
+
+- filename: Comprehensive Practice on Proportional Relationships.html
+  emoji: 📐
+  title: 比例关系综合练习
+  description: 综合训练正比例、反比例关系，帮助学生系统掌握比例问题的解题方法。
+
+- filename: Comprehensive Problems of Large Number Reading, Writing, Rewriting and Approximation.html
+  emoji: 🔢
+  title: 大数读写改写近似数
+  description: 帮助学生掌握大数的读写、改写和求近似数，适合四年级以上学生练习。
+
+- filename: Comprehensive Problems on Finding the Area of Rectangles After Scaling UpDown Proportionally.html
+  emoji: 📏
+  title: 放大缩小后矩形面积
+  description: 帮助学生理解图形放大缩小后面积的变化规律，掌握相关问题的解题技巧。
+
+- filename: Finding the Increased Surface Area of a Cylinder Cut Along its diameter.html
+  emoji: 🔪
+  title: 圆柱切开表面积增加
+  description: 直观演示圆柱沿直径切开后表面积增加的计算方法，帮助学生理解空间几何。
+
+- filename: Fraction and Proportional Distribution Comprehensive Problem Teaching Tools.html
+  emoji: 🍰
+  title: 分数与按比例分配
+  description: 帮助学生理解分数与按比例分配的关系，通过互动练习掌握解题方法。
+
+- filename: RMB ConversionExchange.html
+  emoji: 💰
+  title: 人民币兑换
+  description: 帮助学生练习人民币单位之间的换算，掌握元角分的转换关系。
+
+- filename: Simple Weekly Calculation.html
+  emoji: 📅
+  title: 简单星期计算
+  description: 帮助学生计算经过几天后是星期几，培养时间推理能力。
+
+- filename: Year, Month and Weekly Calculation.html
+  emoji: 🗓️
+  title: 年月日星期计算
+  description: 综合练习年月日和星期的计算，帮助学生掌握时间单位之间的换算关系。

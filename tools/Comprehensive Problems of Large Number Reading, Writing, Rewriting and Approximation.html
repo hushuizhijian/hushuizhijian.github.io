@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大数读写、改写和近似数综合问题教学工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 60px;
+            overflow: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .tab {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            padding-bottom: 60px;
+            height: 60vh;
+        }
+
+        .main-content.mistakes-layout {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .question-area {
+            min-height: 150px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .question-area .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .question-area .question-type {
+            display: inline-block;
+            background: #e7f3ff;
+            color: #0c63e4;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+
+        /* 双重答案输入区域样式 */
+        .dual-answer-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .answer-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .answer-box label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .answer-box input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .answer-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .solution-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .solution-area h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .solution-step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .mistakes-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .mistake-item {
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .mistake-item .mistake-question {
+            font-size: 0.9rem;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+        
+        .mistake-item .mistake-answer {
+            font-size: 0.85rem;
+            color: #dc3545;
+            margin-right: 15px;
+        }
+        
+        .mistake-item .mistake-correct {
+            font-size: 0.85rem;
+            color: #28a745;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+        
+        .stage-progress-container {
+            margin-bottom: 20px;
+        }
+        
+        .stage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .stage-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .stage-progress-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .stage-progress-bar {
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stage-progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .stage-novice {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        }
+        
+        .stage-apprentice {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+        
+        .stage-expert {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+        
+        .stage-master {
+            background: linear-gradient(90deg, #9C27B0, #CE93D8);
+        }
+        
+        .stage-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .badge-novice {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4CAF50;
+        }
+        
+        .badge-apprentice {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 2px solid #2196F3;
+        }
+        
+        .badge-expert {
+            background: #fff3e0;
+            color: #e65100;
+            border: 2px solid #FF9800;
+        }
+        
+        .badge-master {
+            background: #f3e5f5;
+            color: #6a1b9a;
+            border: 2px solid #9C27B0;
+        }
+        
+        .stage-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stage-stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stage-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stage-stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .dual-answer-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        .sidebar-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
+        }
+
+        .tips-card-fixed {
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tips-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .answer-panel-outer {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .answer-card-inner {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .answer-card-title {
+            flex-shrink: 0;
+        }
+
+        .answer-content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔢 大数读写、改写和近似数综合问题</h1>
+            <p>掌握大数的读写、单位换算与四舍五入技巧</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('practice')">练习模式</button>
+            <button class="tab" onclick="showTab('mistakes')">错题本</button>
+        </div>
+        
+        <div id="practice" class="main-content" style="display: grid;">
+            <!-- 左侧面板 -->
+            <div class="sidebar-panel">
+                <!-- 题目生成器卡片 -->
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">🎯 题目生成器</h2>
+                    
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">选择模式</label>
+                        <select id="modeSelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="random">随机生成</option>
+                            <option value="custom">自定义</option>
+                            <option value="bank">题库练习</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">题目类型</label>
+                        <select id="typeSelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="all">全部类型</option>
+                            <option value="type1">亿级数字（简单）</option>
+                            <option value="type2">万级至亿级（中等）</option>
+                            <option value="type3">复杂大数（困难）</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 6px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">难度级别</label>
+                        <select id="difficultySelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="mixed">混合难度</option>
+                            <option value="easy">简单</option>
+                            <option value="medium">中等</option>
+                            <option value="hard">困难</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="generateQuestion()" style="width: 100%; font-size: 0.75rem; padding: 5px 8px;">生成题目</button>
+                </div>
+                
+                <!-- 学习成就卡片 -->
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">🏆 学习成就</h2>
+                    
+                    <div style="display: flex; justify-content: center; margin-bottom: 6px;">
+                        <span id="currentStageBadgeMini" class="stage-badge badge-novice" style="font-size: 0.7rem; padding: 4px 10px;">
+                            🌱 新手保护期
+                        </span>
+                    </div>
+                    
+                    <div style="margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span style="font-size: 0.7rem; color: #666;">当前进度</span>
+                            <span id="stageProgressTextMini" style="font-size: 0.7rem; font-weight: bold;">0 / 9 题</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="stageProgressFillMini" class="stage-progress-fill stage-novice" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                        <div style="background: #e8f4fd; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="totalCorrectMini" style="font-size: 0.9rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.55rem; color: #666;">累计答对</div>
+                        </div>
+                        <div style="background: #e8f5e9; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="currentStageProgressMini" style="font-size: 0.9rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.55rem; color: #666;">阶段进度</div>
+                        </div>
+                        <div style="background: #fff3e0; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="nextStageNeedMini" style="font-size: 0.9rem; font-weight: bold; color: #856404;">10</div>
+                            <div style="font-size: 0.55rem; color: #666;">距下一阶段</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 练习统计卡片 -->
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">📊 练习统计</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px;">
+                        <div style="background: #e7f3ff; padding: 5px; border-radius: 4px; text-align: center;">
+                            <div id="totalCountMini" style="font-size: 0.95rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.6rem; color: #666;">总练习次数</div>
+                        </div>
+                        <div style="background: #d4edda; padding: 5px; border-radius: 4px; text-align: center;">
+                            <div id="accuracyMini" style="font-size: 0.95rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.6rem; color: #666;">正确率</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 5px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span style="font-size: 0.65rem; color: #666;">正确率进度</span>
+                            <span style="font-size: 0.65rem;">目标：80%以上</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="progressFillMini" style="width: 0%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 6px;">
+                        <h4 style="font-size: 0.7rem; margin-bottom: 5px;">📈 按题型统计</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                            <div style="background: #e7f3ff; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #0c63e4; font-weight: bold;">亿级</div>
+                                <div id="type1AccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #d4edda; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #155724; font-weight: bold;">万级</div>
+                                <div id="type2AccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #fff3cd; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #856404; font-weight: bold;">复杂</div>
+                                <div id="type3AccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="clearStats()" style="margin-top: 8px; width: 100%; font-size: 0.65rem; padding: 4px 8px;">重置统计数据</button>
+                </div>
+                
+                <!-- 学习技巧卡片 - 固定高度 + 内部可滚动 -->
+                <div class="card tips-card-fixed" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px; flex-shrink: 0;">💡 学习技巧</h2>
+                    
+                    <!-- 学习技巧内容区域（可滚动） -->
+                    <div class="tips-scroll-area">
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <h4 style="font-size: 0.85rem; color: #667eea; margin-bottom: 5px;">🎮 怎么玩</h4>
+                            <p style="color: #666; line-height: 1.6; font-size: 0.8rem;">
+                                题目会给出一个中文大数，你需要：<br>
+                                ① 将其写成阿拉伯数字<br>
+                                ② 改写成用"亿"做单位，保留两位小数<br>
+                                两个答案都要填写正确才算完全答对！
+                            </p>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <h4 style="font-size: 0.85rem; color: #667eea; margin-bottom: 5px;">📝 中文转数字要点</h4>
+                            <ul style="font-size: 0.8rem; color: #666; line-height: 1.7; margin-left: 15px;">
+                                <li>"亿"、"万"、"千"、"百"、"十"是数位标识</li>
+                                <li>"零"表示该位没有数字，占位用0</li>
+                                <li>从高位到低位逐位书写，缺位补0</li>
+                                <li>例："五亿零六万" = 500060000</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                            <h4 style="font-size: 0.85rem; color: #667eea; margin-bottom: 5px;">✨ 改写为"亿"单位</h4>
+                            <ul style="font-size: 0.8rem; color: #666; line-height: 1.7; margin-left: 15px;">
+                                <li>在亿位后加小数点</li>
+                                <li>保留两位小数，看第三位四舍五入</li>
+                                <li>例：510067860 → 5.1006786亿 ≈ 5.10亿</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧答题区 -->
+            <div class="answer-panel-outer">
+                <div class="card answer-card-inner">
+                    <!-- 答题区标题 -->
+                    <h2 class="answer-card-title" style="font-size: 1.1rem; margin-bottom: 12px;">📝 答题区</h2>
+                    
+                    <!-- 语音开关小喇叭 -->
+                    <button id="soundToggle" onclick="toggleSound()" title="点击切换语音开关" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        background: #667eea;
+                        color: white;
+                        border: none;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                        transition: all 0.3s ease;
+                        z-index: 10;
+                    ">
+                        🔊
+                    </button>
+                
+                    <!-- 答题内容统一滚动区域 -->
+                    <div class="answer-content-scroll">
+                        
+                        <!-- 题目显示区域 -->
+                        <div class="question-area" id="questionArea">
+                            <p style="color: #999; text-align: center; line-height: 150px;">点击"生成题目"开始练习</p>
+                        </div>
+                        
+                        <!-- 双重答案输入区域 -->
+                        <div class="dual-answer-area" id="dualAnswerArea" style="display: none;">
+                            <div class="answer-box">
+                                <label for="answerInput1">① 写作阿拉伯数字：</label>
+                                <input type="text" id="answerInput1" placeholder="例如：510067860" onkeyup="handleEnter(event)">
+                            </div>
+                            <div class="answer-box">
+                                <label for="answerInput2">② 改写成"亿"单位（保留两位小数）：</label>
+                                <input type="text" id="answerInput2" placeholder="例如：5.10" onkeyup="handleEnter(event)">
+                            </div>
+                        </div>
+                        
+                        <!-- 操作按钮区域 -->
+                        <div style="display: flex; gap: 10px; margin: 10px 0;">
+                            <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()" style="display: none;">提交答案</button>
+                            <button class="btn btn-secondary" id="continueBtn" onclick="generateQuestion()" style="display: none;">
+                                ➡️ 继续答题
+                            </button>
+                        </div>
+                        
+                        <!-- 反馈提示区域 -->
+                        <div class="feedback" id="feedback"></div>
+                        
+                        <!-- 解题思路区域 -->
+                        <div class="solution-area" id="solutionArea" style="display: none;">
+                            <h3>💡 解题思路</h3>
+                            <div id="solutionSteps"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 错题本页面 -->
+        <div id="mistakes" class="main-content mistakes-layout" style="display: none;">
+            <div class="card">
+                <h2>📚 错题本</h2>
+                
+                <div class="mistakes-list" id="mistakesList">
+                    <p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="reviewMistakes()">复习错题</button>
+                    <button class="btn btn-secondary" onclick="clearMistakes()">清空错题本</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🎯 薄弱点分析</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>错题类型分布</h3>
+                    <div style="display: grid; gap: 10px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #e7f3ff; padding: 10px; border-radius: 8px; text-align: center;">亿级数字</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="type1MistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="type1MistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #d4edda; padding: 10px; border-radius: 8px; text-align: center;">万级至亿级</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="type2MistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="type2MistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #fff3cd; padding: 10px; border-radius: 8px; text-align: center;">复杂大数</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="type3MistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="type3MistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>💡 针对性练习建议</h3>
+                    <ul style="list-style: none; padding-left: 0;" id="suggestionsList">
+                        <li style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <span style="color: #667eea; font-weight: bold;">•</span> 
+                            完成更多练习后，系统将根据您的错题情况提供针对性练习建议
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 语音开关状态
+        let soundEnabled = true;
+
+        /**
+         * 播放语音提示
+         * 功能：调用浏览器Web Speech API播报指定文本
+         * 输入参数：text {string} - 要播报的文本内容
+         * 返回值：无
+         * 使用场景：答对/答错反馈时调用
+         */
+        function speak(text) {
+            if (!soundEnabled) {
+                return;
+            }
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                window.speechSynthesis.speak(utterance);
+            } catch (error) {
+                console.log('浏览器不支持语音功能');
+            }
+        }
+        
+        /**
+         * 切换语音开关
+         * 功能：点击小喇叭切换语音开启/关闭状态
+         */
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            if (soundEnabled) {
+                btn.textContent = '🔊';
+                btn.style.background = '#667eea';
+            } else {
+                btn.textContent = '🔇';
+                btn.style.background = '#999';
+            }
+        }
+
+        /**
+         * 大数题库 - 包含各种真实场景的大数
+         * 数据结构：id, type(题型), difficulty(难度), question(题目), chineseNum(中文数字), answer1(阿拉伯数字), answer2(亿单位), solution(解题步骤)
+         */
+        const questionBank = [
+            // 范题类 - 地理面积
+            { 
+                id: 1, 
+                type: 'type1', 
+                difficulty: 'easy', 
+                question: '地球的表面积约<span style="color:#e74c3c;font-weight:bold;text-decoration:underline;">五亿一千零六万七千八百六十</span>平方千米',
+                chineseNum: '五亿一千零六万七千八百六十',
+                answer1: '510067860', 
+                answer2: '5.10',
+                solution: [
+                    '第一步：识别中文数字各数位<br>• 五亿 → 500000000<br>• 一千零六万 → 10060000<br>• 七千八百六十 → 7860',
+                    '第二步：合并所有部分<br>500000000 + 10060000 + 7860 = 510067860',
+                    '第三步：改写为"亿"单位<br>510067860 = 5.1006786亿',
+                    '第四步：保留两位小数（看第三位6，进1）<br>5.1006786亿 ≈ 5.10亿'
+                ]
+            },
+            // 人口类
+            { 
+                id: 2, 
+                type: 'type1', 
+                difficulty: 'easy', 
+                question: '中国人口约<span style="color:#e74c3c;font-weight:bold;text-decoration:underline;">十四亿一千一百七十五万</span>人',
+                chineseNum: '十四亿一千一百七十五万',
+                answer1: '1411750000', 
+                answer2: '14.12',
+                solution: [
+                    '第一步：识别中文数字各数位<br>• 十四亿 → 1400000000<br>• 一千一百七十五万 → 11750000',
+                    '第二步：合并所有部分<br>1400000000 + 11750000 = 1411750000',
+                    '第三步：改写为"亿"单位<br>1411750000 = 14.1175亿',
+                    '第四步：保留两位小数（看第三位7，进1）<br>14.1175亿 ≈ 14.12亿'
+                ]
+            },
+            // 经济类
+            { 
+                id: 3, 
+                type: 'type2', 
+                difficulty: 'medium', 
+                question: '某国GDP达到<span style="color:#e74c3c;font-weight:bold;text-decoration:underline;">三亿五千二百零一万三千</span>美元',
+                chineseNum: '三亿五千二百零一万三千',
+                answer1: '352013000', 
+                answer2: '3.52',
+                solution: [
+                    '第一步：识别中文数字各数位<br>• 三亿 → 300000000<br>• 五千二百零一万 → 52010000<br>• 三千 → 3000',
+                    '第二步：合并所有部分<br>300000000 + 52010000 + 3000 = 352013000',
+                    '第三步：改写为"亿"单位<br>352013000 = 3.52013亿',
+                    '第四步：保留两位小数（看第三位0，舍去）<br>3.52013亿 ≈ 3.52亿'
+                ]
+            },
+            // 科学类
+            { 
+                id: 4, 
+                type: 'type2', 
+                difficulty: 'medium', 
+                question: '光速约为每秒<span style="color:#e74c3c;font-weight:bold;text-decoration:underline;">二亿九千九百七十九万二千四百五十八</span>米',
+                chineseNum: '二亿九千九百七十九万二千四百五十八',
+                answer1: '299792458', 
+                answer2: '3.00',
+                solution: [
+                    '第一步：识别中文数字各数位<br>• 二亿 → 200000000<br>• 九千九百七十九万 → 99790000<br>• 二千四百五十八 → 2458',
+                    '第二步：合并所有部分<br>200000000 + 99790000 + 2458 = 299792458',
+                    '第三步：改写为"亿"单位<br>299792458 = 2.99792458亿',
+                    '第四步：保留两位小数（看第三位7，进1）<br>2.99792458亿 ≈ 3.00亿'
+                ]
+            },
+            // 天文类
+            { 
+                id: 5, 
+                type: 'type3', 
+                difficulty: 'hard', 
+                question: '地球到太阳的平均距离约<span style="color:#e74c3c;font-weight:bold;text-decoration:underline;">一亿四千九百六十万</span>千米',
+                chineseNum: '一亿四千九百六十万',
+                answer1: '149600000', 
+                answer2: '1.50',
+                solution: [
+                    '第一步：识别中文数字各数位<br>• 一亿 → 100000000<br>• 四千九百六十万 → 49600000',
+                    '第二步：合并所有部分<br>100000000 + 49600000 = 149600000',
+                    '第三步：改写为"亿"单位<br>149600000 = 1.496亿',
+                    '第四步：保留两位小数（看第三位6，进1）<br>1.496亿 ≈ 1.50亿'
+                ]
+            },
+            // 更多题库...
+            { 
+                id: 6, 
+                type: 'type1', 
+                difficulty: 'easy', 
+                question: '某公司注册资本<span style="color:#e74c3c;font-weight:bold;text-decoration:underline;">八亿三千万元</span>',
+                chineseNum: '八亿三千万元',
+                answer1: '830000000', 
+                answer2: '8.30',
+                solution: [
+                    '第一步：识别中文数字各数位<br>• 八亿 → 800000000<br>• 三千万 → 30000000',
+                    '第二步：合并所有部分<br>800000000 + 30000000 = 830000000',
+                    '第三步：改写为"亿"单位<br>830000000 = 8.3亿',
+                    '第四步：保留两位小数（补0）<br>8.3亿 = 8.30亿'
+                ]
+            },
+            { 
+                id: 7, 
+                type: 'type2', 
+                difficulty: 'medium', 
+                question: '某图书馆藏书<span style="color:#e74c3c;font-weight:bold;text-decoration:underline;">一亿二千三百四十五万六千七百八十九</span>册',
+                chineseNum: '一亿二千三百四十五万六千七百八十九',
+                answer1: '123456789', 
+                answer2: '1.23',
+                solution: [
+                    '第一步：识别中文数字各数位<br>• 一亿 → 100000000<br>• 二千三百四十五万 → 23450000<br>• 六千七百八十九 → 6789',
+                    '第二步：合并所有部分<br>100000000 + 23450000 + 6789 = 123456789',
+                    '第三步：改写为"亿"单位<br>123456789 = 1.23456789亿',
+                    '第四步：保留两位小数（看第三位4，舍去）<br>1.23456789亿 ≈ 1.23亿'
+                ]
+            },
+            { 
+                id: 8, 
+                type: 'type3', 
+                difficulty: 'hard', 
+                question: '全球互联网用户约<span style="color:#e74c3c;font-weight:bold;text-decoration:underline;">五十三亿四千九百万</span>人',
+                chineseNum: '五十三亿四千九百万',
+                answer1: '5349000000', 
+                answer2: '53.49',
+                solution: [
+                    '第一步：识别中文数字各数位<br>• 五十三亿 → 5300000000<br>• 四千九百万 → 49000000',
+                    '第二步：合并所有部分<br>5300000000 + 49000000 = 5349000000',
+                    '第三步：改写为"亿"单位<br>5349000000 = 53.49亿',
+                    '第四步：保留两位小数（已经是两位）<br>53.49亿 ≈ 53.49亿'
+                ]
+            },
+            { 
+                id: 9, 
+                type: 'type1', 
+                difficulty: 'easy', 
+                question: '某省森林覆盖面积约<span style="color:#e74c3c;font-weight:bold;text-decoration:underline;">二亿三千四百五十六万平方米</span>',
+                chineseNum: '二亿三千四百五十六万',
+                answer1: '234560000', 
+                answer2: '2.35',
+                solution: [
+                    '第一步：识别中文数字各数位<br>• 二亿 → 200000000<br>• 三千四百五十六万 → 34560000',
+                    '第二步：合并所有部分<br>200000000 + 34560000 = 234560000',
+                    '第三步：改写为"亿"单位<br>234560000 = 2.3456亿',
+                    '第四步：保留两位小数（看第三位5，进1）<br>2.3456亿 ≈ 2.35亿'
+                ]
+            },
+            { 
+                id: 10, 
+                type: 'type2', 
+                difficulty: 'medium', 
+                question: '某电商平台年交易额达<span style="color:#e74c3c;font-weight:bold;text-decoration:underline;">六亿七千八百九十万一千二百三十四元</span>',
+                chineseNum: '六亿七千八百九十万一千二百三十四',
+                answer1: '678901234', 
+                answer2: '6.79',
+                solution: [
+                    '第一步：识别中文数字各数位<br>• 六亿 → 600000000<br>• 七千八百九十万 → 78900000<br>• 一千二百三十四 → 1234',
+                    '第二步：合并所有部分<br>600000000 + 78900000 + 1234 = 678901234',
+                    '第三步：改写为"亿"单位<br>678901234 = 6.78901234亿',
+                    '第四步：保留两位小数（看第三位9，进1）<br>6.78901234亿 ≈ 6.79亿'
+                ]
+            }
+        ];
+        
+        let currentQuestion = null;
+        
+        let stats = {
+            total: 0,
+            correct: 0,
+            wrong: 0,
+            byType: {
+                type1: { total: 0, correct: 0 },
+                type2: { total: 0, correct: 0 },
+                type3: { total: 0, correct: 0 }
+            }
+        };
+        
+        let mistakes = [];
+        
+        const stages = [
+            { id: 'novice', name: '新手保护期', target: 1, emoji: '🌱', color: 'novice' },
+            { id: 'apprentice', name: '学徒期', target: 10, emoji: '📚', color: 'apprentice' },
+            { id: 'expert', name: '学霸期', target: 25, emoji: '⭐', color: 'expert' },
+            { id: 'master', name: '学神期', target: 49, emoji: '👑', color: 'master' }
+        ];
+        
+        let unlockedStages = ['novice'];
+
+        /**
+         * 获取当前阶段信息
+         * 功能：根据累计答对数判断当前所处阶段
+         * 输入参数：correctCount {number} - 累计答对的题目数量
+         * 返回值：{object} - 当前阶段对象
+         */
+        function getCurrentStage(correctCount) {
+            if (correctCount >= 49) return stages[3];
+            if (correctCount >= 25) return stages[2];
+            if (correctCount >= 10) return stages[1];
+            if (correctCount >= 1) return stages[0];
+            return stages[0];
+        }
+        
+        /**
+         * 获取下一阶段信息
+         * 功能：根据当前答对数计算下一个阶段目标
+         * 输入参数：correctCount {number} - 当前累计答对数
+         * 返回值：{object|null} - 下一阶段对象或null（已满级）
+         */
+        function getNextStage(correctCount) {
+            if (correctCount < 10) return stages[1];
+            if (correctCount < 25) return stages[2];
+            if (correctCount < 49) return stages[3];
+            return null;
+        }
+        
+        /**
+         * 更新成就进度显示
+         * 功能：刷新左侧面板的阶段徽章、进度条、统计数据
+         */
+        function updateStageProgress() {
+            const correctCount = stats.correct;
+            const currentStage = getCurrentStage(correctCount);
+            const nextStage = getNextStage(correctCount);
+            
+            let progress = 0;
+            let progressText = '';
+            let nextNeed = 0;
+            
+            if (correctCount >= 49) {
+                progress = 100;
+                progressText = `${correctCount} 题 (已满级)`;
+                nextNeed = 0;
+            } else if (correctCount >= 25) {
+                progress = Math.min(((correctCount - 24) / 24) * 100, 100);
+                progressText = `${correctCount} / 48 题`;
+                nextNeed = 49 - correctCount;
+            } else if (correctCount >= 10) {
+                progress = Math.min(((correctCount - 9) / 15) * 100, 100);
+                progressText = `${correctCount} / 24 题`;
+                nextNeed = 25 - correctCount;
+            } else if (correctCount >= 1) {
+                progress = Math.min((correctCount / 9) * 100, 100);
+                progressText = `${correctCount} / 9 题`;
+                nextNeed = 10 - correctCount;
+            } else {
+                progress = 0;
+                progressText = `0 / 9 题`;
+                nextNeed = 10;
+            }
+            
+            const badgeMini = document.getElementById('currentStageBadgeMini');
+            if (badgeMini) {
+                badgeMini.textContent = `${currentStage.emoji} ${currentStage.name}`;
+                badgeMini.className = `stage-badge badge-${currentStage.color}`;
+            }
+            
+            const stageProgressTextMini = document.getElementById('stageProgressTextMini');
+            if (stageProgressTextMini) stageProgressTextMini.textContent = progressText;
+            
+            const stageProgressFillMini = document.getElementById('stageProgressFillMini');
+            if (stageProgressFillMini) {
+                stageProgressFillMini.style.width = `${progress}%`;
+                stageProgressFillMini.className = `stage-progress-fill stage-${currentStage.color}`;
+            }
+            
+            const totalCorrectMini = document.getElementById('totalCorrectMini');
+            if (totalCorrectMini) totalCorrectMini.textContent = correctCount;
+            
+            const currentStageProgressMini = document.getElementById('currentStageProgressMini');
+            if (currentStageProgressMini) currentStageProgressMini.textContent = `${Math.round(progress)}%`;
+            
+            const nextStageNeedMini = document.getElementById('nextStageNeedMini');
+            if (nextStageNeedMini) nextStageNeedMini.textContent = nextNeed > 0 ? nextNeed : '已满级';
+        }
+        
+        /**
+         * 切换标签页显示
+         * 功能：在练习模式和错题本之间切换
+         * 输入参数：tabId {string} - 目标标签页ID ('practice' 或 'mistakes')
+         */
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.main-content').forEach(content => content.style.display = 'none');
+            document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+            if (tabId === 'practice') {
+                document.getElementById('practice').style.display = 'grid';
+            } else if (tabId === 'mistakes') {
+                document.getElementById('mistakes').style.display = 'grid';
+            }
+        }
+        
+        /**
+         * 生成新题目
+         * 功能：根据筛选条件从题库中随机抽取一道题目并展示
+         */
+        function generateQuestion() {
+            const mode = document.getElementById('modeSelect').value;
+            const type = document.getElementById('typeSelect').value;
+            const difficulty = document.getElementById('difficultySelect').value;
+            
+            let filteredQuestions = questionBank;
+            if (type !== 'all') filteredQuestions = filteredQuestions.filter(q => q.type === type);
+            if (difficulty !== 'mixed') filteredQuestions = filteredQuestions.filter(q => q.difficulty === difficulty);
+            
+            if (filteredQuestions.length === 0) {
+                alert('没有符合条件的题目，请调整筛选条件');
+                return;
+            }
+            
+            currentQuestion = filteredQuestions[Math.floor(Math.random() * filteredQuestions.length)];
+            const questionArea = document.getElementById('questionArea');
+            const typeLabels = { type1: '亿级数字', type2: '万级至亿级', type3: '复杂大数' };
+            const difficultyLabels = { easy: '简单', medium: '中等', hard: '困难' };
+            
+            questionArea.innerHTML = `
+                <span class="question-number">第${stats.total + 1}题</span>
+                <span class="question-type">${typeLabels[currentQuestion.type]} | ${difficultyLabels[currentQuestion.difficulty]}</span>
+                <p style="margin-top: 15px; font-size: 1.05rem;">${currentQuestion.question}，横线上的数写作（&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;），改写成用"亿"做单位，并保留两位小数约是（&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;）亿。</p>
+            `;
+            
+            // 显示双输入框
+            document.getElementById('dualAnswerArea').style.display = 'grid';
+            document.getElementById('answerInput1').value = '';
+            document.getElementById('answerInput2').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('continueBtn').style.display = 'none';
+            
+            // 自动聚焦第一个输入框
+            setTimeout(() => {
+                document.getElementById('answerInput1').focus();
+            }, 100);
+        }
+        
+        /**
+         * 提交答案验证
+         * 功能：检查用户输入的两个答案是否都正确，更新统计并显示反馈
+         */
+        function submitAnswer() {
+            if (!currentQuestion) {
+                alert('请先生成题目');
+                return;
+            }
+            
+            const userAnswer1 = document.getElementById('answerInput1').value.trim();
+            const userAnswer2 = document.getElementById('answerInput2').value.trim();
+            
+            if (!userAnswer1 || !userAnswer2) {
+                alert('请填写完整的两个答案');
+                return;
+            }
+            
+            // 双重验证：两个答案都必须正确
+            const isAnswer1Correct = userAnswer1 === currentQuestion.answer1;
+            const isAnswer2Correct = userAnswer2 === currentQuestion.answer2;
+            const isFullyCorrect = isAnswer1Correct && isAnswer2Correct;
+            
+            stats.total++;
+            stats.byType[currentQuestion.type].total++;
+            
+            const feedback = document.getElementById('feedback');
+            
+            if (isFullyCorrect) {
+                // 完全正确
+                stats.correct++;
+                stats.byType[currentQuestion.type].correct++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '🎉 太棒了！两个答案都完全正确！<br>① 数字写作：' + currentQuestion.answer1 + '<br>② "亿"单位：' + currentQuestion.answer2 + '亿';
+                feedback.style.display = 'block';
+                speak('太棒了！回答完全正确！');
+            } else if (isAnswer1Correct && !isAnswer2Correct) {
+                // 第一个对，第二个错
+                stats.wrong++;
+                mistakes.push({ 
+                    ...currentQuestion, 
+                    userAnswer: `第一个答案：${userAnswer1}(√)，第二个答案：${userAnswer2}(×)`, 
+                    time: new Date().toLocaleString() 
+                });
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `⚠️ 第一问正确，但第二问有误！<br>① 你的答案：${userAnswer2}<br>② 正确答案：${currentQuestion.answer2}<br><strong>提示：注意四舍五入规则哦！</strong>`;
+                feedback.style.display = 'block';
+                speak('第一问对了，但第二问再想想');
+            } else if (!isAnswer1Correct && isAnswer2Correct) {
+                // 第一个错，第二个对
+                stats.wrong++;
+                mistakes.push({ 
+                    ...currentQuestion, 
+                    userAnswer: `第一个答案：${userAnswer1}(×)，第二个答案：${userAnswer2}(√)`, 
+                    time: new Date().toLocaleString() 
+                });
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `⚠️ 第二问正确，但第一问有误！<br>① 你的答案：${userAnswer1}<br>② 正确答案：${currentQuestion.answer1}<br><strong>提示：仔细核对每个数位的数字！</strong>`;
+                feedback.style.display = 'block';
+                speak('第二问对了，但第一问再想想');
+            } else {
+                // 两个都错
+                stats.wrong++;
+                mistakes.push({ 
+                    ...currentQuestion, 
+                    userAnswer: `① ${userAnswer1} | ② ${userAnswer2}`, 
+                    time: new Date().toLocaleString() 
+                });
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `❌ 两个答案都有误！<br>① 你的答案：${userAnswer1} | 正确答案：${currentQuestion.answer1}<br>② 你的答案：${userAnswer2} | 正确答案：${currentQuestion.answer2}`;
+                feedback.style.display = 'block';
+                speak('继续加油，再试一次');
+            }
+            
+            showSolution();
+            updateStats();
+            saveData();
+            
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('continueBtn').style.display = 'inline-block';
+        }
+        
+        /**
+         * 显示解题思路
+         * 功能：在答题区下方展示当前题目的详细解题步骤
+         */
+        function showSolution() {
+            if (!currentQuestion) return;
+            const solutionArea = document.getElementById('solutionArea');
+            const solutionSteps = document.getElementById('solutionSteps');
+            solutionSteps.innerHTML = currentQuestion.solution.map((step, index) => 
+                `<div class="solution-step"><strong>第${index + 1}步：</strong>${step}</div>`
+            ).join('');
+            solutionArea.style.display = 'block';
+        }
+        
+        /**
+         * 更新统计数据显示
+         * 功能：刷新右侧面板的总次数、正确率、按题型统计等信息
+         */
+        function updateStats() {
+            document.getElementById('totalCountMini').textContent = stats.total;
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            document.getElementById('accuracyMini').textContent = accuracy + '%';
+            document.getElementById('progressFillMini').style.width = accuracy + '%';
+            
+            ['type1', 'type2', 'type3'].forEach(type => {
+                const typeStats = stats.byType[type];
+                const typeAccuracy = typeStats.total > 0 ? Math.round((typeStats.correct / typeStats.total) * 100) : 0;
+                const element = document.getElementById(type + 'AccuracyMini');
+                if (element) element.textContent = typeAccuracy + '%';
+            });
+            
+            updateStageProgress();
+            updateMistakesDistribution();
+        }
+        
+        /**
+         * 更新错题分布统计
+         * 功能：计算各类型错题数量并更新错题本页面的图表
+         */
+        function updateMistakesDistribution() {
+            const counts = { type1: 0, type2: 0, type3: 0 };
+            mistakes.forEach(mistake => counts[mistake.type]++);
+            const maxCount = Math.max(...Object.values(counts), 1);
+            
+            ['type1', 'type2', 'type3'].forEach(type => {
+                const progress = document.getElementById(type + 'MistakeProgress');
+                const countElement = document.getElementById(type + 'MistakeCount');
+                if (progress) progress.style.width = `${(counts[type] / maxCount) * 100}%`;
+                if (countElement) countElement.textContent = counts[type] + '题';
+            });
+            
+            updateMistakesList();
+        }
+        
+        /**
+         * 更新错题列表显示
+         * 功能：渲染错题本页面中的错题记录列表
+         */
+        function updateMistakesList() {
+            const list = document.getElementById('mistakesList');
+            const typeLabels = { type1: '亿级数字', type2: '万级至亿级', type3: '复杂大数' };
+            
+            if (mistakes.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>';
+            } else {
+                list.innerHTML = mistakes.map(mistake => `
+                    <div class="mistake-item">
+                        <div class="mistake-question">[${typeLabels[mistake.type]}] ${mistake.question.replace(/<[^>]*>/g, '')}</div>
+                        <div class="mistake-answer">你的答案：${mistake.userAnswer}</div>
+                        <div class="mistake-correct">正确答案：① ${mistake.answer1} | ② ${mistake.answer2}亿</div>
+                        <div style="font-size: 0.75rem; color: #999; margin-top: 5px;">时间：${mistake.time}</div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        /**
+         * 复习错题功能
+         * 功能：从错题本中随机抽取一道错题进行重新练习
+         */
+        function reviewMistakes() {
+            if (mistakes.length === 0) {
+                alert('暂无错题记录');
+                return;
+            }
+            showTab('practice');
+            const randomMistake = mistakes[Math.floor(Math.random() * mistakes.length)];
+            currentQuestion = randomMistake;
+            const questionArea = document.getElementById('questionArea');
+            const typeLabels = { type1: '亿级数字', type2: '万级至亿级', type3: '复杂大数' };
+            
+            questionArea.innerHTML = `
+                <span class="question-number">复习错题</span>
+                <span class="question-type">${typeLabels[currentQuestion.type]}</span>
+                <p style="margin-top: 15px; font-size: 1.05rem;">${currentQuestion.question}，横线上的数写作（&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;），改写成用"亿"做单位，并保留两位小数约是（&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;）亿。</p>
+            `;
+            
+            document.getElementById('dualAnswerArea').style.display = 'grid';
+            document.getElementById('answerInput1').value = '';
+            document.getElementById('answerInput2').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('continueBtn').style.display = 'none';
+        }
+        
+        /**
+         * 清空错题本
+         * 功能：清除所有错题记录并刷新显示
+         */
+        function clearMistakes() {
+            if (mistakes.length === 0) {
+                alert('错题本已经是空的了');
+                return;
+            }
+            if (confirm('确定要清空所有错题吗？')) {
+                mistakes = [];
+                updateMistakesList();
+                updateMistakesDistribution();
+                saveData();
+            }
+        }
+        
+        /**
+         * 重置统计数据
+         * 功能：清零所有练习统计信息并重新开始
+         */
+        function clearStats() {
+            if (confirm('确定要重置所有统计数据吗？此操作不可撤销。')) {
+                stats = {
+                    total: 0, 
+                    correct: 0, 
+                    wrong: 0,
+                    byType: { 
+                        type1: { total: 0, correct: 0 }, 
+                        type2: { total: 0, correct: 0 }, 
+                        type3: { total: 0, correct: 0 } 
+                    }
+                };
+                updateStats();
+                saveData();
+            }
+        }
+        
+        /**
+         * 回车键提交处理
+         * 功能：监听键盘回车事件，自动提交答案或继续下一题
+         * 输入参数：event {Event} - 键盘事件对象
+         */
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn.style.display !== 'none') submitAnswer();
+                else generateQuestion();
+            }
+        }
+        
+        /**
+         * 保存数据到本地存储
+         * 功能：将统计数据和错题记录持久化到localStorage
+         */
+        function saveData() {
+            localStorage.setItem('largeNumberStats', JSON.stringify(stats));
+            localStorage.setItem('largeNumberMistakes', JSON.stringify(mistakes));
+        }
+        
+        /**
+         * 从本地存储加载数据
+         * 功能：启动时恢复之前的练习进度和错题记录
+         */
+        function loadData() {
+            const savedStats = localStorage.getItem('largeNumberStats');
+            const savedMistakes = localStorage.getItem('largeNumberMistakes');
+            if (savedStats) stats = JSON.parse(savedStats);
+            if (savedMistakes) mistakes = JSON.parse(savedMistakes);
+            updateStats();
+        }
+
+        // 页面加载完成后初始化
+        window.onload = function() {
+            loadData();
+        };
+    </script>
+    
+    <!-- 底部页脚 开始 -->
+    <footer style="
+        width: 100%;
+        background-color: #f8f8f8;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 12px;
+        color: #666;
+        border-top: 1px solid #e5e5e5;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999;
+    ">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+            <a href="#" style="color:#666; text-decoration:none;">关于我们</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none;">使用说明</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none;">隐私政策</a>
+            <span style="color: #ddd;">|</span>
+            <span>© 胡水之蒹HTML工具 版权所有</span>
+        </div>
+    </footer>
+    <!-- 底部页脚 结束 -->
+</body>
+</html>

@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人民币元角分换算教学工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 60px;
+            overflow: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .tab {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            padding-bottom: 60px;
+            height: 60vh;
+        }
+        
+        /* 错题本内容区域 - 1:1布局 */
+        .main-content.mistakes-layout {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .question-area {
+            min-height: 150px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .question-area .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .question-area .question-type {
+            display: inline-block;
+            background: #e7f3ff;
+            color: #0c63e4;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .answer-area {
+            margin-bottom: 20px;
+        }
+        
+        .answer-area input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .solution-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .solution-area h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .solution-step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .mistakes-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .mistake-item {
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .mistake-item .mistake-question {
+            font-size: 0.9rem;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+        
+        .mistake-item .mistake-answer {
+            font-size: 0.85rem;
+            color: #dc3545;
+            margin-right: 15px;
+        }
+        
+        .mistake-item .mistake-correct {
+            font-size: 0.85rem;
+            color: #28a745;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+        
+        .stage-progress-container {
+            margin-bottom: 20px;
+        }
+        
+        .stage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .stage-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .stage-progress-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .stage-progress-bar {
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stage-progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .stage-novice {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        }
+        
+        .stage-apprentice {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+        
+        .stage-expert {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+        
+        .stage-master {
+            background: linear-gradient(90deg, #9C27B0, #CE93D8);
+        }
+        
+        .stage-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .badge-novice {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4CAF50;
+        }
+        
+        .badge-apprentice {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 2px solid #2196F3;
+        }
+        
+        .badge-expert {
+            background: #fff3e0;
+            color: #e65100;
+            border: 2px solid #FF9800;
+        }
+        
+        .badge-master {
+            background: #f3e5f5;
+            color: #6a1b9a;
+            border: 2px solid #9C27B0;
+        }
+        
+        .stage-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stage-stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stage-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stage-stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== 固定高度+滚动显示布局规范 ===== */
+        
+        /* 左侧面板容器 - 纵向弹性布局 */
+        .sidebar-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
+        }
+
+        /* 学习技巧卡片 - 固定高度 + 内部可滚动 */
+        .tips-card-fixed {
+            height: 200px; /* 固定高度，保持UI美观 */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* 外层隐藏溢出 */
+        }
+
+        /* 学习技巧卡片内部滚动区域 */
+        .tips-scroll-area {
+            flex: 1; /* 占满剩余空间 */
+            overflow-y: auto; /* 垂直方向可滚动 */
+            min-height: 0; /* 关键：让flex子元素可以收缩 */
+        }
+
+        /* 右侧答题区外层容器 - 必须加overflow:hidden */
+        .answer-panel-outer {
+            height: 100%;
+            overflow: hidden; /* 关键：约束内容不撑开页面 */
+        }
+
+        /* 答题区卡片 - 弹性纵向布局 */
+        .answer-card-inner {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 答题区标题 - 不参与弹性伸缩 */
+        .answer-card-title {
+            flex-shrink: 0;
+        }
+
+        /* 答题内容统一滚动区域 - 占满剩余空间 */
+        .answer-content-scroll {
+            flex: 1; /* 占满卡片内所有剩余空间 */
+            overflow-y: auto; /* 内容超出时垂直滚动 */
+            min-height: 0; /* 关键：允许flex子元素收缩 */
+        }
+
+        /* 滚动条美化（全局） */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 人民币元角分换算</h1>
+            <p>掌握货币单位转换技巧，轻松应对小数运算</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('practice')">练习模式</button>
+            <button class="tab" onclick="showTab('mistakes')">错题本</button>
+        </div>
+        
+        <div id="practice" class="main-content" style="display: grid;">
+            <!-- 左侧面板：使用固定高度+滚动布局 -->
+            <div class="sidebar-panel">
+                <!-- 题目生成器卡片 -->
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">🎯 题目生成器</h2>
+                    
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">选择模式</label>
+                        <select id="modeSelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="random">随机生成</option>
+                            <option value="custom">自定义范围</option>
+                            <option value="bank">经典题型</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">题目类型</label>
+                        <select id="typeSelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="all">全部类型</option>
+                            <option value="type1">元角互转</option>
+                            <option value="type2">小数形式转换</option>
+                            <option value="type3">综合计算</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 6px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">难度级别</label>
+                        <select id="difficultySelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="mixed">混合难度</option>
+                            <option value="easy">简单（整数）</option>
+                            <option value="medium">中等（含小数）</option>
+                            <option value="hard">困难（复杂计算）</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="generateQuestion()" style="width: 100%; font-size: 0.75rem; padding: 5px 8px;">🎲 生成题目</button>
+                </div>
+                
+                <!-- 学习成就卡片 -->
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">🏆 学习成就</h2>
+                    
+                    <div style="display: flex; justify-content: center; margin-bottom: 6px;">
+                        <span id="currentStageBadgeMini" class="stage-badge badge-novice" style="font-size: 0.7rem; padding: 4px 10px;">
+                            🌱 新手保护期
+                        </span>
+                    </div>
+                    
+                    <div style="margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span style="font-size: 0.7rem; color: #666;">当前进度</span>
+                            <span id="stageProgressTextMini" style="font-size: 0.7rem; font-weight: bold;">0 / 9 题</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="stageProgressFillMini" class="stage-progress-fill stage-novice" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                        <div style="background: #e8f4fd; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="totalCorrectMini" style="font-size: 0.9rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.55rem; color: #666;">累计答对</div>
+                        </div>
+                        <div style="background: #e8f5e9; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="currentStageProgressMini" style="font-size: 0.9rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.55rem; color: #666;">阶段进度</div>
+                        </div>
+                        <div style="background: #fff3e0; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="nextStageNeedMini" style="font-size: 0.9rem; font-weight: bold; color: #856404;">10</div>
+                            <div style="font-size: 0.55rem; color: #666;">距下一阶段</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 练习统计卡片 -->
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">📊 练习统计</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px;">
+                        <div style="background: #e7f3ff; padding: 5px; border-radius: 4px; text-align: center;">
+                            <div id="totalCountMini" style="font-size: 0.95rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.6rem; color: #666;">总练习次数</div>
+                        </div>
+                        <div style="background: #d4edda; padding: 5px; border-radius: 4px; text-align: center;">
+                            <div id="accuracyMini" style="font-size: 0.95rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.6rem; color: #666;">正确率</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 5px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span style="font-size: 0.65rem; color: #666;">正确率进度</span>
+                            <span style="font-size: 0.65rem;">目标：80%以上</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="progressFillMini" style="width: 0%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 6px;">
+                        <h4 style="font-size: 0.7rem; margin-bottom: 5px;">📈 按题型统计</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                            <div style="background: #e7f3ff; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #0c63e4; font-weight: bold;">元角互转</div>
+                                <div id="type1AccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #d4edda; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #155724; font-weight: bold;">小数形式</div>
+                                <div id="type2AccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #fff3cd; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #856404; font-weight: bold;">综合计算</div>
+                                <div id="type3AccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="clearStats()" style="margin-top: 8px; width: 100%; font-size: 0.65rem; padding: 4px 8px;">重置统计数据</button>
+                </div>
+                
+                <!-- 学习技巧卡片 - 固定高度 + 内部可滚动 -->
+                <div class="card tips-card-fixed" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px; flex-shrink: 0;">💡 学习技巧</h2>
+                    
+                    <!-- 学习技巧内容区域（可滚动） -->
+                    <div class="tips-scroll-area">
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <h4 style="font-size: 0.85rem; color: #667eea; margin-bottom: 5px;">💡 核心公式</h4>
+                            <p style="color: #666; line-height: 1.6; font-size: 0.8rem;">
+                                • 1元 = 10角<br>
+                                • 1角 = 10分<br>
+                                • 1元 = 100分<br>
+                                • 小数点后第一位是角<br>
+                                • 小数点后第二位是分
+                            </p>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <h4 style="font-size: 0.85rem; color: #667eea; margin-bottom: 5px;">🎮 换算方法</h4>
+                            <ul style="font-size: 0.8rem; color: #666; line-height: 1.7; margin-left: 15px;">
+                                <li><strong>元→角：</strong>乘以10</li>
+                                <li><strong>角→元：</strong>除以10</li>
+                                <li><strong>元→分：</strong>乘以100</li>
+                                <li><strong>分→元：</strong>除以100</li>
+                                <li><strong>带小数的元：</strong>整数部分是元，十分位是角，百分位是分</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                            <h4 style="font-size: 0.85rem; color: #667eea; margin-bottom: 5px;">✨ 实例演示</h4>
+                            <ul style="font-size: 0.8rem; color: #666; line-height: 1.7; margin-left: 15px;">
+                                <li>3.5元 = 3元5角 = 35角</li>
+                                <li>2.75元 = 2元7角5分</li>
+                                <li>45角 = 4元5角 = 4.5元</li>
+                                <li>125分 = 1元2角5分 = 1.25元</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧答题区：固定高度 + 内容可滚动 -->
+            <div class="answer-panel-outer">
+                <div class="card answer-card-inner">
+                    <!-- 答题区标题 - 不参与弹性伸缩 -->
+                    <h2 class="answer-card-title" style="font-size: 1.1rem; margin-bottom: 12px;">📝 答题区</h2>
+                    
+                    <!-- 语音开关小喇叭 -->
+                    <button id="soundToggle" onclick="toggleSound()" title="点击切换语音开关" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        background: #667eea;
+                        color: white;
+                        border: none;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                        transition: all 0.3s ease;
+                        z-index: 10;
+                    ">
+                        🔊
+                    </button>
+                
+                    <!-- 答题内容统一滚动区域 - 占满剩余空间，内容多时可滚动 -->
+                    <div class="answer-content-scroll">
+                        
+                        <!-- 题目显示区域 -->
+                        <div class="question-area" id="questionArea">
+                            <p style="color: #999; text-align: center; line-height: 150px;">点击"生成题目"开始练习 💰</p>
+                        </div>
+                        
+                        <!-- 答案输入区域 -->
+                        <div class="answer-area">
+                            <input type="text" id="answerInput" placeholder="请输入答案（如：3元5角 或 3.5）" onkeyup="handleEnter(event)">
+                        </div>
+                        
+                        <!-- 操作按钮区域 -->
+                        <div style="display: flex; gap: 10px; margin: 10px 0;">
+                            <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">✅ 提交答案</button>
+                            <button class="btn btn-secondary" id="continueBtn" onclick="generateQuestion()" style="display: none;">
+                                ➡️ 继续答题
+                            </button>
+                        </div>
+                        
+                        <!-- 反馈提示区域 -->
+                        <div class="feedback" id="feedback"></div>
+                        
+                        <!-- 解题思路区域 -->
+                        <div class="solution-area" id="solutionArea" style="display: none;">
+                            <h3>💡 解题思路</h3>
+                            <div id="solutionSteps"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mistakes" class="main-content mistakes-layout" style="display: none;">
+            <div class="card">
+                <h2>📚 错题本</h2>
+                
+                <div class="mistakes-list" id="mistakesList">
+                    <p style="text-align: center; color: #999; padding: 40px;">暂无错题记录，继续加油！</p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="reviewMistakes()">🔄 复习错题</button>
+                    <button class="btn btn-secondary" onclick="clearMistakes()">🗑️ 清空错题本</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🎯 薄弱点分析</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>错题类型分布</h3>
+                    <div style="display: grid; gap: 10px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #e7f3ff; padding: 10px; border-radius: 8px; text-align: center;">元角互转</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="type1MistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="type1MistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #d4edda; padding: 10px; border-radius: 8px; text-align: center;">小数形式转换</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="type2MistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="type2MistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #fff3cd; padding: 10px; border-radius: 8px; text-align: center;">综合计算</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="type3MistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="type3MistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>💡 针对性练习建议</h3>
+                    <ul style="list-style: none; padding-left: 0;" id="suggestionsList">
+                        <li style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <span style="color: #667eea; font-weight: bold;">•</span> 
+                            完成更多练习后，系统将根据您的错题情况提供针对性建议
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 语音开关状态
+        let soundEnabled = true;
+        
+        /**
+         * 播放语音提示
+         * 功能：调用浏览器Web Speech API播报指定文本
+         * 输入参数：text {string} - 要播报的文本内容
+         * 返回值：无
+         * 使用场景：答对/答错反馈时调用
+         */
+        function speak(text) {
+            if (!soundEnabled) {
+                return;
+            }
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                window.speechSynthesis.speak(utterance);
+            } catch (error) {
+                console.log('浏览器不支持语音功能');
+            }
+        }
+        
+        /**
+         * 切换语音开关
+         * 功能：点击小喇叭切换语音开启/关闭状态
+         */
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            if (soundEnabled) {
+                btn.textContent = '🔊';
+                btn.style.background = '#667eea';
+            } else {
+                btn.textContent = '🔇';
+                btn.style.background = '#999';
+            }
+        }
+        
+        // 当前题目对象
+        let currentQuestion = null;
+        
+        // 统计数据对象
+        let stats = {
+            total: 0,
+            correct: 0,
+            wrong: 0,
+            byType: {
+                type1: { total: 0, correct: 0 },
+                type2: { total: 0, correct: 0 },
+                type3: { total: 0, correct: 0 }
+            }
+        };
+        
+        // 错题列表数组
+        let mistakes = [];
+        
+        // 学习成就阶段配置
+        const stages = [
+            { id: 'novice', name: '新手保护期', target: 1, emoji: '🌱', color: 'novice' },
+            { id: 'apprentice', name: '学徒期', target: 10, emoji: '📚', color: 'apprentice' },
+            { id: 'expert', name: '学霸期', target: 25, emoji: '⭐', color: 'expert' },
+            { id: 'master', name: '学神期', target: 49, emoji: '👑', color: 'master' }
+        ];
+        
+        /**
+         * 获取当前学习阶段
+         * 功能：根据累计答对数返回对应阶段信息
+         * 输入参数：correctCount {number} - 累计答对题数
+         * 返回值：{object} - 当前阶段配置对象
+         */
+        function getCurrentStage(correctCount) {
+            if (correctCount >= 49) return stages[3];
+            if (correctCount >= 25) return stages[2];
+            if (correctCount >= 10) return stages[1];
+            if (correctCount >= 1) return stages[0];
+            return stages[0];
+        }
+        
+        /**
+         * 获取下一学习阶段
+         * 功能：根据累计答对数返回下一阶段信息
+         * 输入参数：correctCount {number} - 累计答对题数
+         * 返回值：{object|null} - 下一阶段配置对象或null（已满级）
+         */
+        function getNextStage(correctCount) {
+            if (correctCount < 10) return stages[1];
+            if (correctCount < 25) return stages[2];
+            if (correctCount < 49) return stages[3];
+            return null;
+        }
+        
+        /**
+         * 更新成就进度显示
+         * 功能：刷新左侧面板的徽章、进度条、统计数据
+         */
+        function updateStageProgress() {
+            const correctCount = stats.correct;
+            const currentStage = getCurrentStage(correctCount);
+            const nextStage = getNextStage(correctCount);
+            
+            let progress = 0;
+            let progressText = '';
+            let nextNeed = 0;
+            
+            // 计算各阶段的进度百分比和文字
+            if (correctCount >= 49) {
+                progress = 100;
+                progressText = `${correctCount} 题 (已满级)`;
+                nextNeed = 0;
+            } else if (correctCount >= 25) {
+                progress = Math.min(((correctCount - 24) / 24) * 100, 100);
+                progressText = `${correctCount} / 48 题`;
+                nextNeed = 49 - correctCount;
+            } else if (correctCount >= 10) {
+                progress = Math.min(((correctCount - 9) / 15) * 100, 100);
+                progressText = `${correctCount} / 24 题`;
+                nextNeed = 25 - correctCount;
+            } else if (correctCount >= 1) {
+                progress = Math.min((correctCount / 9) * 100, 100);
+                progressText = `${correctCount} / 9 题`;
+                nextNeed = 10 - correctCount;
+            } else {
+                progress = 0;
+                progressText = `0 / 9 题`;
+                nextNeed = 10;
+            }
+            
+            // 更新徽章显示
+            const badgeMini = document.getElementById('currentStageBadgeMini');
+            if (badgeMini) {
+                badgeMini.textContent = `${currentStage.emoji} ${currentStage.name}`;
+                badgeMini.className = `stage-badge badge-${currentStage.color}`;
+            }
+            
+            // 更新进度文字
+            const stageProgressTextMini = document.getElementById('stageProgressTextMini');
+            if (stageProgressTextMini) stageProgressTextMini.textContent = progressText;
+            
+            // 更新进度条
+            const stageProgressFillMini = document.getElementById('stageProgressFillMini');
+            if (stageProgressFillMini) {
+                stageProgressFillMini.style.width = `${progress}%`;
+                stageProgressFillMini.className = `stage-progress-fill stage-${currentStage.color}`;
+            }
+            
+            // 更新统计数字
+            const totalCorrectMini = document.getElementById('totalCorrectMini');
+            if (totalCorrectMini) totalCorrectMini.textContent = correctCount;
+            
+            const currentStageProgressMini = document.getElementById('currentStageProgressMini');
+            if (currentStageProgressMini) currentStageProgressMini.textContent = `${Math.round(progress)}%`;
+            
+            const nextStageNeedMini = document.getElementById('nextStageNeedMini');
+            if (nextStageNeedMini) nextStageNeedMini.textContent = nextNeed > 0 ? nextNeed : '已满级';
+        }
+        
+        /**
+         * 切换标签页显示
+         * 功能：在练习模式和错题本之间切换
+         * 输入参数：tabId {string} - 目标标签页ID（practice/mistakes）
+         */
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.main-content').forEach(content => content.style.display = 'none');
+            document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+            if (tabId === 'practice') {
+                document.getElementById('practice').style.display = 'grid';
+            } else if (tabId === 'mistakes') {
+                document.getElementById('mistakes').style.display = 'grid';
+            }
+        }
+        
+        /**
+         * 生成元角互转类题目
+         * 功能：创建元与角、角与元之间的换算题目
+         * 返回值：{object} - 包含题目、答案、解题思路的完整题目对象
+         */
+        function generateType1Question(difficulty) {
+            const isToJiao = Math.random() > 0.5; // 是否为元转角的题目
+            
+            if (isToJiao) {
+                // 元转角
+                let yuan, jiao;
+                if (difficulty === 'easy') {
+                    yuan = Math.floor(Math.random() * 9) + 1; // 1-9元（整数）
+                    jiao = yuan * 10;
+                } else if (difficulty === 'medium') {
+                    yuan = Math.floor(Math.random() * 10) + (Math.random() * 0.9).toFixed(1) * 1; // 带小数
+                    yuan = parseFloat(yuan.toFixed(1));
+                    jiao = yuan * 10;
+                } else {
+                    yuan = parseFloat((Math.random() * 99.9).toFixed(1)); // 更大范围
+                    jiao = yuan * 10;
+                }
+                
+                return {
+                    type: 'type1',
+                    question: `${yuan}元 = ? 角`,
+                    answer: jiao,
+                    userAnswerFormat: '数字',
+                    solution: [
+                        `已知：${yuan}元`,
+                        `换算关系：1元 = 10角`,
+                        `计算过程：${yuan} × 10 = ${jiao}`,
+                        `答案：${jiao}角`
+                    ]
+                };
+            } else {
+                // 角转元
+                let jiao, yuan;
+                if (difficulty === 'easy') {
+                    jiao = (Math.floor(Math.random() * 9) + 1) * 10; // 整十的角
+                } else if (difficulty === 'medium') {
+                    jiao = Math.floor(Math.random() * 95) + 5; // 任意角数
+                } else {
+                    jiao = Math.floor(Math.random() * 995) + 5; // 更大范围
+                }
+                
+                yuan = jiao / 10;
+                const yuanInt = Math.floor(yuan);
+                const jiaoRemainder = (yuan - yuanInt) * 10;
+                
+                return {
+                    type: 'type1',
+                    question: `${jiao}角 = ? 元 ? 角（或写成小数形式）`,
+                    answer: [yuan, `${yuanInt}元${jiaoRemainder}角`],
+                    userAnswerFormat: '多种格式',
+                    solution: [
+                        `已知：${jiao}角`,
+                        `换算关系：10角 = 1元`,
+                        `计算过程：${jiao} ÷ 10 = ${yuan}元`,
+                        `或者：${Math.floor(jiao / 10)}元余${jiao % 10}角`,
+                        `答案：${yuan}元（或${yuanInt}元${jiaoRemainder}角）`
+                    ]
+                };
+            }
+        }
+        
+        /**
+         * 生成小数形式转换类题目
+         * 功能：创建元角分与小数形式的相互转换题目
+         * 返回值：{object} - 包含题目、答案、解题思路的完整题目对象
+         */
+        function generateType2Question(difficulty) {
+            const questionStyle = Math.floor(Math.random() * 3); // 0:元角分→小数, 1:小数→元角分, 2:分→元
+            
+            if (questionStyle === 0) {
+                // 元角分 → 小数形式
+                let yuan, jiao, fen;
+                if (difficulty === 'easy') {
+                    yuan = Math.floor(Math.random() * 9) + 1;
+                    jiao = Math.floor(Math.random() * 9);
+                    fen = 0;
+                } else if (difficulty === 'medium') {
+                    yuan = Math.floor(Math.random() * 9) + 1;
+                    jiao = Math.floor(Math.random() * 10);
+                    fen = Math.floor(Math.random() * 10);
+                } else {
+                    yuan = Math.floor(Math.random() * 99) + 1;
+                    jiao = Math.floor(Math.random() * 10);
+                    fen = Math.floor(Math.random() * 10);
+                }
+                
+                const decimalValue = yuan + jiao / 10 + fen / 100;
+                const displayParts = [];
+                if (yuan > 0) displayParts.push(`${yuan}元`);
+                if (jiao > 0) displayParts.push(`${jiao}角`);
+                if (fen > 0) displayParts.push(`${fen}分`);
+                
+                return {
+                    type: 'type2',
+                    question: `${displayParts.join('')} = ? 元（用小数表示）`,
+                    answer: parseFloat(decimalValue.toFixed(2)),
+                    userAnswerFormat: '小数',
+                    solution: [
+                        `已知：${displayParts.join('')}`,
+                        `换算规则：元为整数部分，角是十分位，分是百分位`,
+                        `分解：${yuan}元 + ${jiao}/10角 + ${fen}/100分`,
+                        `计算：${yuan} + ${jiao/10} + ${fen/100} = ${decimalValue.toFixed(2)}`,
+                        `答案：${decimalValue.toFixed(2)}元`
+                    ]
+                };
+            } else if (questionStyle === 1) {
+                // 小数形式 → 元角分
+                let decimalValue;
+                if (difficulty === 'easy') {
+                    decimalValue = parseFloat((Math.floor(Math.random() * 9) + 1 + Math.random() * 0.9).toFixed(1));
+                } else if (difficulty === 'medium') {
+                    decimalValue = parseFloat((Math.random() * 99.99).toFixed(2));
+                } else {
+                    decimalValue = parseFloat((Math.random() * 999.99).toFixed(2));
+                }
+                
+                const yuan = Math.floor(decimalValue);
+                const jiao = Math.floor((decimalValue - yuan) * 10);
+                const fen = Math.round(((decimalValue - yuan) * 100) % 10);
+                
+                const parts = [];
+                if (yuan > 0) parts.push(`${yuan}元`);
+                if (jiao > 0) parts.push(`${jiao}角`);
+                if (fen > 0) parts.push(`${fen}分`);
+                
+                return {
+                    type: 'type2',
+                    question: `${decimalValue}元 = ? 元 ? 角 ? 分`,
+                    answer: parts.join('') || '0',
+                    userAnswerFormat: '元角分',
+                    solution: [
+                        `已知：${decimalValue}元`,
+                        `拆解规则：整数部分=元，十分位=角，百分位=分`,
+                        `拆分：${yuan}元 ${jiao}角 ${fen}分`,
+                        `答案：${parts.join('') || '0'}`
+                    ]
+                };
+            } else {
+                // 分 → 元（小数）
+                let fen;
+                if (difficulty === 'easy') {
+                    fen = (Math.floor(Math.random() * 9) + 1) * 100; // 整百的分
+                } else if (difficulty === 'medium') {
+                    fen = Math.floor(Math.random() * 995) + 5;
+                } else {
+                    fen = Math.floor(Math.random() * 9995) + 5;
+                }
+                
+                const yuan = fen / 100;
+                const yuanInt = Math.floor(yuan);
+                const jiaoPart = Math.floor((yuan - yuanInt) * 10);
+                const fenPart = Math.round(((yuan - yuanInt) * 100) % 10);
+                
+                return {
+                    type: 'type2',
+                    question: `${fen}分 = ? 元（用小数表示）`,
+                    answer: [parseFloat(yuan.toFixed(2)), `${yuanInt}元${jiaoPart}角${fenPart}分`],
+                    userAnswerFormat: '多种格式',
+                    solution: [
+                        `已知：${fen}分`,
+                        `换算关系：100分 = 1元`,
+                        `计算过程：${fen} ÷ 100 = ${yuan.toFixed(2)}元`,
+                        `拆分为：${yuanInt}元${jiaoPart}角${fenPart}分`,
+                        `答案：${yuan.toFixed(2)}元`
+                    ]
+                };
+            }
+        }
+        
+        /**
+         * 生成综合计算类题目
+         * 功能：创建涉及加减法的元角分综合运算题目
+         * 返回值：{object} - 包含题目、答案、解题思路的完整题目对象
+         */
+        function generateType3Question(difficulty) {
+            const operation = Math.random() > 0.5 ? '+' : '-'; // 加法或减法
+            
+            if (operation === '+') {
+                // 加法运算
+                let val1, val2, unit1, unit2;
+                
+                if (difficulty === 'easy') {
+                    // 简单：同单位相加
+                    unit1 = ['元', '角'][Math.floor(Math.random() * 2)];
+                    unit2 = unit1;
+                    val1 = Math.floor(Math.random() * 9) + 1;
+                    val2 = Math.floor(Math.random() * 9) + 1;
+                } else if (difficulty === 'medium') {
+                    // 中等：不同单位相加
+                    const units = ['元', '角', '分'];
+                    unit1 = units[Math.floor(Math.random() * 3)];
+                    unit2 = units[Math.floor(Math.random() * 3)];
+                    val1 = Math.floor(Math.random() * 9) + 1;
+                    val2 = Math.floor(Math.random() * 9) + 1;
+                } else {
+                    // 困难：带小数的复杂运算
+                    unit1 = '元';
+                    unit2 = '角';
+                    val1 = parseFloat((Math.random() * 9.9).toFixed(1));
+                    val2 = Math.floor(Math.random() * 90) + 10;
+                }
+                
+                // 统一转换为分进行计算
+                const toFen = (val, unit) => {
+                    if (unit === '元') return val * 100;
+                    if (unit === '角') return val * 10;
+                    return val;
+                };
+                
+                const fen1 = toFen(val1, unit1);
+                const fen2 = toFen(val2, unit2);
+                const resultFen = fen1 + fen2;
+                const resultYuan = resultFen / 100;
+                
+                return {
+                    type: 'type3',
+                    question: `${val1}${unit1} + ${val2}${unit2} = ? 元（用小数表示）`,
+                    answer: parseFloat(resultYuan.toFixed(2)),
+                    userAnswerFormat: '小数',
+                    solution: [
+                        `第一步：统一单位（都转换为分）`,
+                        `${val1}${unit1} = ${fen1}分`,
+                        `${val2}${unit2} = ${fen2}分`,
+                        `第二步：进行加法运算`,
+                        `${fen1}分 + ${fen2}分 = ${resultFen}分`,
+                        `第三步：将结果转换回元`,
+                        `${resultFen}分 ÷ 100 = ${resultYuan.toFixed(2)}元`,
+                        `答案：${resultYuan.toFixed(2)}元`
+                    ]
+                };
+            } else {
+                // 减法运算
+                let val1, val2, unit1, unit2;
+                
+                if (difficulty === 'easy') {
+                    unit1 = '角';
+                    unit2 = '角';
+                    val1 = Math.floor(Math.random() * 50) + 20; // 确保被减数大
+                    val2 = Math.floor(Math.random() * (val1 - 1)) + 1;
+                } else if (difficulty === 'medium') {
+                    unit1 = '元';
+                    unit2 = '角';
+                    val1 = Math.floor(Math.random() * 9) + 2;
+                    val2 = Math.floor(Math.random() * (val1 * 10 - 1)) + 1;
+                } else {
+                    unit1 = '元';
+                    val1 = parseFloat((Math.random() * 9.9 + 1).toFixed(1));
+                    unit2 = '角';
+                    val2 = Math.floor(Math.random() * (val1 * 10 - 1)) + 1;
+                }
+                
+                // 统一转换为分进行计算
+                const toFen = (val, unit) => {
+                    if (unit === '元') return val * 100;
+                    if (unit === '角') return val * 10;
+                    return val;
+                };
+                
+                const fen1 = toFen(val1, unit1);
+                const fen2 = toFen(val2, unit2);
+                const resultFen = Math.max(0, fen1 - fen2); // 避免负数
+                const resultYuan = resultFen / 100;
+                
+                return {
+                    type: 'type3',
+                    question: `${val1}${unit1} - ${val2}${unit2} = ? 元（用小数表示）`,
+                    answer: parseFloat(resultYuan.toFixed(2)),
+                    userAnswerFormat: '小数',
+                    solution: [
+                        `第一步：统一单位（都转换为分）`,
+                        `${val1}${unit1} = ${fen1}分`,
+                        `${val2}${unit2} = ${fen2}分`,
+                        `第二步：进行减法运算`,
+                        `${fen1}分 - ${fen2}分 = ${resultFen}分`,
+                        `第三步：将结果转换回元`,
+                        `${resultFen}分 ÷ 100 = ${resultYuan.toFixed(2)}元`,
+                        `答案：${resultYuan.toFixed(2)}元`
+                    ]
+                };
+            }
+        }
+        
+        /**
+         * 生成新题目主函数
+         * 功能：根据用户选择的模式和难度生成一道新题目
+         */
+        function generateQuestion() {
+            const mode = document.getElementById('modeSelect').value;
+            const type = document.getElementById('typeSelect').value;
+            const difficulty = document.getElementById('difficultySelect').value;
+            
+            // 确定实际使用的难度
+            let actualDifficulty = difficulty === 'mixed' 
+                ? ['easy', 'medium', 'hard'][Math.floor(Math.random() * 3)] 
+                : difficulty;
+            
+            // 确定要生成的题型
+            let questionTypes = [];
+            if (type === 'all') {
+                questionTypes = ['type1', 'type2', 'type3'];
+            } else {
+                questionTypes = [type];
+            }
+            
+            const selectedType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+            
+            // 根据题型生成对应题目
+            switch(selectedType) {
+                case 'type1':
+                    currentQuestion = generateType1Question(actualDifficulty);
+                    break;
+                case 'type2':
+                    currentQuestion = generateType2Question(actualDifficulty);
+                    break;
+                case 'type3':
+                    currentQuestion = generateType3Question(actualDifficulty);
+                    break;
+                default:
+                    currentQuestion = generateType1Question(actualDifficulty);
+            }
+            
+            // 显示题目
+            const questionArea = document.getElementById('questionArea');
+            const typeLabels = { type1: '元角互转', type2: '小数形式转换', type3: '综合计算' };
+            const difficultyLabels = { easy: '简单', medium: '中等', hard: '困难' };
+            
+            questionArea.innerHTML = `
+                <span class="question-number">第${stats.total + 1}题</span>
+                <span class="question-type">${typeLabels[currentQuestion.type]}</span>
+                <span class="question-type" style="background: #fff3cd; color: #856404;">${difficultyLabels[actualDifficulty]}</span>
+                <p style="margin-top: 15px; font-size: 1.3rem; font-weight: bold;">${currentQuestion.question}</p>
+                <p style="margin-top: 10px; color: #666; font-size: 0.9rem;">
+                    提示格式：${currentQuestion.userAnswerFormat}
+                </p>
+            `;
+            
+            // 重置界面状态
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('continueBtn').style.display = 'none';
+            document.getElementById('answerInput').focus();
+        }
+        
+        /**
+         * 解析用户输入的答案为标准化格式
+         * 功能：支持多种格式的答案输入（数字、元角分、小数混合），返回多种表示形式
+         * 输入参数：inputStr {string} - 用户输入的原始字符串
+         * 返回值：{object} - 包含原始文本、数值、标准字符串等多种格式
+         */
+        function parseUserAnswer(inputStr) {
+            const str = inputStr.trim().replace(/\s+/g, '');
+            
+            const result = {
+                original: str, // 原始输入文本
+                numeric: null, // 数值形式
+                standard: ''   // 标准化字符串形式（如"15元3角2分"）
+            };
+            
+            // 检查是否包含中文单位
+            if (/元|角|分/.test(str)) {
+                // 提取元、角、分的数值
+                const yuanMatch = str.match(/(\d+)元/);
+                const jiaoMatch = str.match(/(\d+)角/);
+                const fenMatch = str.match(/(\d+)分/);
+                
+                const yuan = yuanMatch ? parseInt(yuanMatch[1]) : 0;
+                const jiao = jiaoMatch ? parseInt(jiaoMatch[1]) : 0;
+                const fen = fenMatch ? parseInt(fenMatch[1]) : 0;
+                
+                // 计算总值（以分为单位转换为元）
+                result.numeric = (yuan * 100 + jiao * 10 + fen) / 100;
+                
+                // 生成标准化字符串（按元角分顺序拼接非零部分）
+                const parts = [];
+                if (yuan > 0) parts.push(`${yuan}元`);
+                if (jiao > 0) parts.push(`${jiao}角`);
+                if (fen > 0) parts.push(`${fen}分`);
+                result.standard = parts.join('') || '0';
+                
+                return result;
+            }
+            
+            // 纯数字或小数输入
+            const num = parseFloat(str);
+            if (!isNaN(num)) {
+                result.numeric = num;
+                
+                // 将小数转换为标准元角分格式
+                const yuanInt = Math.floor(num);
+                const jiaoPart = Math.floor((num - yuanInt) * 10);
+                const fenPart = Math.round(((num - yuanInt) * 100) % 10);
+                
+                const parts = [];
+                if (yuanInt > 0) parts.push(`${yuanInt}元`);
+                if (jiaoPart > 0) parts.push(`${jiaoPart}角`);
+                if (fenPart > 0) parts.push(`${fenPart}分`);
+                result.standard = parts.join('') || '0';
+                
+                return result;
+            }
+            
+            // 无法解析则原样返回
+            result.standard = str;
+            return result;
+        }
+        
+        /**
+         * 将答案转换为统一的分值表示
+         * 功能：无论输入什么格式（数字、字符串、对象），都转换为以分为单位的整数
+         * 输入参数：answer {*} - 待转换的答案（可以是数字、字符串或parseUserAnswer返回的对象）
+         * 返回值：{number} - 以分为单位的整数值
+         */
+        function convertToFen(answer) {
+            // 如果已经是解析后的对象
+            if (answer && typeof answer === 'object' && answer.numeric !== undefined) {
+                return Math.round(answer.numeric * 100);
+            }
+            
+            // 如果是字符串且包含中文单位
+            if (typeof answer === 'string' && /元|角|分/.test(answer)) {
+                const yuanMatch = answer.match(/(\d+)元/);
+                const jiaoMatch = answer.match(/(\d+)角/);
+                const fenMatch = answer.match(/(\d+)分/);
+                
+                const yuan = yuanMatch ? parseInt(yuanMatch[1]) : 0;
+                const jiao = jiaoMatch ? parseInt(jiaoMatch[1]) : 0;
+                const fen = fenMatch ? parseInt(fenMatch[1]) : 0;
+                
+                return yuan * 100 + jiao * 10 + fen;
+            }
+            
+            // 如果是数字
+            if (typeof answer === 'number') {
+                return Math.round(answer * 100);
+            }
+            
+            // 尝试将字符串转为数字
+            const num = parseFloat(answer);
+            if (!isNaN(num)) {
+                return Math.round(num * 100);
+            }
+            
+            return 0; // 无法识别的情况
+        }
+        
+        /**
+         * 比较两个答案是否相等
+         * 功能：使用统一的分值比较法，彻底解决格式不一致导致的误判问题
+         * 输入参数：userAnswer {object} - parseUserAnswer()返回的解析结果对象
+         *           correctAnswer {*} - 正确答案（可能是数组、字符串或数字）
+         * 返回值：{boolean} - 是否匹配
+         */
+        function compareAnswers(userAnswer, correctAnswer) {
+            // 获取用户答案的分值
+            const userFen = convertToFen(userAnswer);
+            
+            // 如果正确答案是数组（允许多种格式）
+            if (Array.isArray(correctAnswer)) {
+                return correctAnswer.some(ans => {
+                    const ansFen = convertToFen(ans);
+                    return userFen === ansFen; // 分值完全相等才判定正确
+                });
+            }
+            
+            // 单一答案的比较：使用分值对比法
+            const correctFen = convertToFen(correctAnswer);
+            return userFen === correctFen;
+        }
+        
+        /**
+         * 提交答案并检查
+         * 功能：验证用户输入的答案是否正确，更新统计数据和反馈显示
+         */
+        function submitAnswer() {
+            if (!currentQuestion) {
+                alert('请先生成题目');
+                return;
+            }
+            
+            const userInput = document.getElementById('answerInput').value.trim();
+            if (!userInput) {
+                alert('请输入答案');
+                return;
+            }
+            
+            // 解析用户答案
+            const parsedAnswer = parseUserAnswer(userInput);
+            
+            // 检查答案正确性
+            const isCorrect = compareAnswers(parsedAnswer, currentQuestion.answer);
+            
+            // 更新统计
+            stats.total++;
+            stats.byType[currentQuestion.type].total++;
+            
+            // 显示反馈
+            const feedback = document.getElementById('feedback');
+            if (isCorrect) {
+                stats.correct++;
+                stats.byType[currentQuestion.type].correct++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '🎉 太棒了！回答正确！';
+                feedback.style.display = 'block';
+                speak('答对了');
+            } else {
+                stats.wrong++;
+                // 添加到错题本
+                mistakes.push({
+                    ...currentQuestion,
+                    userAnswer: userInput,
+                    time: new Date().toLocaleString()
+                });
+                feedback.className = 'feedback incorrect';
+                
+                // 格式化正确答案显示
+                let correctDisplay = Array.isArray(currentQuestion.answer) 
+                    ? currentQuestion.answer.join(' 或 ') 
+                    : currentQuestion.answer;
+                feedback.innerHTML = `❌ 再想想！正确答案是 ${correctDisplay}`;
+                feedback.style.display = 'block';
+                speak('继续加油');
+            }
+            
+            // 显示解题思路
+            showSolution();
+            
+            // 更新统计显示
+            updateStats();
+            
+            // 切换按钮显示
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('continueBtn').style.display = 'inline-block';
+            
+            // 保存数据到本地存储
+            saveData();
+        }
+        
+        /**
+         * 显示解题思路
+         * 功能：在答题区下方展示详细的分步解题过程
+         */
+        function showSolution() {
+            if (!currentQuestion) return;
+            
+            const solutionArea = document.getElementById('solutionArea');
+            const solutionSteps = document.getElementById('solutionSteps');
+            
+            solutionSteps.innerHTML = currentQuestion.solution.map((step, index) => 
+                `<div class="solution-step">${index + 1}. ${step}</div>`
+            ).join('');
+            
+            solutionArea.style.display = 'block';
+        }
+        
+        /**
+         * 更新统计数据显示
+         * 功能：刷新右侧面板的总次数、正确率、按题型统计等信息
+         */
+        function updateStats() {
+            // 总练习次数
+            document.getElementById('totalCountMini').textContent = stats.total;
+            
+            // 正确率计算和显示
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            document.getElementById('accuracyMini').textContent = accuracy + '%';
+            document.getElementById('progressFillMini').style.width = accuracy + '%';
+            
+            // 按题型统计正确率
+            ['type1', 'type2', 'type3'].forEach(type => {
+                const typeStats = stats.byType[type];
+                const typeAccuracy = typeStats.total > 0 ? Math.round((typeStats.correct / typeStats.total) * 100) : 0;
+                const element = document.getElementById(type + 'AccuracyMini');
+                if (element) element.textContent = typeAccuracy + '%';
+            });
+            
+            // 更新成就进度
+            updateStageProgress();
+            
+            // 更新错题分布
+            updateMistakesDistribution();
+        }
+        
+        /**
+         * 更新错题分布统计
+         * 功能：计算各题型的错题数量并更新可视化图表
+         */
+        function updateMistakesDistribution() {
+            const counts = { type1: 0, type2: 0, type3: 0 };
+            mistakes.forEach(mistake => counts[mistake.type]++);
+            const maxCount = Math.max(...Object.values(counts), 1);
+            
+            // 更新每个类型的进度条和计数
+            ['type1', 'type2', 'type3'].forEach(type => {
+                const progress = document.getElementById(type + 'MistakeProgress');
+                const countElement = document.getElementById(type + 'MistakeCount');
+                if (progress) progress.style.width = `${(counts[type] / maxCount) * 100}%`;
+                if (countElement) countElement.textContent = counts[type] + '题';
+            });
+            
+            // 更新错题列表
+            updateMistakesList();
+            
+            // 更新练习建议
+            updateSuggestions();
+        }
+        
+        /**
+         * 更新错题列表显示
+         * 功能：在错题本标签页中渲染所有错题记录
+         */
+        function updateMistakesList() {
+            const list = document.getElementById('mistakesList');
+            const typeLabels = { type1: '元角互转', type2: '小数形式转换', type3: '综合计算' };
+            
+            if (mistakes.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">暂无错题记录，继续加油！</p>';
+            } else {
+                list.innerHTML = mistakes.map(mistake => {
+                    const correctDisplay = Array.isArray(mistake.answer) 
+                        ? mistake.answer.join(' 或 ') 
+                        : mistake.answer;
+                    return `
+                        <div class="mistake-item">
+                            <div class="mistake-question"><strong>[${typeLabels[mistake.type]}]</strong> ${mistake.question}</div>
+                            <div class="mistake-answer">你的答案：${mistake.userAnswer}</div>
+                            <div class="mistake-correct">正确答案：${correctDisplay}</div>
+                            <div style="font-size: 0.75rem; color: #999; margin-top: 5px;">时间：${mistake.time}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        /**
+         * 更新针对性练习建议
+         * 功能：根据错题分布情况动态生成学习建议
+         */
+        function updateSuggestions() {
+            const suggestionsList = document.getElementById('suggestionsList');
+            const counts = { type1: 0, type2: 0, type3: 0 };
+            mistakes.forEach(m => counts[m.type]++);
+            
+            const suggestions = [];
+            const totalMistakes = mistakes.length;
+            
+            if (totalMistakes === 0) {
+                suggestions.push('<span style="color: #28a745; font-weight: bold;">•</span> 太棒了！目前没有薄弱环节，继续保持！');
+            } else {
+                // 找出错题最多的类型
+                const maxType = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+                const typeNames = { type1: '元角互转', type2: '小数形式转换', type3: '综合计算' };
+                
+                if (counts[maxType] > 0) {
+                    suggestions.push(`<span style="color: #dc3545; font-weight: bold;">•</span> <strong>重点复习：</strong>${typeNames[maxType]}（错题${counts[maxType]}次），建议多做此类型练习`);
+                }
+                
+                if (counts.type3 > Math.floor(totalMistakes * 0.4)) {
+                    suggestions.push('<span style="color: #ffc107; font-weight: bold;">•</span> 综合计算能力需要加强，注意单位统一后再计算');
+                }
+                
+                if (totalMistakes > 5 && stats.total > 0) {
+                    const accuracyRate = ((stats.correct / stats.total) * 100).toFixed(1);
+                    if (parseFloat(accuracyRate) < 70) {
+                        suggestions.push('<span style="color: #667eea; font-weight: bold;">•</span> 建议先从简单难度开始，熟练后再挑战更高难度');
+                    }
+                }
+                
+                suggestions.push('<span style="color: #667eea; font-weight: bold;">•</span> 定期复习错题本，避免重复犯错');
+            }
+            
+            suggestionsList.innerHTML = suggestions.map(s => 
+                `<li style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">${s}</li>`
+            ).join('');
+        }
+        
+        /**
+         * 复习错题功能
+         * 功能：从错题本中随机抽取一道题供用户重新练习
+         */
+        function reviewMistakes() {
+            if (mistakes.length === 0) {
+                alert('暂无错题记录，先去做几道题吧！');
+                return;
+            }
+            
+            // 随机选择一道错题
+            const randomIndex = Math.floor(Math.random() * mistakes.length);
+            currentQuestion = { ...mistakes[randomIndex] };
+            
+            // 切换到练习标签页
+            showTab('practice');
+            
+            // 显示题目
+            const questionArea = document.getElementById('questionArea');
+            const typeLabels = { type1: '元角互转', type2: '小数形式转换', type3: '综合计算' };
+            
+            questionArea.innerHTML = `
+                <span class="question-number">复习题</span>
+                <span class="question-type">${typeLabels[currentQuestion.type]}</span>
+                <span class="question-type" style="background: #ffebee; color: #c62828;">来自错题本</span>
+                <p style="margin-top: 15px; font-size: 1.3rem; font-weight: bold;">${currentQuestion.question}</p>
+                <p style="margin-top: 10px; color: #666; font-size: 0.9rem;">
+                    上次错误答案：${currentQuestion.userAnswer}
+                </p>
+            `;
+            
+            // 重置界面
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('continueBtn').style.display = 'none';
+            document.getElementById('answerInput').focus();
+        }
+        
+        /**
+         * 清空错题本
+         * 功能：删除所有错题记录并确认操作
+         */
+        function clearMistakes() {
+            if (mistakes.length === 0) {
+                alert('错题本已经是空的了');
+                return;
+            }
+            if (confirm('确定要清空所有错题吗？清空后将无法恢复。')) {
+                mistakes = [];
+                updateMistakesList();
+                updateMistakesDistribution();
+                saveData();
+            }
+        }
+        
+        /**
+         * 重置统计数据
+         * 功能：清除所有练习记录并恢复初始状态
+         */
+        function clearStats() {
+            if (confirm('确定要重置所有统计数据吗？这将清除你的学习进度。')) {
+                stats = {
+                    total: 0,
+                    correct: 0,
+                    wrong: 0,
+                    byType: {
+                        type1: { total: 0, correct: 0 },
+                        type2: { total: 0, correct: 0 },
+                        type3: { total: 0, correct: 0 }
+                    }
+                };
+                updateStats();
+                saveData();
+            }
+        }
+        
+        /**
+         * 处理回车键提交
+         * 功能：监听键盘事件，在用户按下Enter键时自动提交或继续
+         * 输入参数：event {KeyboardEvent} - 键盘事件对象
+         */
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn.style.display !== 'none') {
+                    submitAnswer();
+                } else {
+                    generateQuestion();
+                }
+            }
+        }
+        
+        /**
+         * 保存数据到本地存储
+         * 功能：将统计数据和错题列表持久化到localStorage
+         */
+        function saveData() {
+            localStorage.setItem('rmbConversionStats', JSON.stringify(stats));
+            localStorage.setItem('rmbConversionMistakes', JSON.stringify(mistakes));
+        }
+        
+        /**
+         * 从本地存储加载数据
+         * 功能：页面加载时读取之前保存的学习进度
+         */
+        function loadData() {
+            try {
+                const savedStats = localStorage.getItem('rmbConversionStats');
+                const savedMistakes = localStorage.getItem('rmbConversionMistakes');
+                
+                if (savedStats) {
+                    stats = JSON.parse(savedStats);
+                }
+                
+                if (savedMistakes) {
+                    mistakes = JSON.parse(savedMistakes);
+                }
+                
+                // 更新界面显示
+                updateStats();
+            } catch (error) {
+                console.log('加载本地数据失败，使用默认数据');
+            }
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = function() {
+            loadData();
+        };
+    </script>
+    
+    <!-- 底部页脚 开始 -->
+    <footer style="
+        width: 100%;
+        background-color: #f8f8f8;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 12px;
+        color: #666;
+        border-top: 1px solid #e5e5e5;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999;
+    ">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+            <a href="#" style="color:#666; text-decoration:none;">关于我们</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none;">使用说明</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none;">隐私政策</a>
+            <span style="color: #ddd;">|</span>
+            <span>© 胡水之蒹HTML工具 版权所有</span>
+        </div>
+    </footer>
+    <!-- 底部页脚 结束 -->
+</body>
+</html>

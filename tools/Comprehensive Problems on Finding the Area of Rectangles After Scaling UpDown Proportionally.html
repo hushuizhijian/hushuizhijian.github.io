@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>长方形按比放大缩小求面积教学工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 60px;
+            overflow: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .tab {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            padding-bottom: 60px;
+            height: 60vh;
+        }
+
+        .main-content.mistakes-layout {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .question-area {
+            min-height: 150px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .question-area .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .question-area .question-type {
+            display: inline-block;
+            background: #e7f3ff;
+            color: #0c63e4;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+
+        /* 可视化展示区域 */
+        .visual-area {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .rectangle-display {
+            text-align: center;
+        }
+
+        .rectangle-display h4 {
+            color: #666;
+            margin-bottom: 20px;  /* 增加标题与图形的距离，避免字图重叠 */
+            font-size: 0.95rem;
+        }
+
+        .rectangle-box {
+            border: 3px solid #667eea;
+            position: relative;
+            margin: 15px auto;  /* 增加上下外边距，拉开与文字的距离 */
+            transition: all 0.5s ease;
+        }
+
+        .original-rect {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .scaled-rect {
+            background: rgba(118, 75, 162, 0.3);
+            border-color: #764ba2;
+        }
+
+        .dimension-label {
+            position: absolute;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .label-top {
+            top: -30px;  /* 增加距离，避免与图形上边缘重叠 */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .label-left {
+            left: -50px;  /* 增加距离，避免与图形左边缘重叠 */
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .area-label {
+            margin-top: 15px;  /* 增加面积标签与图形的距离 */
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .answer-area {
+            margin-bottom: 20px;
+        }
+        
+        .answer-area input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .solution-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .solution-area h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .solution-step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .formula-highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #856404;
+        }
+        
+        .mistakes-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .mistake-item {
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .mistake-item .mistake-question {
+            font-size: 0.9rem;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+        
+        .mistake-item .mistake-answer {
+            font-size: 0.85rem;
+            color: #dc3545;
+            margin-right: 15px;
+        }
+        
+        .mistake-item .mistake-correct {
+            font-size: 0.85rem;
+            color: #28a745;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+        
+        .stage-progress-container {
+            margin-bottom: 20px;
+        }
+        
+        .stage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .stage-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .stage-progress-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .stage-progress-bar {
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stage-progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .stage-novice {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        }
+        
+        .stage-apprentice {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+        
+        .stage-expert {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+        
+        .stage-master {
+            background: linear-gradient(90deg, #9C27B0, #CE93D8);
+        }
+        
+        .stage-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .badge-novice {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4CAF50;
+        }
+        
+        .badge-apprentice {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 2px solid #2196F3;
+        }
+        
+        .badge-expert {
+            background: #fff3e0;
+            color: #e65100;
+            border: 2px solid #FF9800;
+        }
+        
+        .badge-master {
+            background: #f3e5f5;
+            color: #6a1b9a;
+            border: 2px solid #9C27B0;
+        }
+        
+        .stage-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stage-stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stage-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stage-stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 固定高度+滚动显示布局规范 */
+        
+        .sidebar-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
+        }
+
+        .tips-card-fixed {
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tips-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .answer-panel-outer {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .answer-card-inner {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .answer-card-title {
+            flex-shrink: 0;
+        }
+
+        .answer-content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 长方形按比放大/缩小求面积</h1>
+            <p>掌握图形比例变换与面积计算的综合应用</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('practice')">练习模式</button>
+            <button class="tab" onclick="showTab('mistakes')">错题本</button>
+        </div>
+        
+        <div id="practice" class="main-content" style="display: grid;">
+            <!-- 左侧面板 -->
+            <div class="sidebar-panel">
+                <!-- 题目生成器卡片 -->
+                <div class="card" style="padding: 12px;">
+                    <h2 style="font-size: 1rem; margin-bottom: 10px;">🎯 题目设置</h2>
+                    
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label style="font-size: 0.85rem; margin-bottom: 4px;">题目类型</label>
+                        <select id="typeSelect" style="font-size: 0.85rem; padding: 6px;">
+                            <option value="all">全部类型</option>
+                            <option value="enlarge">按比放大</option>
+                            <option value="shrink">按比缩小</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label style="font-size: 0.85rem; margin-bottom: 4px;">难度级别</label>
+                        <select id="difficultySelect" style="font-size: 0.85rem; padding: 6px;">
+                            <option value="mixed">混合难度</option>
+                            <option value="easy">简单（整数比例）</option>
+                            <option value="medium">中等（常见比例）</option>
+                            <option value="hard">困难（复杂比例）</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="generateQuestion()" style="width: 100%; font-size: 0.9rem; padding: 8px;">🎲 生成新题目</button>
+                </div>
+                
+                <!-- 学习成就卡片 -->
+                <div class="card" style="padding: 12px;">
+                    <h2 style="font-size: 1rem; margin-bottom: 10px;">🏆 学习成就</h2>
+                    
+                    <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+                        <span id="currentStageBadgeMini" class="stage-badge badge-novice" style="font-size: 0.8rem; padding: 4px 12px;">
+                            🌱 新手保护期
+                        </span>
+                    </div>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span style="font-size: 0.8rem; color: #666;">当前进度</span>
+                            <span id="stageProgressTextMini" style="font-size: 0.8rem; font-weight: bold;">0 / 9 题</span>
+                        </div>
+                        <div class="progress-bar" style="height: 10px;">
+                            <div id="stageProgressFillMini" class="stage-progress-fill stage-novice" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                        <div style="background: #e8f4fd; padding: 6px; border-radius: 6px; text-align: center;">
+                            <div id="totalCorrectMini" style="font-size: 1rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.65rem; color: #666;">累计答对</div>
+                        </div>
+                        <div style="background: #e8f5e9; padding: 6px; border-radius: 6px; text-align: center;">
+                            <div id="currentStageProgressMini" style="font-size: 1rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.65rem; color: #666;">阶段进度</div>
+                        </div>
+                        <div style="background: #fff3e0; padding: 6px; border-radius: 6px; text-align: center;">
+                            <div id="nextStageNeedMini" style="font-size: 1rem; font-weight: bold; color: #856404;">10</div>
+                            <div style="font-size: 0.65rem; color: #666;">距下一阶段</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 练习统计卡片 -->
+                <div class="card" style="padding: 12px;">
+                    <h2 style="font-size: 1rem; margin-bottom: 10px;">📊 练习统计</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px;">
+                        <div style="background: #e7f3ff; padding: 8px; border-radius: 6px; text-align: center;">
+                            <div id="totalCountMini" style="font-size: 1.1rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.7rem; color: #666;">总练习次数</div>
+                        </div>
+                        <div style="background: #d4edda; padding: 8px; border-radius: 6px; text-align: center;">
+                            <div id="accuracyMini" style="font-size: 1.1rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.7rem; color: #666;">正确率</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span style="font-size: 0.75rem; color: #666;">正确率进度</span>
+                            <span style="font-size: 0.75rem;">目标：80%以上</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="progressFillMini" style="width: 0%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 8px;">
+                        <h4 style="font-size: 0.8rem; margin-bottom: 6px;">📈 按题型统计</h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                            <div style="background: #e7f3ff; padding: 6px; border-radius: 4px; text-align: center;">
+                                <div style="font-size: 0.7rem; color: #0c63e4; font-weight: bold;">按比放大</div>
+                                <div id="enlargeAccuracyMini" style="font-size: 0.95rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #d4edda; padding: 6px; border-radius: 4px; text-align: center;">
+                                <div style="font-size: 0.7rem; color: #155724; font-weight: bold;">按比缩小</div>
+                                <div id="shrinkAccuracyMini" style="font-size: 0.95rem; font-weight: bold;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="clearStats()" style="margin-top: 10px; width: 100%; font-size: 0.75rem; padding: 6px;">重置统计数据</button>
+                </div>
+                
+                <!-- 学习技巧卡片 - 固定高度 + 内部可滚动 -->
+                <div class="card tips-card-fixed" style="padding: 12px;">
+                    <h2 style="font-size: 1rem; margin-bottom: 8px; flex-shrink: 0;">💡 学习技巧</h2>
+                    
+                    <!-- 学习技巧内容区域（可滚动） -->
+                    <div class="tips-scroll-area">
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                            <h4 style="font-size: 0.9rem; color: #667eea; margin-bottom: 6px;">🎮 怎么玩</h4>
+                            <p style="color: #666; line-height: 1.6; font-size: 0.85rem;">
+                                系统会随机生成长方形的长和宽，以及放大或缩小的比例。<br>
+                                你需要根据比例关系计算出新图形的面积。
+                            </p>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                            <h4 style="font-size: 0.9rem; color: #667eea; margin-bottom: 6px;">📝 解题步骤</h4>
+                            <ol style="font-size: 0.85rem; color: #666; line-height: 1.8; margin-left: 18px;">
+                                <li>理解是放大还是缩小</li>
+                                <li>根据比例计算新的长和宽</li>
+                                <li>用新长×新宽得到面积</li>
+                                <li>注意单位是平方厘米</li>
+                            </ol>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px;">
+                            <h4 style="font-size: 0.9rem; color: #667eea; margin-bottom: 6px;">✨ 小技巧</h4>
+                            <ul style="font-size: 0.85rem; color: #666; line-height: 1.7; margin-left: 18px;">
+                                <li><strong>放大时：</strong>新尺寸 = 原尺寸 × (前项÷后项)</li>
+                                <li><strong>缩小时：</strong>新尺寸 = 原尺寸 × (后项÷前项)</li>
+                                <li><strong>面积变化：</strong>边长扩大n倍，面积扩大n²倍</li>
+                                <li>认真审题，分清放大还是缩小</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧答题区 -->
+            <div class="answer-panel-outer">
+                <div class="card answer-card-inner">
+                    <!-- 答题区标题 -->
+                    <h2 class="answer-card-title" style="font-size: 1.2rem; margin-bottom: 15px;">📝 答题区</h2>
+                    
+                    <!-- 语音开关小喇叭 -->
+                    <button id="soundToggle" onclick="toggleSound()" title="点击切换语音开关" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        background: #667eea;
+                        color: white;
+                        border: none;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                        transition: all 0.3s ease;
+                        z-index: 10;
+                    ">
+                        🔊
+                    </button>
+                
+                    <!-- 答题内容统一滚动区域 -->
+                    <div class="answer-content-scroll">
+                        
+                        <!-- 题目显示区域 -->
+                        <div class="question-area" id="questionArea">
+                            <p style="color: #999; text-align: center; line-height: 150px;">点击"生成新题目"开始练习</p>
+                        </div>
+
+                        <!-- 可视化展示区域 -->
+                        <div class="visual-area" id="visualArea" style="display: none;">
+                            <div class="rectangle-display">
+                                <h4>原图形</h4>
+                                <div class="rectangle-box original-rect" id="originalRect"></div>
+                                <div class="area-label" id="originalAreaLabel"></div>
+                            </div>
+                            <div style="font-size: 2rem; color: #667eea; align-self: center;">→</div>
+                            <div class="rectangle-display">
+                                <h4 id="transformLabel">变换后</h4>
+                                <div class="rectangle-box scaled-rect" id="scaledRect"></div>
+                                <div class="area-label" id="scaledAreaLabel"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 答案输入区域 -->
+                        <div class="answer-area">
+                            <input type="number" id="answerInput" placeholder="请输入面积（平方厘米）" onkeyup="handleEnter(event)">
+                        </div>
+                        
+                        <!-- 操作按钮区域 -->
+                        <div style="display: flex; gap: 10px; margin: 15px 0;">
+                            <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">✅ 提交答案</button>
+                            <button class="btn btn-secondary" id="continueBtn" onclick="generateQuestion()" style="display: none;">
+                                ➡️ 继续答题
+                            </button>
+                        </div>
+                        
+                        <!-- 反馈提示区域 -->
+                        <div class="feedback" id="feedback"></div>
+                        
+                        <!-- 解题思路区域 -->
+                        <div class="solution-area" id="solutionArea" style="display: none;">
+                            <h3>💡 解题思路</h3>
+                            <div id="solutionSteps"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 错题本页面 -->
+        <div id="mistakes" class="main-content mistakes-layout" style="display: none;">
+            <div class="card">
+                <h2>📚 错题本</h2>
+                
+                <div class="mistakes-list" id="mistakesList">
+                    <p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="reviewMistakes()">🔄 复习错题</button>
+                    <button class="btn btn-secondary" onclick="clearMistakes()">🗑️ 清空错题本</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🎯 薄弱点分析</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>错题类型分布</h3>
+                    <div style="display: grid; gap: 12px; margin-top: 15px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 180px; background: #e7f3ff; padding: 10px; border-radius: 8px; text-align: center; font-weight: 500;">按比放大</div>
+                            <div style="flex: 1; height: 22px; background: #e9ecef; border-radius: 11px; margin-left: 10px; overflow: hidden;">
+                                <div id="enlargeMistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="enlargeMistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666; font-size: 0.9rem;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 180px; background: #d4edda; padding: 10px; border-radius: 8px; text-align: center; font-weight: 500;">按比缩小</div>
+                            <div style="flex: 1; height: 22px; background: #e9ecef; border-radius: 11px; margin-left: 10px; overflow: hidden;">
+                                <div id="shrinkMistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="shrinkMistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666; font-size: 0.9rem;">0题</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>💡 针对性练习建议</h3>
+                    <ul style="list-style: none; padding-left: 0; margin-top: 15px;" id="suggestionsList">
+                        <li style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                            <span style="color: #667eea; font-weight: bold;">•</span> 
+                            完成更多练习后，系统将根据您的错题情况提供针对性建议
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 语音开关状态
+        let soundEnabled = true;
+
+        /**
+         * 播放语音提示
+         * 功能：调用浏览器Web Speech API播报指定文本
+         * 输入参数：text {string} - 要播报的文本内容
+         * 返回值：无
+         * 使用场景：答对/答错反馈时调用
+         */
+        function speak(text) {
+            if (!soundEnabled) {
+                return;
+            }
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                window.speechSynthesis.speak(utterance);
+            } catch (error) {
+                console.log('浏览器不支持语音功能');
+            }
+        }
+        
+        /**
+         * 切换语音开关
+         * 功能：点击小喇叭切换语音开启/关闭状态
+         */
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            if (soundEnabled) {
+                btn.textContent = '🔊';
+                btn.style.background = '#667eea';
+            } else {
+                btn.textContent = '🔇';
+                btn.style.background = '#999';
+            }
+        }
+
+        // 当前题目数据
+        let currentQuestion = null;
+        
+        // 统计数据对象
+        let stats = {
+            total: 0,
+            correct: 0,
+            wrong: 0,
+            byType: {
+                enlarge: { total: 0, correct: 0 },
+                shrink: { total: 0, correct: 0 }
+            }
+        };
+        
+        // 错题列表数组
+        let mistakes = [];
+
+        // 学习成就阶段配置
+        const stages = [
+            { id: 'novice', name: '新手保护期', target: 1, emoji: '🌱', color: 'novice' },
+            { id: 'apprentice', name: '学徒期', target: 10, emoji: '📚', color: 'apprentice' },
+            { id: 'expert', name: '学霸期', target: 25, emoji: '⭐', color: 'expert' },
+            { id: 'master', name: '学神期', target: 49, emoji: '👑', color: 'master' }
+        ];
+
+        /**
+         * 获取当前阶段信息
+         * 功能：根据累计答对数判断当前所处的学习阶段
+         * 输入参数：correctCount {number} - 累计答对的题目数
+         * 返回值：{object} - 当前阶段配置对象
+         */
+        function getCurrentStage(correctCount) {
+            if (correctCount >= 49) return stages[3];
+            if (correctCount >= 25) return stages[2];
+            if (correctCount >= 10) return stages[1];
+            if (correctCount >= 1) return stages[0];
+            return stages[0];
+        }
+
+        /**
+         * 获取下一阶段信息
+         * 功能：获取当前阶段的下一个目标阶段
+         * 输入参数：correctCount {number} - 累计答对数
+         * 返回值：{object|null} - 下一阶段配置对象，已满级返回null
+         */
+        function getNextStage(correctCount) {
+            if (correctCount < 10) return stages[1];
+            if (correctCount < 25) return stages[2];
+            if (correctCount < 49) return stages[3];
+            return null;
+        }
+
+        /**
+         * 更新学习成就进度显示
+         * 功能：刷新左侧面板的徽章、进度条、统计数据
+         */
+        function updateStageProgress() {
+            const correctCount = stats.correct;
+            const currentStage = getCurrentStage(correctCount);
+            const nextStage = getNextStage(correctCount);
+            
+            // 计算进度百分比和显示文本
+            let progress = 0;
+            let progressText = '';
+            let nextNeed = 0;
+            
+            if (correctCount >= 49) {
+                progress = 100;
+                progressText = `${correctCount} 题 (已满级)`;
+                nextNeed = 0;
+            } else if (correctCount >= 25) {
+                progress = Math.min(((correctCount - 24) / 24) * 100, 100);
+                progressText = `${correctCount} / 48 题`;
+                nextNeed = 49 - correctCount;
+            } else if (correctCount >= 10) {
+                progress = Math.min(((correctCount - 9) / 15) * 100, 100);
+                progressText = `${correctCount} / 24 题`;
+                nextNeed = 25 - correctCount;
+            } else if (correctCount >= 1) {
+                progress = Math.min((correctCount / 9) * 100, 100);
+                progressText = `${correctCount} / 9 题`;
+                nextNeed = 10 - correctCount;
+            } else {
+                progress = 0;
+                progressText = `0 / 9 题`;
+                nextNeed = 10;
+            }
+            
+            // 更新徽章显示
+            const badgeMini = document.getElementById('currentStageBadgeMini');
+            if (badgeMini) {
+                badgeMini.textContent = `${currentStage.emoji} ${currentStage.name}`;
+                badgeMini.className = `stage-badge badge-${currentStage.color}`;
+            }
+            
+            // 更新进度文本
+            const stageProgressTextMini = document.getElementById('stageProgressTextMini');
+            if (stageProgressTextMini) stageProgressTextMini.textContent = progressText;
+            
+            // 更新进度条
+            const stageProgressFillMini = document.getElementById('stageProgressFillMini');
+            if (stageProgressFillMini) {
+                stageProgressFillMini.style.width = `${progress}%`;
+                stageProgressFillMini.className = `stage-progress-fill stage-${currentStage.color}`;
+            }
+            
+            // 更新统计数据
+            const totalCorrectMini = document.getElementById('totalCorrectMini');
+            if (totalCorrectMini) totalCorrectMini.textContent = correctCount;
+            
+            const currentStageProgressMini = document.getElementById('currentStageProgressMini');
+            if (currentStageProgressMini) currentStageProgressMini.textContent = `${Math.round(progress)}%`;
+            
+            const nextStageNeedMini = document.getElementById('nextStageNeedMini');
+            if (nextStageNeedMini) nextStageNeedMini.textContent = nextNeed > 0 ? nextNeed : '已满级';
+        }
+
+        /**
+         * 切换标签页显示
+         * 功能：在练习模式和错题本之间切换
+         * 输入参数：tabId {string} - 目标标签页ID（practice/mistakes）
+         */
+        function showTab(tabId) {
+            // 移除所有标签的激活状态
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            // 隐藏所有内容区域
+            document.querySelectorAll('.main-content').forEach(content => content.style.display = 'none');
+            
+            // 激活选中的标签
+            document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+            
+            // 显示对应的内容区域
+            if (tabId === 'practice') {
+                document.getElementById('practice').style.display = 'grid';
+            } else if (tabId === 'mistakes') {
+                document.getElementById('mistakes').style.display = 'grid';
+            }
+        }
+
+        /**
+         * 生成随机整数
+         * 功能：在指定范围内生成随机整数
+         * 输入参数：min {number} - 最小值，max {number} - 最大值
+         * 返回值：{number} - 随机整数
+         */
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        /**
+         * 获取简化后的比例
+         * 功能：将两个数化简为最简整数比
+         * 输入参数：num1 {number}, num2 {number}
+         * 返回值：{object} - 包含前后项的对象 {front, back, ratio}
+         */
+        function getSimplifiedRatio(num1, num2) {
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const divisor = gcd(num1, num2);
+            return {
+                front: num1 / divisor,
+                back: num2 / divisor,
+                ratio: num1 / num2
+            };
+        }
+
+        /**
+         * 生成新题目
+         * 功能：根据用户选择的类型和难度随机生成一道题目
+         */
+        function generateQuestion() {
+            // 获取用户选择的筛选条件
+            const typeFilter = document.getElementById('typeSelect').value;
+            const difficulty = document.getElementById('difficultySelect').value;
+            
+            // 随机决定是放大还是缩小
+            let isEnlarge;
+            if (typeFilter === 'all') {
+                isEnlarge = Math.random() > 0.5;
+            } else if (typeFilter === 'enlarge') {
+                isEnlarge = true;
+            } else {
+                isEnlarge = false;
+            }
+            
+            // 根据难度选择不同的数值范围和比例
+            let length, width, scaleRatio;
+            const typeLabel = isEnlarge ? '按比放大' : '按比缩小';
+
+            if (difficulty === 'easy') {
+                // 简单模式：使用简单整数比例（2:1, 3:1等）
+                length = getRandomInt(2, 6);
+                width = getRandomInt(2, 6);
+                const simpleRatios = [2, 3, 4];
+                const ratioValue = simpleRatios[getRandomInt(0, simpleRatios.length - 1)];
+                scaleRatio = isEnlarge 
+                    ? getSimplifiedRatio(ratioValue, 1)
+                    : getSimplifiedRatio(1, ratioValue);
+            } else if (difficulty === 'medium') {
+                // 中等模式：常见比例（3:2, 4:3, 2:1, 3:1等）
+                length = getRandomInt(3, 8);
+                width = getRandomInt(3, 8);
+                const mediumRatios = [
+                    { f: 2, b: 1 }, { f: 3, b: 1 }, { f: 3, b: 2 },
+                    { f: 4, b: 1 }, { f: 4, b: 3 }, { f: 5, b: 2 }
+                ];
+                const selectedRatio = mediumRatios[getRandomInt(0, mediumRatios.length - 1)];
+                scaleRatio = isEnlarge
+                    ? getSimplifiedRatio(selectedRatio.f, selectedRatio.b)
+                    : getSimplifiedRatio(selectedRatio.b, selectedRatio.f);
+            } else {
+                // 困难/混合模式：更复杂的比例
+                length = getRandomInt(2, 10);
+                width = getRandomInt(2, 10);
+                const hardRatios = [
+                    { f: 2, b: 1 }, { f: 3, b: 1 }, { f: 3, b: 2 },
+                    { f: 4, b: 1 }, { f: 4, b: 3 }, { f: 5, b: 2 },
+                    { f: 5, b: 3 }, { f: 5, b: 4 }, { f: 6, b: 5 }
+                ];
+                const selectedRatio = hardRatios[getRandomInt(0, hardRatios.length - 1)];
+                scaleRatio = isEnlarge
+                    ? getSimplifiedRatio(selectedRatio.f, selectedRatio.b)
+                    : getSimplifiedRatio(selectedRatio.b, selectedRatio.f);
+            }
+
+            // 计算新尺寸和答案
+            const newLength = parseFloat((length * scaleRatio.ratio).toFixed(2));
+            const newWidth = parseFloat((width * scaleRatio.ratio).toFixed(2));
+            const answer = parseFloat((newLength * newWidth).toFixed(2));
+
+            // 构建题目文本
+            const actionText = isEnlarge ? '放大' : '缩小';
+            const questionText = `一个长方形长${length}cm，宽${width}cm，按${scaleRatio.front}:${scaleRatio.back}的比${actionText}后得到图形的面积是多少平方厘米？`;
+
+            // 构建解题步骤
+            const solutionSteps = [];
+            if (isEnlarge) {
+                solutionSteps.push(`第1步：理解题意 - 这是一个<strong>${actionText}</strong>问题，比例为 ${scaleRatio.front}:${scaleRatio.back}`);
+                solutionSteps.push(`第2步：计算新的长度 - 原长 ${length}cm × (${scaleRatio.front}÷${scaleRatio.back}) = <span class="formula-highlight">${newLength}cm</span>`);
+                solutionSteps.push(`第3步：计算新的宽度 - 原宽 ${width}cm × (${scaleRatio.front}÷${scaleRatio.back}) = <span class="formula-highlight">${newWidth}cm</span>`);
+            } else {
+                solutionSteps.push(`第1步：理解题意 - 这是一个<strong>${actionText}</strong>问题，比例为 ${scaleRatio.front}:${scaleRatio.back}`);
+                solutionSteps.push(`第2步：计算新的长度 - 原长 ${length}cm × (${scaleRatio.back}÷${scaleRatio.front}) = <span class="formula-highlight">${newLength}cm</span>`);
+                solutionSteps.push(`第3步：计算新的宽度 - 原宽 ${width}cm × (${scaleRatio.back}÷${scaleRatio.front}) = <span class="formula-highlight">${newWidth}cm</span>`);
+            }
+            solutionSteps.push(`第4步：计算面积 - 新长 ${newLength}cm × 新宽 ${newWidth}cm = <span class="formula-highlight">${answer} 平方厘米</span>`);
+
+            // 保存当前题目数据
+            currentQuestion = {
+                originalLength: length,
+                originalWidth: width,
+                newLength: newLength,
+                newWidth: newWidth,
+                scaleRatio: scaleRatio,
+                isEnlarge: isEnlarge,
+                answer: answer,
+                question: questionText,
+                type: isEnlarge ? 'enlarge' : 'shrink',
+                solution: solutionSteps
+            };
+
+            // 更新题目显示区域
+            const questionArea = document.getElementById('questionArea');
+            questionArea.innerHTML = `
+                <span class="question-number">第${stats.total + 1}题</span>
+                <span class="question-type">${typeLabel}</span>
+                <p style="margin-top: 12px; font-size: 1.15rem; font-weight: 500;">${questionText}</p>
+            `;
+
+            // 显示可视化图形
+            updateVisualization();
+
+            // 重置输入框和反馈区域
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('continueBtn').style.display = 'none';
+            
+            // 聚焦到输入框
+            document.getElementById('answerInput').focus();
+        }
+
+        /**
+         * 更新可视化展示
+         * 功能：绘制原图形和变换后的图形对比图（只显示原始尺寸，答案需学生计算）
+         */
+        function updateVisualization() {
+            if (!currentQuestion) return;
+
+            const visualArea = document.getElementById('visualArea');
+            visualArea.style.display = 'flex';
+
+            // 设置基础缩放比例（让图形在可视区域内合理显示）
+            const baseScale = 15;
+
+            // 设置原图形尺寸（只显示原始长宽，不显示面积）
+            const origRect = document.getElementById('originalRect');
+            const origWidth = currentQuestion.originalLength * baseScale;
+            const origHeight = currentQuestion.originalWidth * baseScale;
+            origRect.style.width = origWidth + 'px';
+            origRect.style.height = origHeight + 'px';
+            origRect.innerHTML = `
+                <span class="dimension-label label-top">${currentQuestion.originalLength}cm</span>
+                <span class="dimension-label label-left">${currentQuestion.originalWidth}cm</span>
+            `;
+
+            // 隐藏原图形面积标签（学生需要自己计算）
+            document.getElementById('originalAreaLabel').style.display = 'none';
+
+            // 设置变换后的图形尺寸（只显示图形轮廓，不显示具体尺寸和面积）
+            const scaledRect = document.getElementById('scaledRect');
+            const maxDisplaySize = 120;
+            let scaledWidth = currentQuestion.newLength * baseScale;
+            let scaledHeight = currentQuestion.newWidth * baseScale;
+
+            // 如果图形过大，进行等比缩放以适应显示区域
+            if (scaledWidth > maxDisplaySize || scaledHeight > maxDisplaySize) {
+                const scaleDown = Math.min(maxDisplaySize / scaledWidth, maxDisplaySize / scaledHeight);
+                scaledWidth *= scaleDown;
+                scaledHeight *= scaleDown;
+            }
+
+            scaledRect.style.width = scaledWidth + 'px';
+            scaledRect.style.height = scaledHeight + 'px';
+            // 不显示右侧的新尺寸标注（学生需要自己计算）
+
+            // 更新变换标签
+            document.getElementById('transformLabel').textContent =
+                currentQuestion.isEnlarge ? '放大后' : '缩小后';
+
+            // 隐藏变换后的面积标签（学生需要自己计算）
+            document.getElementById('scaledAreaLabel').style.display = 'none';
+        }
+
+        /**
+         * 提交答案并验证
+         * 功能：检查用户输入的答案是否正确，更新统计数据
+         */
+        function submitAnswer() {
+            // 检查是否有当前题目
+            if (!currentQuestion) {
+                alert('请先生成题目');
+                return;
+            }
+            
+            // 获取用户答案
+            const userAnswer = parseFloat(document.getElementById('answerInput').value.trim());
+            if (isNaN(userAnswer)) {
+                alert('请输入有效的数字答案');
+                return;
+            }
+            
+            // 判断答案是否正确（允许±0.01的误差）
+            const isCorrect = Math.abs(userAnswer - currentQuestion.answer) <= 0.01;
+            
+            // 更新统计数据
+            stats.total++;
+            stats.byType[currentQuestion.type].total++;
+            
+            if (isCorrect) {
+                // 回答正确
+                stats.correct++;
+                stats.byType[currentQuestion.type].correct++;
+                
+                // 显示成功反馈
+                const feedback = document.getElementById('feedback');
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '🎉 太棒了！回答正确！';
+                feedback.style.display = 'block';
+                
+                // 播放语音提示
+                speak('答对了！太棒了！');
+            } else {
+                // 回答错误
+                stats.wrong++;
+                
+                // 将错题加入错题本
+                mistakes.push({
+                    ...currentQuestion,
+                    userAnswer: userAnswer,
+                    time: new Date().toLocaleString()
+                });
+                
+                // 显示错误反馈
+                const feedback = document.getElementById('feedback');
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `❌ 再想想！正确答案是 <strong>${currentQuestion.answer}</strong> 平方厘米`;
+                feedback.style.display = 'block';
+                
+                // 播放语音提示
+                speak('继续加油！正确答案是' + currentQuestion.answer);
+            }
+            
+            // 显示解题思路
+            showSolution();
+            
+            // 更新所有统计显示
+            updateStats();
+            
+            // 切换按钮显示状态
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('continueBtn').style.display = 'inline-block';
+        }
+
+        /**
+         * 显示解题思路
+         * 功能：在答题区展示详细的分步解题过程
+         */
+        function showSolution() {
+            if (!currentQuestion) return;
+            
+            const solutionArea = document.getElementById('solutionArea');
+            const solutionSteps = document.getElementById('solutionSteps');
+            
+            // 渲染解题步骤HTML
+            solutionSteps.innerHTML = currentQuestion.solution.map((step, index) => 
+                `<div class="solution-step">${step}</div>`
+            ).join('');
+            
+            // 显示解题思路区域
+            solutionArea.style.display = 'block';
+        }
+
+        /**
+         * 更新所有统计数据显示
+         * 功能：刷新右侧面板的总次数、正确率、各题型统计等
+         */
+        function updateStats() {
+            // 更新总练习次数
+            document.getElementById('totalCountMini').textContent = stats.total;
+            
+            // 计算并更新总体正确率
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            document.getElementById('accuracyMini').textContent = accuracy + '%';
+            document.getElementById('progressFillMini').style.width = accuracy + '%';
+            
+            // 更新各题型正确率
+            ['enlarge', 'shrink'].forEach(type => {
+                const typeStats = stats.byType[type];
+                const typeAccuracy = typeStats.total > 0 
+                    ? Math.round((typeStats.correct / typeStats.total) * 100) 
+                    : 0;
+                const element = document.getElementById(type + 'AccuracyMini');
+                if (element) element.textContent = typeAccuracy + '%';
+            });
+            
+            // 更新学习成就进度
+            updateStageProgress();
+            
+            // 更新错题分布统计
+            updateMistakesDistribution();
+
+            // 保存数据到localStorage
+            saveData();
+        }
+
+        /**
+         * 更新错题分布统计
+         * 功能：刷新错题本页面的各类错题数量和进度条
+         */
+        function updateMistakesDistribution() {
+            // 统计各类型错题数量
+            const counts = { enlarge: 0, shrink: 0 };
+            mistakes.forEach(mistake => counts[mistake.type]++);
+            const maxCount = Math.max(...Object.values(counts), 1);
+            
+            // 更新各类错题的进度条和数量显示
+            ['enlarge', 'shrink'].forEach(type => {
+                const progress = document.getElementById(type + 'MistakeProgress');
+                const countElement = document.getElementById(type + 'MistakeCount');
+                if (progress) progress.style.width = `${(counts[type] / maxCount) * 100}%`;
+                if (countElement) countElement.textContent = counts[type] + '题';
+            });
+            
+            // 更新错题列表显示
+            updateMistakesList();
+        }
+
+        /**
+         * 更新错题列表显示
+         * 功能：重新渲染错题本中的所有错题卡片
+         */
+        function updateMistakesList() {
+            const list = document.getElementById('mistakesList');
+            const typeLabels = { enlarge: '按比放大', shrink: '按比缩小' };
+            
+            if (mistakes.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>';
+            } else {
+                list.innerHTML = mistakes.map(mistake => `
+                    <div class="mistake-item">
+                        <div class="mistake-question"><strong>[${typeLabels[mistake.type]}]</strong> ${mistake.question}</div>
+                        <div class="mistake-answer">你的答案：${mistake.userAnswer}</div>
+                        <div class="mistake-correct">正确答案：${mistake.answer}</div>
+                        <div style="font-size: 0.8rem; color: #999; margin-top: 5px;">时间：${mistake.time}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        /**
+         * 复习错题功能
+         * 功能：从错题本中随机抽取一题进行复习
+         */
+        function reviewMistakes() {
+            if (mistakes.length === 0) {
+                alert('暂无错题记录，继续努力吧！');
+                return;
+            }
+            
+            // 随机选择一道错题
+            const randomIndex = Math.floor(Math.random() * mistakes.length);
+            const mistakeToReview = mistakes[randomIndex];
+            
+            // 将错题设置为当前题目
+            currentQuestion = {
+                ...mistakeToReview,
+                question: mistakeToReview.question,
+                solution: mistakeToReview.solution
+            };
+            
+            // 切换到练习模式标签
+            showTab('practice');
+            
+            // 更新题目显示
+            const questionArea = document.getElementById('questionArea');
+            const typeLabel = currentQuestion.isEnlarge ? '按比放大' : '按比缩小';
+            questionArea.innerHTML = `
+                <span class="question-number">复习题</span>
+                <span class="question-type">${typeLabel}</span>
+                <p style="margin-top: 12px; font-size: 1.15rem; font-weight: 500; color: #dc3545;">${currentQuestion.question}</p>
+                <p style="margin-top: 8px; font-size: 0.9rem; color: #666;">（上次答错：${mistakeToReview.userAnswer}）</p>
+            `;
+
+            // 显示可视化图形
+            updateVisualization();
+            
+            // 重置界面状态
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('continueBtn').style.display = 'none';
+            
+            // 聚焦输入框
+            document.getElementById('answerInput').focus();
+            
+            alert('已从错题本中抽取一道题，请重新作答！');
+        }
+
+        /**
+         * 清空错题本
+         * 功能：清除所有错题记录（需用户确认）
+         */
+        function clearMistakes() {
+            if (mistakes.length === 0) {
+                alert('错题本已经是空的了');
+                return;
+            }
+            if (confirm('确定要清空所有错题吗？此操作不可撤销！')) {
+                mistakes = [];
+                updateMistakesList();
+                updateMistakesDistribution();
+                saveData();
+            }
+        }
+
+        /**
+         * 重置统计数据
+         * 功能：清零所有练习统计（需用户确认）
+         */
+        function clearStats() {
+            if (confirm('确定要重置所有统计数据吗？此操作不可撤销！')) {
+                stats = {
+                    total: 0,
+                    correct: 0,
+                    wrong: 0,
+                    byType: {
+                        enlarge: { total: 0, correct: 0 },
+                        shrink: { total: 0, correct: 0 }
+                    }
+                };
+                updateStats();
+                saveData();
+            }
+        }
+
+        /**
+         * 处理回车键提交
+         * 功能：监听键盘事件，回车键触发提交或继续答题
+         * 输入参数：event {KeyboardEvent} - 键盘事件对象
+         */
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn.style.display !== 'none') {
+                    submitAnswer();
+                } else {
+                    generateQuestion();
+                }
+            }
+        }
+
+        /**
+         * 保存数据到本地存储
+         * 功能：将统计数据和错题列表持久化到localStorage
+         */
+        function saveData() {
+            localStorage.setItem('rectangleScaleAreaStats', JSON.stringify(stats));
+            localStorage.setItem('rectangleScaleAreaMistakes', JSON.stringify(mistakes));
+        }
+
+        /**
+         * 从本地存储加载数据
+         * 功能：启动时恢复之前的练习进度和错题记录
+         */
+        function loadData() {
+            try {
+                const savedStats = localStorage.getItem('rectangleScaleAreaStats');
+                const savedMistakes = localStorage.getItem('rectangleScaleAreaMistakes');
+                
+                if (savedStats) {
+                    stats = JSON.parse(savedStats);
+                }
+                
+                if (savedMistakes) {
+                    mistakes = JSON.parse(savedMistakes);
+                }
+                
+                // 更新界面显示
+                updateStats();
+            } catch (error) {
+                console.log('加载数据失败:', error);
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.onload = function() {
+            loadData();
+        };
+    </script>
+    
+    <!-- 底部页脚 开始 -->
+    <footer style="
+        width: 100%;
+        background-color: #f8f8f8;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 12px;
+        color: #666;
+        border-top: 1px solid #e5e5e5;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999;
+    ">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+            <a href="#" style="color:#666; text-decoration:none;">关于我们</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none;">使用说明</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none;">隐私政策</a>
+            <span style="color: #ddd;">|</span>
+            <span>© 胡水之蒹HTML工具 版权所有</span>
+        </div>
+    </footer>
+    <!-- 底部页脚 结束 -->
+</body>
+</html>

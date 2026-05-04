@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>十以内加法快闪</title>
+    <style>
+        /* ===== 全局重置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ===== 页面主体 ===== */
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px 20px;
+            padding-bottom: 60px;
+            overflow: hidden;
+        }
+
+        /* ===== 容器 ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ===== 页头 ===== */
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+
+        /* ===== 标签页导航 ===== */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+            gap: 10px;
+        }
+
+        .tab {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* ===== 主内容区 - 练习模式1:2布局 ===== */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            padding-bottom: 60px;
+            height: 60vh;
+        }
+
+        /* ===== 错题本1:1布局 ===== */
+        .main-content.mistakes-layout {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 18px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        /* ===== 按钮 ===== */
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* ===== 进度条 ===== */
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+
+        /* ===== 阶段徽章 ===== */
+        .stage-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .badge-novice {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4CAF50;
+        }
+
+        .badge-apprentice {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 2px solid #2196F3;
+        }
+
+        .badge-expert {
+            background: #fff3e0;
+            color: #e65100;
+            border: 2px solid #FF9800;
+        }
+
+        .badge-master {
+            background: #f3e5f5;
+            color: #6a1b9a;
+            border: 2px solid #9C27B0;
+        }
+
+        /* ===== 阶段进度条 ===== */
+        .stage-progress-bar {
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stage-progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .stage-novice {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        }
+
+        .stage-apprentice {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+
+        .stage-expert {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+
+        .stage-master {
+            background: linear-gradient(90deg, #9C27B0, #CE93D8);
+        }
+
+        /* ===== 错题列表 ===== */
+        .mistakes-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .mistake-item {
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .mistake-item .mistake-question {
+            font-size: 0.9rem;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+
+        .mistake-item .mistake-answer {
+            font-size: 0.85rem;
+            color: #dc3545;
+            margin-right: 15px;
+        }
+
+        .mistake-item .mistake-correct {
+            font-size: 0.85rem;
+            color: #28a745;
+        }
+
+        /* ===== 答题区 ===== */
+        .question-area {
+            min-height: 200px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .equation-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* ===== 画布容器 ===== */
+        .canvas-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 180px;
+            display: block;
+        }
+
+        /* ===== 选项网格 ===== */
+        .choice-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .choice-btn {
+            padding: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .choice-btn:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .choice-btn.correct-pick {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+            border-color: #4CAF50;
+            animation: popOk 0.35s ease;
+        }
+
+        .choice-btn.shake {
+            animation: shake 0.45s ease;
+            border-color: #dc3545;
+        }
+
+        /* ===== 动画 ===== */
+        @keyframes popOk {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== 反馈提示 ===== */
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        /* ===== 提示区域 ===== */
+        .hint-area {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: #0c63e4;
+            display: none;
+        }
+
+        /* ===== 学习技巧卡片 ===== */
+        .tip-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tip-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .tip-card ul {
+            margin-left: 20px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* ===== 解题思路 ===== */
+        .solution-step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        /* ===== 滚动条美化 ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 页头区域 -->
+        <header>
+            <h1>🎯 十以内加法快闪</h1>
+            <p>直观 · 让数学学习更有趣</p>
+        </header>
+
+        <!-- 标签页导航 -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('practice')">练习模式</button>
+            <button class="tab" onclick="showTab('mistakes')">错题本</button>
+        </div>
+
+        <!-- 练习模式内容区域 -->
+        <div id="practice" class="main-content" style="display: grid;">
+            <!-- 左侧侧边栏 -->
+            <div style="display: flex; flex-direction: column; height: 100%; gap: 15px;">
+                <!-- 学习成就卡片 -->
+                <div class="card" style="padding: 15px;">
+                    <h2 style="font-size: 1.2rem; margin-bottom: 12px;">🏆 学习成就</h2>
+
+                    <!-- 当前阶段徽章 -->
+                    <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+                        <span id="currentStageBadge" class="stage-badge badge-novice" style="font-size: 0.8rem;">
+                            🌱 新手保护期
+                        </span>
+                    </div>
+
+                    <!-- 阶段进度条 -->
+                    <div style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="font-size: 0.8rem; color: #666;">当前进度</span>
+                            <span id="stageProgressText" style="font-size: 0.8rem; font-weight: bold;">0 / 9 题</span>
+                        </div>
+                        <div class="stage-progress-bar" style="height: 18px;">
+                            <div id="stageProgressFill" class="stage-progress-fill stage-novice" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 成就统计指标 -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                        <div style="background: #e8f4fd; padding: 8px; border-radius: 6px; text-align: center;">
+                            <div id="totalCorrect" style="font-size: 1.2rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.7rem; color: #666;">累计答对</div>
+                        </div>
+                        <div style="background: #e8f5e9; padding: 8px; border-radius: 6px; text-align: center;">
+                            <div id="currentStageProgress" style="font-size: 1.2rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.7rem; color: #666;">阶段进度</div>
+                        </div>
+                        <div style="background: #fff3e0; padding: 8px; border-radius: 6px; text-align: center;">
+                            <div id="nextStageNeed" style="font-size: 1.2rem; font-weight: bold; color: #856404;">10</div>
+                            <div style="font-size: 0.7rem; color: #666;">距下一阶段</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 练习统计卡片 -->
+                <div class="card" style="padding: 15px;">
+                    <h2 style="font-size: 1.2rem; margin-bottom: 12px;">📊 练习统计</h2>
+
+                    <!-- 总练习次数和正确率 -->
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;">
+                        <div style="background: #e7f3ff; padding: 12px; border-radius: 8px; text-align: center;">
+                            <div id="totalCount" style="font-size: 1.3rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.75rem; color: #666;">总练习次数</div>
+                        </div>
+                        <div style="background: #d4edda; padding: 12px; border-radius: 8px; text-align: center;">
+                            <div id="accuracy" style="font-size: 1.3rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.75rem; color: #666;">正确率</div>
+                        </div>
+                    </div>
+
+                    <!-- 正确率进度条 -->
+                    <div style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span style="font-size: 0.8rem; color: #666;">正确率进度</span>
+                            <span style="font-size: 0.8rem;">目标：80%以上</span>
+                        </div>
+                        <div class="progress-bar" style="height: 16px;">
+                            <div id="progressFill" style="width: 0%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"></div>
+                        </div>
+                    </div>
+
+                    <!-- 连对统计 -->
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                        <div style="background: #fff3cd; padding: 8px; border-radius: 6px; text-align: center;">
+                            <div id="currentStreak" style="font-size: 1.1rem; font-weight: bold; color: #856404;">0</div>
+                            <div style="font-size: 0.7rem; color: #666;">当前连对</div>
+                        </div>
+                        <div style="background: #f8d7da; padding: 8px; border-radius: 6px; text-align: center;">
+                            <div id="maxStreak" style="font-size: 1.1rem; font-weight: bold; color: #721c24;">0</div>
+                            <div style="font-size: 0.7rem; color: #666;">最高连对</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 学习技巧卡片（固定高度 + 可滚动） -->
+                <div class="card" style="padding: 15px; height: 300px; display: flex; flex-direction: column; overflow: hidden;">
+                    <h2 style="font-size: 1.2rem; margin-bottom: 12px; flex-shrink: 0;">💡 学习技巧</h2>
+                    <div style="flex: 1; overflow-y: auto; min-height: 0;">
+                        <div class="tip-card" style="margin-bottom: 10px;">
+                            <h4 style="font-size: 1rem; margin-bottom: 8px;">🎮 怎么玩</h4>
+                            <p style="color: #666; line-height: 1.7; font-size: 0.9rem;">
+                                每题两个数都是 1～9，且和一定不超过 10，适合一年级巩固。
+                                先看上面圆点：左边蓝色表示第一个数，右边橙色表示第二个数，再点下面正确答案。
+                            </p>
+                        </div>
+                        <div class="tip-card">
+                            <h4 style="font-size: 1rem; margin-bottom: 8px;">✨ 小技巧</h4>
+                            <ul style="font-size: 0.9rem;">
+                                <li>可以大声读"情境词"再做题，更有趣味</li>
+                                <li>拿小棒或画圈，把两组点数合在一起数</li>
+                                <li>点"小提示"会给出线索（不直接报答案）</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧答题区域 -->
+            <div style="height: 100%; overflow: hidden;">
+                <div class="card" style="position: relative; height: 100%; display: flex; flex-direction: column;">
+                    <h2 style="flex-shrink: 0;">📝 答题区</h2>
+
+                    <!-- 语音开关小喇叭按钮 -->
+                    <button id="soundToggle" onclick="toggleSound()" title="点击切换语音开关" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        background: #667eea;
+                        color: white;
+                        border: none;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                        transition: all 0.3s ease;
+                        z-index: 10;
+                    ">🔊</button>
+
+                    <!-- 整个答题内容区域（统一可滚动） -->
+                    <div style="flex: 1; overflow-y: auto; min-height: 0;">
+
+                        <!-- 1. 题目文字 + 圆点图示 + 选项 -->
+                        <div class="question-area">
+                            <div class="equation-display" id="equationDisplay">准备开始！</div>
+
+                            <!-- 画布容器用于绘制圆点 -->
+                            <div class="canvas-container">
+                                <canvas id="canvas"></canvas>
+                            </div>
+
+                            <!-- 选项网格 -->
+                            <div class="choice-grid" id="choiceGrid"></div>
+
+                            <!-- 提示区域 -->
+                            <div class="hint-area" id="hintArea"></div>
+                        </div>
+
+                        <!-- 2. 操作按钮 -->
+                        <div style="display: flex; gap: 10px; margin: 10px 0;">
+                            <button class="btn btn-secondary" onclick="showHint()">💡 小提示</button>
+                            <button class="btn btn-secondary" id="continueBtn" onclick="nextQuestion()" style="display: none;">
+                                ➡️ 继续答题
+                            </button>
+                            <button class="btn btn-secondary" onclick="resetAll()">🔄 重置</button>
+                        </div>
+
+                        <!-- 3. 反馈提示区域 -->
+                        <div class="feedback" id="feedback"></div>
+
+                        <!-- 4. 解题思路区域 -->
+                        <div id="solutionArea" style="display: none; background: #f8f9fa; border-radius: 10px; padding: 20px; margin-top: 20px;">
+                            <h3 style="color: #667eea; margin-bottom: 15px;">💡 解题思路</h3>
+                            <div id="solutionSteps"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 错题本内容区域 -->
+        <div id="mistakes" class="main-content mistakes-layout" style="display: none;">
+            <!-- 左侧：错题本区域 -->
+            <div class="card" style="height: 100%; display: flex; flex-direction: column; overflow: hidden;">
+                <h2 style="flex-shrink: 0;">📚 错题本</h2>
+
+                <!-- 错题列表（可滚动） -->
+                <div class="mistakes-list" id="mistakesList" style="flex: 1; overflow-y: auto;">
+                    <p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>
+                </div>
+
+                <!-- 错题本操作按钮 -->
+                <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center; flex-shrink: 0;">
+                    <button class="btn btn-secondary" onclick="reviewMistakes()">📖 复习错题</button>
+                    <button class="btn btn-secondary" onclick="clearMistakes()">🗑️ 清空错题本</button>
+                </div>
+            </div>
+
+            <!-- 右侧：学习建议卡片 -->
+            <div class="card" style="height: 100%;">
+                <h2>🎯 学习建议</h2>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">💡 小建议</h3>
+                    <ul style="color: #666; line-height: 2;">
+                        <li>每天坚持练习10分钟，效果会更好</li>
+                        <li>先数清楚圆点数量，再计算加法</li>
+                        <li>错题要及时复习，直到完全掌握</li>
+                        <li>可以用实物（如小棒）辅助理解</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部页脚 -->
+    <footer style="
+        width: 100%;
+        background-color: #f8f8f8;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 12px;
+        color: #666;
+        border-top: 1px solid #e5e5e5;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999;
+    ">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+            <a href="#" style="color:#666; text-decoration:none;">关于我们</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none;">使用说明</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none;">隐私政策</a>
+            <span style="color: #ddd;">|</span>
+            <span>© 胡水之蒹HTML工具 版权所有</span>
+        </div>
+    </footer>
+
+    <script>
+        // ==================== 语音功能模块 ====================
+
+        // 语音开关状态变量
+        let soundEnabled = true;
+
+        /**
+         * 播放语音提示
+         * 功能：调用浏览器Web Speech API播报指定文本
+         * 输入参数：text {string} 要播报的文本内容
+         * 返回值：无
+         * 使用场景：答对/答错反馈时调用
+         */
+        function speak(text) {
+            if (!soundEnabled) {
+                return;
+            }
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                window.speechSynthesis.speak(utterance);
+            } catch (error) {
+                console.log('浏览器不支持语音功能');
+            }
+        }
+
+        /**
+         * 切换语音开关
+         * 功能：点击小喇叭切换语音开启/关闭状态
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：用户点击小喇叭按钮时调用
+         */
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            if (soundEnabled) {
+                btn.textContent = '🔊';
+                btn.style.background = '#667eea';
+            } else {
+                btn.textContent = '🔇';
+                btn.style.background = '#999';
+            }
+        }
+
+        // ==================== 全局变量定义 ====================
+
+        // 工具标题常量
+        const TITLE = '十以内加法快闪';
+
+        // 统计数据对象
+        let stats = {
+            total: 0,
+            correct: 0,
+            wrong: 0,
+            currentStreak: 0,
+            maxStreak: 0
+        };
+
+        // 错题数组
+        let mistakes = [];
+
+        // 当前题目对象
+        let currentQuestion = null;
+
+        // 锁定状态变量
+        let locked = false;
+
+        // 阶段配置数组
+        const stages = [
+            { id: 'novice', name: '新手保护期', target: 1, emoji: '🌱', color: 'novice' },
+            { id: 'apprentice', name: '学徒期', target: 10, emoji: '📚', color: 'apprentice' },
+            { id: 'expert', name: '学霸期', target: 25, emoji: '⭐', color: 'expert' },
+            { id: 'master', name: '学神期', target: 49, emoji: '👑', color: 'master' }
+        ];
+
+        // ==================== 阶段管理函数 ====================
+
+        /**
+         * 获取当前所处阶段
+         * 功能：根据答对题数判断用户当前所处的学习阶段
+         * 输入参数：correctCount {number} 累计答对题数
+         * 返回值：阶段对象
+         * 使用场景：更新进度显示时调用
+         */
+        function getCurrentStage(correctCount) {
+            if (correctCount >= 49) return stages[3];
+            if (correctCount >= 25) return stages[2];
+            if (correctCount >= 10) return stages[1];
+            if (correctCount >= 1) return stages[0];
+            return stages[0];
+        }
+
+        /**
+         * 获取下一阶段
+         * 功能：根据答对题数判断用户的下一学习阶段
+         * 输入参数：correctCount {number} 累计答对题数
+         * 返回值：阶段对象或null
+         * 使用场景：计算距下一阶段所需题数时调用
+         */
+        function getNextStage(correctCount) {
+            if (correctCount < 10) return stages[1];
+            if (correctCount < 25) return stages[2];
+            if (correctCount < 49) return stages[3];
+            return null;
+        }
+
+        /**
+         * 更新阶段进度显示
+         * 功能：更新页面上的阶段进度显示、徽章、进度条等
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：答对题或统计数据更新时调用
+         */
+        function updateStageProgress() {
+            const correctCount = stats.correct;
+            const currentStage = getCurrentStage(correctCount);
+            const nextStage = getNextStage(correctCount);
+
+            let progress = 0;
+            let progressText = '';
+            let nextNeed = 0;
+
+            if (correctCount >= 49) {
+                progress = 100;
+                progressText = correctCount + ' 题 (已满级)';
+                nextNeed = 0;
+            } else if (correctCount >= 25) {
+                progress = Math.min(((correctCount - 24) / 24) * 100, 100);
+                progressText = correctCount + ' / 48 题';
+                nextNeed = 49 - correctCount;
+            } else if (correctCount >= 10) {
+                progress = Math.min(((correctCount - 9) / 15) * 100, 100);
+                progressText = correctCount + ' / 24 题';
+                nextNeed = 25 - correctCount;
+            } else if (correctCount >= 1) {
+                progress = Math.min((correctCount / 9) * 100, 100);
+                progressText = correctCount + ' / 9 题';
+                nextNeed = 10 - correctCount;
+            } else {
+                progress = 0;
+                progressText = '0 / 9 题';
+                nextNeed = 10;
+            }
+
+            // 更新阶段徽章
+            const badge = document.getElementById('currentStageBadge');
+            if (badge) {
+                badge.textContent = currentStage.emoji + ' ' + currentStage.name;
+                badge.className = 'stage-badge badge-' + currentStage.color;
+            }
+
+            // 更新阶段进度文字
+            const stageProgressTextEl = document.getElementById('stageProgressText');
+            if (stageProgressTextEl) stageProgressTextEl.textContent = progressText;
+
+            // 更新阶段进度条
+            const stageProgressFill = document.getElementById('stageProgressFill');
+            if (stageProgressFill) {
+                stageProgressFill.style.width = progress + '%';
+                stageProgressFill.className = 'stage-progress-fill stage-' + currentStage.color;
+            }
+
+            // 更新统计数值
+            document.getElementById('totalCorrect').textContent = correctCount;
+            document.getElementById('currentStageProgress').textContent = Math.round(progress) + '%';
+            document.getElementById('nextStageNeed').textContent = nextNeed > 0 ? nextNeed : '已满级';
+        }
+
+        // ==================== 统计管理函数 ====================
+
+        /**
+         * 更新所有统计数据显示
+         * 功能：更新页面上所有统计信息的显示
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：答题后或数据加载后调用
+         */
+        function updateStats() {
+            document.getElementById('totalCount').textContent = stats.total;
+            const accuracyVal = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracyVal + '%';
+            document.getElementById('progressFill').style.width = accuracyVal + '%';
+            document.getElementById('currentStreak').textContent = stats.currentStreak;
+            document.getElementById('maxStreak').textContent = stats.maxStreak;
+            updateStageProgress();
+        }
+
+        // ==================== 标签页切换函数 ====================
+
+        /**
+         * 切换标签页
+         * 功能：切换显示练习模式或错题本标签页
+         * 输入参数：tabId {string} 要显示的标签页ID
+         * 返回值：无
+         * 使用场景：用户点击标签页按钮时调用
+         */
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.main-content').forEach(function(content) {
+                content.style.display = 'none';
+            });
+            document.querySelector('.tab[onclick="showTab(\'' + tabId + '\')"]').classList.add('active');
+            if (tabId === 'practice') {
+                document.getElementById('practice').style.display = 'grid';
+            } else if (tabId === 'mistakes') {
+                document.getElementById('mistakes').style.display = 'grid';
+                updateMistakesList();
+            }
+        }
+
+        // ==================== 题目生成函数 ====================
+
+        /**
+         * 数组随机打乱（Fisher-Yates算法）
+         * 功能：对数组进行随机排序
+         * 输入参数：array {Array} 要打乱的数组
+         * 返回值：打乱后的新数组
+         * 使用场景：生成选项时调用
+         */
+        function shuffle(array) {
+            const arr = array.slice();
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+            return arr;
+        }
+
+        /**
+         * 随机选取两个加数（和不超过10）
+         * 功能：随机生成两个1-9之间的数，且和不超过10
+         * 输入参数：无
+         * 返回值：包含两个数字的数组[a, b]
+         * 使用场景：生成新题目时调用
+         */
+        function pickAddendsWithin10() {
+            let a, b;
+            let guard = 0;
+            do {
+                a = 1 + Math.floor(Math.random() * 9);
+                b = 1 + Math.floor(Math.random() * 9);
+                guard++;
+            } while (a + b > 10 && guard < 50);
+            if (a + b > 10) {
+                a = 1 + Math.floor(Math.random() * 5);
+                b = 1 + Math.floor(Math.random() * (10 - a));
+            }
+            return [a, b];
+        }
+
+        // ==================== 画布操作函数 ====================
+
+        /**
+         * 初始化画布
+         * 功能：设置画布的尺寸并返回画布对象
+         * 输入参数：无
+         * 返回值：画布对象
+         * 使用场景：绘制圆点前调用
+         */
+        function initCanvas() {
+            const canvas = document.getElementById('canvas');
+            const parent = canvas.parentElement;
+            canvas.width = Math.max(280, parent.clientWidth);
+            canvas.height = 180;
+            return canvas;
+        }
+
+        /**
+         * 绘制两组圆点
+         * 功能：在画布上绘制代表两个加数的圆点
+         * 输入参数：a {number} 第一个加数，b {number} 第二个加数
+         * 返回值：无
+         * 使用场景：显示新题目时调用
+         */
+        function drawDotsGroups(a, b) {
+            const canvas = initCanvas();
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const cy = canvas.height / 2;
+            const r = 12;
+            const gap = 28;
+            const leftCx = canvas.width * 0.25;
+            const rightCx = canvas.width * 0.75;
+
+            /**
+             * 绘制一行圆点（内部函数）
+             * 功能：在指定位置绘制一排圆点
+             * 输入参数：cx {number} 中心点X坐标，n {number} 圆点数量，
+             *           colorFill {string} 填充色，colorStroke {string} 边框色
+             * 返回值：无
+             */
+            function rowDots(cx, n, colorFill, colorStroke) {
+                const totalW = (n - 1) * gap;
+                const startX = cx - totalW / 2;
+                for (let i = 0; i < n; i++) {
+                    ctx.beginPath();
+                    ctx.arc(startX + i * gap, cy, r, 0, Math.PI * 2);
+                    ctx.fillStyle = colorFill;
+                    ctx.fill();
+                    ctx.strokeStyle = colorStroke;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            }
+
+            // 绘制左侧蓝色圆点（第一个加数）
+            rowDots(leftCx, a, 'rgba(102, 126, 234, 0.85)', '#667eea');
+            // 绘制右侧橙色圆点（第二个加数）
+            rowDots(rightCx, b, 'rgba(255, 152, 0, 0.85)', '#FF9800');
+
+            // 绘制中间的加号
+            ctx.fillStyle = '#666';
+            ctx.font = 'bold 36px "Microsoft YaHei", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('+', canvas.width / 2, cy + 12);
+        }
+
+        // ==================== 选项生成函数 ====================
+
+        /**
+         * 构建选项数组
+         * 功能：生成包含正确答案和3个错误答案的选项数组
+         * 输入参数：correctAnswer {number} 正确答案
+         * 返回值：包含4个选项的数组（已打乱顺序）
+         * 使用场景：显示新题目时调用
+         */
+        function buildChoices(correctAnswer) {
+            const choices = new Set([correctAnswer]);
+            while (choices.size < 4) {
+                const wrong = Math.floor(Math.random() * 11);
+                if (wrong !== correctAnswer) choices.add(wrong);
+            }
+            return shuffle(Array.from(choices));
+        }
+
+        // ==================== 答题交互函数 ====================
+
+        /**
+         * 生成新题目
+         * 功能：生成并显示新的加法题目
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：页面加载或点击继续答题时调用
+         */
+        function nextQuestion() {
+            locked = false;
+            const pair = pickAddendsWithin10();
+            const a = pair[0];
+            const b = pair[1];
+            const correctAnswer = a + b;
+
+            currentQuestion = {
+                a: a,
+                b: b,
+                correctAnswer: correctAnswer,
+                question: a + ' + ' + b + ' = ?',
+                time: new Date().toLocaleString()
+            };
+
+            document.getElementById('equationDisplay').textContent = a + ' + ' + b + ' = ?';
+            drawDotsGroups(a, b);
+
+            const choices = buildChoices(correctAnswer);
+            const choiceGrid = document.getElementById('choiceGrid');
+            choiceGrid.innerHTML = choices.map(function(choice) {
+                return '<button class="choice-btn" onclick="selectAnswer(' + choice + ', this)">' + choice + '</button>';
+            }).join('');
+
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('hintArea').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('continueBtn').style.display = 'none';
+        }
+
+        /**
+         * 选择答案
+         * 功能：处理用户选择答案的逻辑
+         * 输入参数：userAnswer {number} 用户选择的答案，btnElement {Element} 用户点击的按钮元素
+         * 返回值：无
+         * 使用场景：用户点击选项按钮时调用
+         */
+        function selectAnswer(userAnswer, btnElement) {
+            if (locked || !currentQuestion) return;
+
+            locked = true;
+            const isCorrect = userAnswer === currentQuestion.correctAnswer;
+            const feedback = document.getElementById('feedback');
+
+            stats.total++;
+
+            if (isCorrect) {
+                stats.correct++;
+                stats.currentStreak++;
+                if (stats.currentStreak > stats.maxStreak) {
+                    stats.maxStreak = stats.currentStreak;
+                }
+                btnElement.classList.add('correct-pick');
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '🎉 太棒了！回答正确！';
+                feedback.style.display = 'block';
+                speak('答对了');
+            } else {
+                stats.wrong++;
+                stats.currentStreak = 0;
+
+                mistakes.push({
+                    question: currentQuestion.question,
+                    correctAnswer: currentQuestion.correctAnswer,
+                    userAnswer: userAnswer,
+                    time: currentQuestion.time
+                });
+
+                btnElement.classList.add('shake');
+                setTimeout(function() {
+                    btnElement.classList.remove('shake');
+                }, 500);
+
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = '❌ 再想想！正确答案是 ' + currentQuestion.correctAnswer;
+                feedback.style.display = 'block';
+                speak('继续加油');
+
+                // 答错后展示解题思路
+                showSolution();
+            }
+
+            document.getElementById('continueBtn').style.display = 'inline-block';
+            updateStats();
+            saveData();
+        }
+
+        /**
+         * 显示解题思路
+         * 功能：根据当前题目分步展示解题过程
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：答错后自动调用
+         */
+        function showSolution() {
+            if (!currentQuestion) return;
+            const solutionArea = document.getElementById('solutionArea');
+            const solutionSteps = document.getElementById('solutionSteps');
+            const a = currentQuestion.a;
+            const b = currentQuestion.b;
+            const answer = currentQuestion.correctAnswer;
+
+            const steps = [
+                '题目：' + a + ' + ' + b + ' = ?',
+                '第一步：看左边的蓝色圆点，数一数有 ' + a + ' 个',
+                '第二步：看右边的橙色圆点，数一数有 ' + b + ' 个',
+                '第三步：把两组圆点合在一起数，1、2、3... 一共 ' + answer + ' 个',
+                '所以：' + a + ' + ' + b + ' = ' + answer
+            ];
+
+            solutionSteps.innerHTML = steps.map(function(step, index) {
+                return '<div class="solution-step">' + (index + 1) + '. ' + step + '</div>';
+            }).join('');
+            solutionArea.style.display = 'block';
+        }
+
+        /**
+         * 显示小提示
+         * 功能：根据当前题目显示解题提示
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：用户点击小提示按钮时调用
+         */
+        function showHint() {
+            if (!currentQuestion) return;
+            const hintArea = document.getElementById('hintArea');
+            const a = currentQuestion.a;
+            const b = currentQuestion.b;
+            const correctAnswer = currentQuestion.correctAnswer;
+
+            let hint = '';
+            if (correctAnswer <= 6) {
+                hint = '💡 小提示：答案比 ' + Math.max(0, correctAnswer - 2) + ' 大，比 ' + Math.min(10, correctAnswer + 2) + ' 小或相等，试试数圆点！';
+            } else {
+                hint = '💡 小提示：两个数都不超过 9，和是 ' + correctAnswer + '，一定不超过 10；先数蓝点再数橙点。';
+            }
+
+            hintArea.innerHTML = hint;
+            hintArea.style.display = 'block';
+        }
+
+        // ==================== 数据管理函数 ====================
+
+        /**
+         * 重置所有数据
+         * 功能：清空统计数据和错题记录，重新开始
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：用户点击重置按钮时调用
+         */
+        function resetAll() {
+            if (confirm('确定要重置所有统计数据吗？')) {
+                stats = {
+                    total: 0,
+                    correct: 0,
+                    wrong: 0,
+                    currentStreak: 0,
+                    maxStreak: 0
+                };
+                mistakes = [];
+                currentQuestion = null;
+                locked = false;
+                updateStats();
+                updateMistakesList();
+                document.getElementById('equationDisplay').textContent = '准备开始！';
+                document.getElementById('choiceGrid').innerHTML = '';
+                document.getElementById('feedback').style.display = 'none';
+                document.getElementById('hintArea').style.display = 'none';
+                document.getElementById('solutionArea').style.display = 'none';
+                document.getElementById('continueBtn').style.display = 'none';
+                const canvas = initCanvas();
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                localStorage.removeItem('additionFlashStats');
+                localStorage.removeItem('additionFlashMistakes');
+                nextQuestion();
+            }
+        }
+
+        /**
+         * 更新错题本列表显示
+         * 功能：根据错题数组更新页面显示
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：添加错题或切换到错题本标签页时调用
+         */
+        function updateMistakesList() {
+            const list = document.getElementById('mistakesList');
+            if (mistakes.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>';
+            } else {
+                list.innerHTML = mistakes.map(function(mistake) {
+                    return '<div class="mistake-item">' +
+                        '<div class="mistake-question">' + mistake.question + '</div>' +
+                        '<div class="mistake-answer">你的答案：' + mistake.userAnswer + '</div>' +
+                        '<div class="mistake-correct">正确答案：' + mistake.correctAnswer + '</div>' +
+                        '<div style="font-size: 0.75rem; color: #999; margin-top: 5px;">' + mistake.time + '</div>' +
+                        '</div>';
+                }).join('');
+            }
+        }
+
+        /**
+         * 复习错题
+         * 功能：提示用户复习错题
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：用户点击复习错题按钮时调用
+         */
+        function reviewMistakes() {
+            if (mistakes.length === 0) {
+                alert('暂无错题记录');
+                return;
+            }
+            alert('共有 ' + mistakes.length + ' 道错题，建议反复练习直到完全掌握！');
+        }
+
+        /**
+         * 清空错题本
+         * 功能：清空所有错题记录
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：用户点击清空错题本按钮时调用
+         */
+        function clearMistakes() {
+            if (mistakes.length === 0) {
+                alert('错题本已经是空的了');
+                return;
+            }
+            if (confirm('确定要清空所有错题吗？')) {
+                mistakes = [];
+                updateMistakesList();
+                localStorage.removeItem('additionFlashMistakes');
+            }
+        }
+
+        /**
+         * 保存数据到本地存储
+         * 功能：将统计数据和错题记录保存到localStorage
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：答题后自动调用
+         */
+        function saveData() {
+            localStorage.setItem('additionFlashStats', JSON.stringify(stats));
+            localStorage.setItem('additionFlashMistakes', JSON.stringify(mistakes));
+        }
+
+        /**
+         * 从本地存储加载数据
+         * 功能：从localStorage恢复统计数据和错题记录
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：页面初始化时调用
+         */
+        function loadData() {
+            const savedStats = localStorage.getItem('additionFlashStats');
+            const savedMistakes = localStorage.getItem('additionFlashMistakes');
+            if (savedStats) {
+                stats = JSON.parse(savedStats);
+            }
+            if (savedMistakes) {
+                mistakes = JSON.parse(savedMistakes);
+            }
+            updateStats();
+        }
+
+        // ==================== 页面初始化 ====================
+
+        loadData();
+        nextQuestion();
+    </script>
+</body>
+</html>

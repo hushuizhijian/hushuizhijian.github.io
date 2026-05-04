@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分数和按比分配综合问题教学工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 60px;
+        }
+        
+        body {
+            overflow: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .tab {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            padding-bottom: 60px;
+            height: 60vh;
+        }
+        
+        .main-content.mistakes-layout {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .question-area {
+            min-height: 150px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .question-area .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .question-area .question-type {
+            display: inline-block;
+            background: #e7f3ff;
+            color: #0c63e4;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .answer-area {
+            margin-bottom: 20px;
+        }
+        
+        .answer-area input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .solution-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .solution-area h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .solution-step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .mistakes-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .mistake-item {
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .mistake-item .mistake-question {
+            font-size: 0.9rem;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+        
+        .mistake-item .mistake-answer {
+            font-size: 0.85rem;
+            color: #dc3545;
+            margin-right: 15px;
+        }
+        
+        .mistake-item .mistake-correct {
+            font-size: 0.85rem;
+            color: #28a745;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+        
+        .stage-progress-container {
+            margin-bottom: 20px;
+        }
+        
+        .stage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .stage-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .stage-progress-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .stage-progress-bar {
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stage-progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .stage-novice {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        }
+        
+        .stage-apprentice {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+        
+        .stage-expert {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+        
+        .stage-master {
+            background: linear-gradient(90deg, #9C27B0, #CE93D8);
+        }
+        
+        .stage-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .badge-novice {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4CAF50;
+        }
+        
+        .badge-apprentice {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 2px solid #2196F3;
+        }
+        
+        .badge-expert {
+            background: #fff3e0;
+            color: #e65100;
+            border: 2px solid #FF9800;
+        }
+        
+        .badge-master {
+            background: #f3e5f5;
+            color: #6a1b9a;
+            border: 2px solid #9C27B0;
+        }
+        
+        .stage-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stage-stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stage-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stage-stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Canvas可视化区域 */
+        .canvas-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .canvas-container canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        
+        .canvas-title {
+            text-align: center;
+            color: #667eea;
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== 固定高度+滚动显示布局规范 ===== */
+        
+        .sidebar-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
+        }
+
+        .tips-card-fixed {
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tips-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .answer-panel-outer {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .answer-card-inner {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .answer-card-title {
+            flex-shrink: 0;
+        }
+
+        .answer-content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 分数和按比分配综合问题</h1>
+            <p>掌握长方体体积、分数运算与比例分配的综合应用</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('practice')">练习模式</button>
+            <button class="tab" onclick="showTab('mistakes')">错题本</button>
+        </div>
+        
+        <div id="practice" class="main-content" style="display: grid;">
+            <!-- 左侧面板：使用固定高度+滚动布局 -->
+            <div class="sidebar-panel">
+                <!-- 题目生成器卡片 -->
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">🎯 题目生成器</h2>
+                    
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">选择模式</label>
+                        <select id="modeSelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="random">随机生成</option>
+                            <option value="bank">题库练习</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">题目类型</label>
+                        <select id="typeSelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="all">全部类型</option>
+                            <option value="type1">基础型（求原体积）</option>
+                            <option value="type2">逆向型（求比例/边长）</option>
+                            <option value="type3">扩展型（多步骤）</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 6px;">
+                        <label style="font-size: 0.75rem; margin-bottom: 2px;">难度级别</label>
+                        <select id="difficultySelect" style="font-size: 0.75rem; padding: 4px;">
+                            <option value="mixed">混合难度</option>
+                            <option value="easy">简单</option>
+                            <option value="medium">中等</option>
+                            <option value="hard">困难</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="generateQuestion()" style="width: 100%; font-size: 0.75rem; padding: 5px 8px;">生成题目</button>
+                </div>
+                
+                <!-- 学习成就卡片 -->
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">🏆 学习成就</h2>
+                    
+                    <div style="display: flex; justify-content: center; margin-bottom: 6px;">
+                        <span id="currentStageBadgeMini" class="stage-badge badge-novice" style="font-size: 0.7rem; padding: 4px 10px;">
+                            🌱 新手保护期
+                        </span>
+                    </div>
+                    
+                    <div style="margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span style="font-size: 0.7rem; color: #666;">当前进度</span>
+                            <span id="stageProgressTextMini" style="font-size: 0.7rem; font-weight: bold;">0 / 9 题</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="stageProgressFillMini" class="stage-progress-fill stage-novice" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                        <div style="background: #e8f4fd; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="totalCorrectMini" style="font-size: 0.9rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.55rem; color: #666;">累计答对</div>
+                        </div>
+                        <div style="background: #e8f5e9; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="currentStageProgressMini" style="font-size: 0.9rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.55rem; color: #666;">阶段进度</div>
+                        </div>
+                        <div style="background: #fff3e0; padding: 4px; border-radius: 4px; text-align: center;">
+                            <div id="nextStageNeedMini" style="font-size: 0.9rem; font-weight: bold; color: #856404;">10</div>
+                            <div style="font-size: 0.55rem; color: #666;">距下一阶段</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 练习统计卡片 -->
+                <div class="card" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px;">📊 练习统计</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px;">
+                        <div style="background: #e7f3ff; padding: 5px; border-radius: 4px; text-align: center;">
+                            <div id="totalCountMini" style="font-size: 0.95rem; font-weight: bold; color: #0c63e4;">0</div>
+                            <div style="font-size: 0.6rem; color: #666;">总练习次数</div>
+                        </div>
+                        <div style="background: #d4edda; padding: 5px; border-radius: 4px; text-align: center;">
+                            <div id="accuracyMini" style="font-size: 0.95rem; font-weight: bold; color: #155724;">0%</div>
+                            <div style="font-size: 0.6rem; color: #666;">正确率</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 5px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span style="font-size: 0.65rem; color: #666;">正确率进度</span>
+                            <span style="font-size: 0.65rem;">目标：80%以上</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px;">
+                            <div id="progressFillMini" style="width: 0%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 6px;">
+                        <h4 style="font-size: 0.7rem; margin-bottom: 5px;">📈 按题型统计</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                            <div style="background: #e7f3ff; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #0c63e4; font-weight: bold;">基础型</div>
+                                <div id="type1AccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #d4edda; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #155724; font-weight: bold;">逆向型</div>
+                                <div id="type2AccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                            <div style="background: #fff3cd; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.55rem; color: #856404; font-weight: bold;">扩展型</div>
+                                <div id="type3AccuracyMini" style="font-size: 0.8rem; font-weight: bold;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="clearStats()" style="margin-top: 8px; width: 100%; font-size: 0.65rem; padding: 4px 8px;">重置统计数据</button>
+                </div>
+                
+                <!-- 学习技巧卡片 - 固定高度 + 内部可滚动 -->
+                <div class="card tips-card-fixed" style="padding: 8px;">
+                    <h2 style="font-size: 0.95rem; margin-bottom: 6px; margin-top: 2px; flex-shrink: 0;">💡 学习技巧</h2>
+                    
+                    <!-- 学习技巧内容区域（可滚动） -->
+                    <div class="tips-scroll-area">
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <h4 style="font-size: 0.85rem; color: #667eea; margin-bottom: 5px;">🎮 怎么玩</h4>
+                            <p style="color: #666; line-height: 1.6; font-size: 0.8rem;">
+                                这类问题通常涉及三个关键要素：分数运算（锯掉或剩余部分）、比例分配（三边比例关系）、体积计算。解题时要分步进行，先求出剩余长度，再根据比例确定各边长度，最后计算体积。
+                            </p>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <h4 style="font-size: 0.85rem; color: #667eea; margin-bottom: 5px;">✨ 解题三步法</h4>
+                            <ul style="font-size: 0.8rem; color: #666; line-height: 1.7; margin-left: 15px;">
+                                <li><strong>第一步：</strong>用分数运算求剩余长度</li>
+                                <li><strong>第二步：</strong>根据比例设未知数，求出各边实际长度</li>
+                                <li><strong>第三步：</strong>利用体积公式 V = 长×宽×高 计算结果</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                            <h4 style="font-size: 0.85rem; color: #667eea; margin-bottom: 5px;">⚠️ 常见错误</h4>
+                            <ul style="font-size: 0.8rem; color: #666; line-height: 1.7; margin-left: 15px;">
+                                <li>混淆"锯掉"和"剩下"的比例</li>
+                                <li>忘记原长方体的长就是已知条件中的长度</li>
+                                <li>比例换算时单位不统一</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧答题区：固定高度 + 内容可滚动 -->
+            <div class="answer-panel-outer">
+                <div class="card answer-card-inner">
+                    <!-- 答题区标题 - 不参与弹性伸缩 -->
+                    <h2 class="answer-card-title" style="font-size: 1.1rem; margin-bottom: 12px;">📝 答题区</h2>
+                    
+                    <!-- 语音开关小喇叭 -->
+                    <button id="soundToggle" onclick="toggleSound()" title="点击切换语音开关" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        background: #667eea;
+                        color: white;
+                        border: none;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                        transition: all 0.3s ease;
+                        z-index: 10;
+                    ">
+                        🔊
+                    </button>
+                
+                    <!-- 答题内容统一滚动区域 - 占满剩余空间，内容多时可滚动 -->
+                    <div class="answer-content-scroll">
+                        
+                        <!-- 题目显示区域 -->
+                        <div class="question-area" id="questionArea">
+                            <p style="color: #999; text-align: center; line-height: 150px;">点击"生成题目"开始练习</p>
+                        </div>
+                        
+                        <!-- Canvas可视化区域 -->
+                        <div class="canvas-container" id="canvasContainer" style="display: none;">
+                            <canvas id="cuboidCanvas" width="420" height="230"></canvas>
+                        </div>
+                        
+                        <!-- 答案输入区域 -->
+                        <div class="answer-area">
+                            <input type="text" id="answerInput" placeholder="请输入答案（数字）" onkeyup="handleEnter(event)">
+                        </div>
+                        
+                        <!-- 操作按钮区域 -->
+                        <div style="display: flex; gap: 10px; margin: 10px 0;">
+                            <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">提交答案</button>
+                            <button class="btn btn-secondary" id="continueBtn" onclick="generateQuestion()" style="display: none;">
+                                ➡️ 继续答题
+                            </button>
+                        </div>
+                        
+                        <!-- 反馈提示区域 -->
+                        <div class="feedback" id="feedback"></div>
+                        
+                        <!-- 解题思路区域 -->
+                        <div class="solution-area" id="solutionArea" style="display: none;">
+                            <h3>💡 解题思路</h3>
+                            <div id="solutionSteps"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 错题本页面 -->
+        <div id="mistakes" class="main-content mistakes-layout" style="display: none;">
+            <div class="card">
+                <h2>📚 错题本</h2>
+                
+                <div class="mistakes-list" id="mistakesList">
+                    <p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="reviewMistakes()">复习错题</button>
+                    <button class="btn btn-secondary" onclick="clearMistakes()">清空错题本</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🎯 薄弱点分析</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>错题类型分布</h3>
+                    <div style="display: grid; gap: 10px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #e7f3ff; padding: 10px; border-radius: 8px; text-align: center;">基础型（求原体积）</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="type1MistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="type1MistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #d4edda; padding: 10px; border-radius: 8px; text-align: center;">逆向型（求比例/边长）</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="type2MistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="type2MistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 200px; background: #fff3cd; padding: 10px; border-radius: 8px; text-align: center;">扩展型（多步骤）</div>
+                            <div style="flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; margin-left: 10px; overflow: hidden;">
+                                <div id="type3MistakeProgress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="type3MistakeCount" style="width: 50px; text-align: right; margin-left: 10px; color: #666;">0题</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>💡 针对性练习建议</h3>
+                    <ul style="list-style: none; padding-left: 0;" id="suggestionsList">
+                        <li style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                            <span style="color: #667eea; font-weight: bold;">•</span> 
+                            完成更多练习后，系统将根据您的错题情况提供针对性练习建议
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 全局变量定义 ====================
+        
+        // 语音开关状态
+        let soundEnabled = true;
+        
+        // 当前题目对象
+        let currentQuestion = null;
+        
+        // 统计数据
+        let stats = {
+            total: 0,
+            correct: 0,
+            wrong: 0,
+            byType: {
+                type1: { total: 0, correct: 0 },
+                type2: { total: 0, correct: 0 },
+                type3: { total: 0, correct: 0 }
+            }
+        };
+        
+        // 错题列表
+        let mistakes = [];
+        
+        // 学习成就阶段配置
+        const stages = [
+            { id: 'novice', name: '新手保护期', target: 1, emoji: '🌱', color: 'novice' },
+            { id: 'apprentice', name: '学徒期', target: 10, emoji: '📚', color: 'apprentice' },
+            { id: 'expert', name: '学霸期', target: 25, emoji: '⭐', color: 'expert' },
+            { id: 'master', name: '学神期', target: 49, emoji: '👑', color: 'master' }
+        ];
+        
+        // 已解锁的阶段
+        let unlockedStages = ['novice'];
+        
+        // ==================== 题库定义 ====================
+        
+        /**
+         * 题目数据结构说明：
+         * - id: 题目编号
+         * - type: 题目类型（type1基础型、type2逆向型、type3扩展型）
+         * - difficulty: 难度级别（easy简单、medium中等、hard困难）
+         * - question: 题目文本
+         * - answer: 正确答案（数值或字符串）
+         * - solution: 解题步骤数组
+         * - cuboidData: 长方体参数（用于Canvas绘制）
+         * 
+         * 设计原则：所有题目均采用"先确定整数解，再反推题目条件"方法，
+         * 确保每一步计算结果都是整数，适合小学生练习。
+         */
+        const questionBank = [
+            // ========== 类型1：基础型（求原体积）- 6道 ==========
+            {
+                id: 1,
+                type: 'type1',
+                difficulty: 'easy',
+                question: '一根长方体木条长8分米，锯掉四分之一，剩下部分的长、宽、高的比是3:2:1，原来长方体的体积是（    ）立方分米。',
+                answer: 64,
+                solution: [
+                    '① 求剩余长度：8 × (1 - 1/4) = 8 × 3/4 = 6 分米',
+                    '② 剩余部分的长、宽、高比为 3:2:1，设一份为 x',
+                    '③ 长 = 3x = 6，解得 x = 2 分米（整数✓）',
+                    '④ 所以：宽 = 2 × 2 = 4 分米，高 = 1 × 2 = 2 分米',
+                    '⑤ 原来长方体的体积 = 原长 × 宽 × 高 = 8 × 4 × 2 = 64 立方分米'
+                ],
+                cuboidData: { originalLength: 8, cutRatio: 0.25, ratio: [3, 2, 1] }
+            },
+            {
+                id: 2,
+                type: 'type1',
+                difficulty: 'easy',
+                question: '一根长方体木条长12厘米，锯掉三分之一，剩下部分的长、宽、高的比是4:3:2，原来长方体的体积是（    ）立方厘米。',
+                answer: 288,
+                solution: [
+                    '① 求剩余长度：12 × (1 - 1/3) = 12 × 2/3 = 8 厘米',
+                    '② 剩余部分的长、宽、高比为 4:3:2，设一份为 x',
+                    '③ 长 = 4x = 8，解得 x = 2 厘米（整数✓）',
+                    '④ 所以：宽 = 3 × 2 = 6 厘米，高 = 2 × 2 = 4 厘米',
+                    '⑤ 原来长方体的体积 = 12 × 6 × 4 = 288 立方厘米'
+                ],
+                cuboidData: { originalLength: 12, cutRatio: 1/3, ratio: [4, 3, 2] }
+            },
+            {
+                id: 3,
+                type: 'type1',
+                difficulty: 'medium',
+                question: '一根长方体木材长12厘米，截去四分之一后，剩余部分的长、宽、高之比是3:2:1。原来木材的体积是（    ）立方厘米？',
+                answer: 216,
+                solution: [
+                    '① 求剩余长度：12 × (1 - 1/4) = 12 × 3/4 = 9 厘米',
+                    '② 剩余部分的长、宽、高比为 3:2:1，设一份为 x',
+                    '③ 长 = 3x = 9，解得 x = 3 厘米（整数✓）',
+                    '④ 所以：宽 = 2 × 3 = 6 厘米，高 = 1 × 3 = 3 厘米',
+                    '⑤ 原来体积 = 原长 × 宽 × 高 = 12 × 6 × 3 = 216 立方厘米'
+                ],
+                cuboidData: { originalLength: 12, cutRatio: 0.25, ratio: [3, 2, 1] }
+            },
+            {
+                id: 4,
+                type: 'type1',
+                difficulty: 'medium',
+                question: '一个长方体零件长16分米，车床加工时切削了四分之一的长度。加工后的零件长、宽、高之比为3:2:1，求原来零件的体积是（    ）立方分米？',
+                answer: 512,
+                solution: [
+                    '① 加工后长度：16 × (1 - 1/4) = 16 × 3/4 = 12 分米',
+                    '② 加工后长、宽、高比为 3:2:1，设一份为 x',
+                    '③ 长 = 3x = 12，解得 x = 4 分米（整数✓）',
+                    '④ 宽 = 2 × 4 = 8 分米，高 = 1 × 4 = 4 分米',
+                    '⑤ 验证加工后体积：12 × 8 × 4 = 384 立方分米',
+                    '⑥ 原来体积 = 16 × 8 × 4 = 512 立方分米'
+                ],
+                cuboidData: { originalLength: 16, cutRatio: 0.25, ratio: [3, 2, 1] }
+            },
+            {
+                id: 5,
+                type: 'type1',
+                difficulty: 'easy',
+                question: '一根长方体木条长15米，锯掉五分之一，剩下部分的长、宽、高的比是4:2:1，原来长方体的体积是（    ）立方米？',
+                answer: 270,
+                solution: [
+                    '① 求剩余长度：15 × (1 - 1/5) = 15 × 4/5 = 12 米',
+                    '② 剩余部分的长、宽、高比为 4:2:1，设一份为 x',
+                    '③ 长 = 4x = 12，解得 x = 3 米（整数✓）',
+                    '④ 所以：宽 = 2 × 3 = 6 米，高 = 1 × 3 = 3 米',
+                    '⑤ 原来长方体的体积 = 15 × 6 × 3 = 270 立方米'
+                ],
+                cuboidData: { originalLength: 15, cutRatio: 0.2, ratio: [4, 2, 1] }
+            },
+            {
+                id: 6,
+                type: 'type1',
+                difficulty: 'medium',
+                question: '长方体的一条棱长为20厘米，截去四分之一后，剩下的小长方体长、宽、高之比为5:3:1。原来长方体的体积是（    ）立方厘米？',
+                answer: 540,
+                solution: [
+                    '① 截去1/4后，剩余长度：20 × (1 - 1/4) = 20 × 3/4 = 15 厘米',
+                    '② 小长方体长、宽、高比为 5:3:1，设一份为 x',
+                    '③ 长 = 5x = 15，解得 x = 3 厘米（整数✓）',
+                    '④ 宽 = 3 × 3 = 9 厘米，高 = 1 × 3 = 3 厘米',
+                    '⑤ 验证剩下体积：15 × 9 × 3 = 405 立方厘米',
+                    '⑥ 原来体积 = 原长 × 宽 × 高 = 20 × 9 × 3 = 540 立方厘米'
+                ],
+                cuboidData: { originalLength: 20, cutRatio: 0.25, ratio: [5, 3, 1] }
+            },
+            
+            // ========== 类型2：逆向型（已知体积/边长，求其他量）- 3道 ==========
+            {
+                id: 7,
+                type: 'type2',
+                difficulty: 'medium',
+                question: '一根长方体木条长12分米，锯掉四分之一后，原来长方体的体积是216立方分米。已知剩下部分的长、宽、高的比是3:2:1，那么剩下部分的宽和高分别是多少分米？（格式：宽,高）',
+                answer: '6,3',
+                solution: [
+                    '① 求剩余长度：12 × (1 - 1/4) = 12 × 3/4 = 9 分米（这是剩下部分的长）',
+                    '② 已知剩下部分的长、宽、高比为 3:2:1',
+                    '③ 设一份为 x，则 长=3x=9，解得 x = 3 分米（整数✓）',
+                    '④ 所以：宽 = 2 × 3 = 6 分米，高 = 1 × 3 = 3 分米',
+                    '⑤ 验证原体积：原长 × 宽 × 高 = 12 × 6 × 3 = 216 立方分米 ✓',
+                    '⑥ 答案：宽=6分米，高=3分米'
+                ],
+                cuboidData: { originalLength: 12, cutRatio: 0.25, ratio: [3, 2, 1] }
+            },
+            {
+                id: 8,
+                type: 'type2',
+                difficulty: 'hard',
+                question: '一个长方体零件长8厘米。从一端切去四分之一的长度后，剩下的部分是一个长方体，其长、宽、高之比为3:2:1。如果剩下部分的表面积是88平方厘米，求原来零件的体积？',
+                answer: 64,
+                solution: [
+                    '① 求剩余长度：8 × (1 - 1/4) = 8 × 3/4 = 6 厘米',
+                    '② 剩下部分的长、宽、高比为 3:2:1，设一份为 x',
+                    '③ 长 = 3x = 6，解得 x = 2 厘米（整数✓）',
+                    '④ 所以剩下尺寸：长=6cm，宽=4cm，高=2cm',
+                    '⑤ 计算表面积验证：S = 2×(长×宽 + 长×高 + 宽×高)',
+                    '⑥ S = 2×(6×4 + 6×2 + 4×2) = 2×(24+12+8) = 2×44 = 88 cm² ✓',
+                    '⑦ 原来零件的体积 = 原长 × 宽 × 高 = 8 × 4 × 2 = 64 立方厘米'
+                ],
+                cuboidData: { originalLength: 8, cutRatio: 0.25, ratio: [3, 2, 1] }
+            },
+            {
+                id: 9,
+                type: 'type2',
+                difficulty: 'hard',
+                question: '将一个长方体木块沿长的方向切成两段，第一段占全长的五分之三，第二段占五分之二。已知第一段的长、宽、高之比是6:3:2，体积是288立方厘米。求原来长方体木块的体积？',
+                answer: 480,
+                solution: [
+                    '① 第一段的长、宽、高比为 6:3:2，设一份为 x',
+                    '② 则第一段：长=6x，宽=3x，高=2x',
+                    '③ 第一段体积 = 6x × 3x × 2x = 36x³ = 288',
+                    '④ 解得 x³ = 288 ÷ 36 = 8，所以 x = 2 厘米（整数✓）',
+                    '⑤ 第一段实际尺寸：长=12cm，宽=6cm，高=4cm',
+                    '⑥ 第一段占全长的3/5，所以原长 = 12 ÷ (3/5) = 12 × 5/3 = 20 厘米',
+                    '⑦ 原来体积 = 原长 × 宽 × 高 = 20 × 6 × 4 = 480 立方厘米'
+                ],
+                cuboidData: { originalLength: 20, splitRatio: [0.6, 0.4], firstPartRatio: [6, 3, 2], firstVolume: 288 }
+            },
+            
+            // ========== 类型3：扩展型（多步骤复杂问题）- 3道 ==========
+            {
+                id: 10,
+                type: 'type3',
+                difficulty: 'hard',
+                question: '一根长方体木料长16分米，第一次锯掉全长的四分之一，第二次在剩下的基础上又锯掉三分之一。最后剩下的部分长、宽、高之比为4:2:1，且体积为64立方分米。求原来木料的体积？',
+                answer: 128,
+                solution: [
+                    '① 第一次锯后剩余：16 × (1 - 1/4) = 16 × 3/4 = 12 分米',
+                    '② 第二次锯后剩余：12 × (1 - 1/3) = 12 × 2/3 = 8 分米',
+                    '③ 最后剩下部分的长、宽、高比为 4:2:1，设一份为 x',
+                    '④ 长 = 4x = 8，解得 x = 2 分米（整数✓）',
+                    '⑤ 最后尺寸：长=8dm，宽=4dm，高=2dm',
+                    '⑥ 验证最后体积：8 × 4 × 2 = 64 dm³ ✓',
+                    '⑦ 原来长方体的长=16分米，宽=4分米，高=2分米（宽高不变）',
+                    '⑧ 原来体积 = 16 × 4 × 2 = 128 立方分米'
+                ],
+                cuboidData: { originalLength: 16, multiCut: [0.25, 1/3], finalRatio: [4, 2, 1], finalVolume: 64 }
+            },
+            {
+                id: 11,
+                type: 'type3',
+                difficulty: 'hard',
+                question: '一根长方体木材长12厘米，截去三分之一的长度后，剩下部分的长、宽、高之比为2:1:1，且表面积为160平方厘米。求原来木材的体积？',
+                answer: 192,
+                solution: [
+                    '① 求剩余长度：12 × (1 - 1/3) = 12 × 2/3 = 8 厘米',
+                    '② 剩下部分的长、宽、高比为 2:1:1，设一份为 x',
+                    '③ 长 = 2x = 8，解得 x = 4 厘米（整数✓）',
+                    '④ 所以下面尺寸：长=8cm，宽=4cm，高=4cm',
+                    '⑤ 验证表面积：S = 2×(长×宽 + 长×高 + 宽×高)',
+                    '⑥ S = 2×(8×4 + 8×4 + 4×4) = 2×(32+32+16) = 2×80 = 160 cm² ✓',
+                    '⑦ 原来木材的体积 = 原长 × 宽 × 高 = 12 × 4 × 4 = 192 立方厘米'
+                ],
+                cuboidData: { originalLength: 12, cutRatio: 1/3, ratio: [2, 1, 1] }
+            },
+            {
+                id: 12,
+                type: 'type3',
+                difficulty: 'hard',
+                question: '一个长方体的长、宽、高之比为2:1:1。如果将长缩短三分之一后，新的长方体体积比原来减少了144立方分米。求原来长方体的体积？',
+                answer: 432,
+                solution: [
+                    '① 设原长方体的高为 x，则宽=x，长=2x（根据比例2:1:1）',
+                    '② 原体积 = 2x × x × x = 2x³ 立方分米',
+                    '③ 长缩短1/3后，新长 = 2x × (1 - 1/3) = 2x × 2/3 = 4x/3',
+                    '④ 新体积 = (4x/3) × x × x = 4x³/3 立方分米',
+                    '⑤ 体积减少量 = 原体积 - 新体积 = 2x³ - 4x³/3 = 2x³/3',
+                    '⑥ 根据题意：2x³/3 = 144',
+                    '⑦ 解得 x³ = 144 × 3/2 = 216，所以 x = 6 分米（整数✓）',
+                    '⑧ 原来尺寸：长=12dm，宽=6dm，高=6dm',
+                    '⑨ 原来体积 = 12 × 6 × 6 = 432 立方分米'
+                ],
+                cuboidData: { originalLength: null, ratio: [2, 1, 1], volumeReduction: 144 }
+            }
+        ];
+        
+        // ==================== 语音播报功能 ====================
+        
+        /**
+         * 播放语音提示
+         * 功能：调用浏览器Web Speech API播报指定文本
+         * 输入参数：text {string} - 要播报的文本内容
+         * 返回值：无
+         * 使用场景：答对/答错反馈时调用
+         */
+        function speak(text) {
+            if (!soundEnabled) {
+                return;
+            }
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                window.speechSynthesis.speak(utterance);
+            } catch (error) {
+                console.log('浏览器不支持语音功能');
+            }
+        }
+        
+        /**
+         * 切换语音开关
+         * 功能：点击小喇叭切换语音开启/关闭状态
+         */
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            if (soundEnabled) {
+                btn.textContent = '🔊';
+                btn.style.background = '#667eea';
+            } else {
+                btn.textContent = '🔇';
+                btn.style.background = '#999';
+            }
+        }
+        
+        // ==================== 标签页切换功能 ====================
+        
+        /**
+         * 显示指定的标签页
+         * 功能：在练习模式和错题本之间切换
+         * 输入参数：tabId {string} - 标签页ID（practice/mistakes）
+         * 返回值：无
+         * 使用场景：点击顶部标签按钮时调用
+         */
+        function showTab(tabId) {
+            // 移除所有标签的active状态
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            // 隐藏所有主内容区域
+            document.querySelectorAll('.main-content').forEach(content => content.style.display = 'none');
+            // 激活选中的标签
+            document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+            // 显示对应的内容区域
+            if (tabId === 'practice') {
+                document.getElementById('practice').style.display = 'grid';
+            } else if (tabId === 'mistakes') {
+                document.getElementById('mistakes').style.display = 'grid';
+            }
+        }
+        
+        // ==================== 成就系统相关函数 ====================
+        
+        /**
+         * 获取当前学习阶段
+         * 功能：根据累计答对数判断当前所处阶段
+         * 输入参数：correctCount {number} - 累计答对的题目数
+         * 返回值：{object} - 当前阶段对象
+         * 使用场景：更新成就显示时调用
+         */
+        function getCurrentStage(correctCount) {
+            if (correctCount >= 49) return stages[3];
+            if (correctCount >= 25) return stages[2];
+            if (correctCount >= 10) return stages[1];
+            if (correctCount >= 1) return stages[0];
+            return stages[0];
+        }
+        
+        /**
+         * 获取下一阶段信息
+         * 功能：根据当前进度返回下一个要达成的阶段
+         * 输入参数：correctCount {number} - 累计答对的题目数
+         * 返回值：{object|null} - 下一阶段对象，已满级则返回null
+         * 使用场景：计算距离下一阶段的进度时调用
+         */
+        function getNextStage(correctCount) {
+            if (correctCount < 10) return stages[1];
+            if (correctCount < 25) return stages[2];
+            if (correctCount < 49) return stages[3];
+            return null;
+        }
+        
+        /**
+         * 更新成就进度显示
+         * 功能：刷新左侧面板的成就徽章、进度条和数据
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：每次答题后调用
+         */
+        function updateStageProgress() {
+            const correctCount = stats.correct;
+            const currentStage = getCurrentStage(correctCount);
+            const nextStage = getNextStage(correctCount);
+            
+            // 初始化变量
+            let progress = 0;
+            let progressText = '';
+            let nextNeed = 0;
+            
+            // 根据当前答对数计算进度
+            if (correctCount >= 49) {
+                progress = 100;
+                progressText = `${correctCount} 题 (已满级)`;
+                nextNeed = 0;
+            } else if (correctCount >= 25) {
+                progress = Math.min(((correctCount - 24) / 24) * 100, 100);
+                progressText = `${correctCount} / 48 题`;
+                nextNeed = 49 - correctCount;
+            } else if (correctCount >= 10) {
+                progress = Math.min(((correctCount - 9) / 15) * 100, 100);
+                progressText = `${correctCount} / 24 题`;
+                nextNeed = 25 - correctCount;
+            } else if (correctCount >= 1) {
+                progress = Math.min((correctCount / 9) * 100, 100);
+                progressText = `${correctCount} / 9 题`;
+                nextNeed = 10 - correctCount;
+            } else {
+                progress = 0;
+                progressText = `0 / 9 题`;
+                nextNeed = 10;
+            }
+            
+            // 更新徽章显示
+            const badgeMini = document.getElementById('currentStageBadgeMini');
+            if (badgeMini) {
+                badgeMini.textContent = `${currentStage.emoji} ${currentStage.name}`;
+                badgeMini.className = `stage-badge badge-${currentStage.color}`;
+            }
+            
+            // 更新进度文字
+            const stageProgressTextMini = document.getElementById('stageProgressTextMini');
+            if (stageProgressTextMini) stageProgressTextMini.textContent = progressText;
+            
+            // 更新进度条
+            const stageProgressFillMini = document.getElementById('stageProgressFillMini');
+            if (stageProgressFillMini) {
+                stageProgressFillMini.style.width = `${progress}%`;
+                stageProgressFillMini.className = `stage-progress-fill stage-${currentStage.color}`;
+            }
+            
+            // 更新统计数据
+            const totalCorrectMini = document.getElementById('totalCorrectMini');
+            if (totalCorrectMini) totalCorrectMini.textContent = correctCount;
+            
+            const currentStageProgressMini = document.getElementById('currentStageProgressMini');
+            if (currentStageProgressMini) currentStageProgressMini.textContent = `${Math.round(progress)}%`;
+            
+            const nextStageNeedMini = document.getElementById('nextStageNeedMini');
+            if (nextStageNeedMini) nextStageNeedMini.textContent = nextNeed > 0 ? nextNeed : '已满级';
+        }
+        
+        // ==================== 题目生成功能 ====================
+        
+        /**
+         * 生成新题目
+         * 功能：根据用户选择的筛选条件从题库中抽取一道题目
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：点击"生成题目"按钮或"继续答题"时调用
+         */
+        function generateQuestion() {
+            // 获取用户筛选条件
+            const mode = document.getElementById('modeSelect').value;
+            const type = document.getElementById('typeSelect').value;
+            const difficulty = document.getElementById('difficultySelect').value;
+            
+            // 根据条件筛选题目
+            let filteredQuestions = questionBank;
+            if (type !== 'all') filteredQuestions = filteredQuestions.filter(q => q.type === type);
+            if (difficulty !== 'mixed') filteredQuestions = filteredQuestions.filter(q => q.difficulty === difficulty);
+            
+            // 检查是否有符合条件的题目
+            if (filteredQuestions.length === 0) {
+                alert('没有符合条件的题目，请调整筛选条件');
+                return;
+            }
+            
+            // 随机选择一道题目
+            currentQuestion = filteredQuestions[Math.floor(Math.random() * filteredQuestions.length)];
+            
+            // 显示题目内容
+            const questionArea = document.getElementById('questionArea');
+            const typeLabels = { type1: '基础型', type2: '逆向型', type3: '扩展型' };
+            const diffLabels = { easy: '简单', medium: '中等', hard: '困难' };
+            questionArea.innerHTML = `
+                <span class="question-number">第${currentQuestion.id}题</span>
+                <span class="question-type">${typeLabels[currentQuestion.type]}</span>
+                <span class="question-type" style="background: #fff3cd; color: #856404;">${diffLabels[currentQuestion.difficulty]}</span>
+                <p style="margin-top: 15px;">${currentQuestion.question}</p>
+            `;
+            
+            // 重置输入框和反馈区域
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('continueBtn').style.display = 'none';
+            
+            // 绘制长方体示意图
+            drawCuboid();
+        }
+        
+        // ==================== Canvas可视化功能 ====================
+        
+        /**
+         * 绘制长方体示意图（增强版）
+         * 功能：在Canvas上绘制当前题目的长方体图形，清晰展示切割前后对比
+         *         采用左右布局：左边显示完整原长方体，右边显示切割后的效果
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：每次生成新题目时调用
+         */
+        function drawCuboid() {
+            if (!currentQuestion || !currentQuestion.cuboidData) {
+                document.getElementById('canvasContainer').style.display = 'none';
+                return;
+            }
+            
+            // 显示Canvas容器
+            document.getElementById('canvasContainer').style.display = 'block';
+            
+            // 获取Canvas元素和绘图上下文
+            const canvas = document.getElementById('cuboidCanvas');
+            const ctx = canvas.getContext('2d');
+            const data = currentQuestion.cuboidData;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 设置画布背景
+            ctx.fillStyle = '#FAFAFA';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制标题
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Microsoft YaHei';
+            ctx.textAlign = 'center';
+            ctx.fillText('📦 长方体切割示意图', canvas.width / 2, 20);
+            ctx.textAlign = 'left';
+            
+            // ========== 左侧：绘制原始完整的长方体 ==========
+            const leftX = 30;
+            const leftY = 60;
+            const origLen = Math.min(data.originalLength * 6, 140); // 缩放并限制最大长度
+            const cuboidWidth = 50;
+            const cuboidHeight = 35;
+            
+            // 绘制左侧标签
+            ctx.fillStyle = '#4A90E2';
+            ctx.font = 'bold 13px Microsoft YaHei';
+            ctx.fillText('① 原始长方体（完整）', leftX, leftY - 10);
+            
+            // 绘制完整的原长方体（蓝色）
+            draw3DCuboid(ctx, leftX, leftY, origLen, cuboidWidth, cuboidHeight, 
+                         '#4A90E2', 0.25, true);
+            
+            // 标注原长度
+            ctx.fillStyle = '#4A90E2';
+            ctx.font = 'bold 12px Microsoft YaHei';
+            ctx.fillText(`长 = ${data.originalLength} 分米`, leftX + origLen/2 - 10, leftY + cuboidHeight + 45);
+            
+            // ========== 右侧：绘制切割后的效果 ==========
+            if (data.cutRatio !== undefined && data.cutRatio !== null) {
+                const rightX = 210;
+                const rightY = 60;
+                const remainLen = origLen * (1 - data.cutRatio);
+                const cutLen = origLen * data.cutRatio;
+                
+                // 绘制右侧标签
+                ctx.fillStyle = '#52C41A';
+                ctx.font = 'bold 13px Microsoft YaHei';
+                ctx.fillText('② 切割后效果', rightX, rightY - 10);
+                
+                // 先绘制被切掉的部分（红色虚线，位于右侧）
+                if (cutLen > 5) { // 只有切掉部分足够大时才显示
+                    draw3DCuboid(ctx, rightX + remainLen - 5, rightY + 5, 
+                                cutLen, cuboidWidth, cuboidHeight,
+                                '#FF4D4F', 0.15, false); // 红色半透明，虚线边框
+                }
+                
+                // 再绘制剩余部分（绿色实线）
+                draw3DCuboid(ctx, rightX, rightY, remainLen, cuboidWidth, cuboidHeight,
+                            '#52C41A', 0.35, true); // 绿色填充
+                
+                // 绘制切割线（醒目的红色竖线）
+                ctx.save();
+                ctx.strokeStyle = '#FF4D4F';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([]);
+                
+                // 切割线位置
+                const cutX = rightX + remainLen;
+                ctx.beginPath();
+                ctx.moveTo(cutX, rightY - 5);
+                ctx.lineTo(cutX, rightY + cuboidHeight + 5);
+                ctx.stroke();
+                
+                // 添加剪刀图标或文字标记
+                ctx.fillStyle = '#FF4D4F';
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText('✂', cutX - 8, rightY - 15);
+                ctx.restore();
+            } else {
+                // 如果没有切割比例信息，只显示一个长方体
+                const rightX = 210;
+                const rightY = 60;
+                ctx.fillStyle = '#666';
+                ctx.font = 'bold 13px Microsoft YaHei';
+                ctx.fillText('② 长方体示意', rightX, rightY - 10);
+                draw3DCuboid(ctx, rightX, rightY, origLen, cuboidWidth, cuboidHeight,
+                             '#95A5A6', 0.2, true);
+            }
+            
+            // ========== 底部：显示比例信息和图例 ==========
+            const legendY = 185;
+            
+            // 绘制分隔线
+            ctx.strokeStyle = '#DDD';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(20, legendY - 10);
+            ctx.lineTo(canvas.width - 20, legendY - 10);
+            ctx.stroke();
+            
+            // 图例说明
+            ctx.font = '11px Microsoft YaHei';
+            
+            // 蓝色图例
+            ctx.fillStyle = '#4A90E2';
+            ctx.fillRect(30, legendY, 20, 12);
+            ctx.strokeStyle = '#4A90E2';
+            ctx.strokeRect(30, legendY, 20, 12);
+            ctx.fillStyle = '#333';
+            ctx.fillText('原始完整', 55, legendY + 10);
+            
+            // 绿色图例
+            ctx.fillStyle = '#52C41A';
+            ctx.fillRect(130, legendY, 20, 12);
+            ctx.strokeStyle = '#52C41A';
+            ctx.strokeRect(130, legendY, 20, 12);
+            ctx.fillStyle = '#333';
+            ctx.fillText('剩余部分', 155, legendY + 10);
+            
+            // 红色图例
+            ctx.fillStyle = '#FF4D4F';
+            ctx.globalAlpha = 0.3;
+            ctx.fillRect(230, legendY, 20, 12);
+            ctx.globalAlpha = 1.0;
+            ctx.strokeStyle = '#FF4D4F';
+            ctx.setLineDash([3, 2]);
+            ctx.strokeRect(230, legendY, 20, 12);
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#333';
+            ctx.fillText('被切掉', 255, legendY + 10);
+            
+            // 比例信息
+            if (data.ratio && Array.isArray(data.ratio)) {
+                ctx.fillStyle = '#667eea';
+                ctx.font = 'bold 12px Microsoft YaHei';
+                ctx.fillText(`长:宽:高 = ${data.ratio.join(':')}`, 320, legendY + 10);
+            }
+        }
+        
+        /**
+         * 绘制3D长方体（增强版）
+         * 功能：使用斜二测投影法绘制具有立体感的长方体
+         * 输入参数：
+         *   - ctx {CanvasRenderingContext2D} - Canvas绘图上下文
+         *   - x {number} - 起点X坐标（左上角）
+         *   - y {number} - 起点Y坐标（左上角）
+         *   - length {number} - 长度（水平方向）
+         *   - width {number} - 宽度（深度方向）
+         *   - height {number} - 高度（垂直方向）
+         *   - fillColor {string} - 填充颜色（如'#4A90E2'）
+         *   - opacity {number} - 填充透明度（0-1之间）
+         *   - isSolid {boolean} - 是否使用实线边框（false则用虚线）
+         * 返回值：无
+         * 使用场景：drawCuboid()内部调用
+         */
+        function draw3DCuboid(ctx, x, y, length, width, height, fillColor, opacity, isSolid) {
+            // 斜二测投影参数
+            const depthOffsetX = width * 0.7; // 深度方向的X偏移
+            const depthOffsetY = width * 0.4; // 深度方向的Y偏移（向上）
+            
+            // 定义8个顶点的坐标
+            const vertices = {
+                // 前面（正面）的4个顶点
+                frontTopLeft: [x, y],
+                frontTopRight: [x + length, y],
+                frontBottomRight: [x + length, y + height],
+                frontBottomLeft: [x, y + height],
+                // 后面（背面）的4个顶点
+                backTopLeft: [x + depthOffsetX, y - depthOffsetY],
+                backTopRight: [x + length + depthOffsetX, y - depthOffsetY],
+                backBottomRight: [x + length + depthOffsetX, y + height - depthOffsetY],
+                backBottomLeft: [x + depthOffsetX, y + height - depthOffsetY]
+            };
+            
+            // 设置绘图样式
+            ctx.globalAlpha = opacity;
+            ctx.fillStyle = fillColor;
+            
+            if (isSolid) {
+                ctx.strokeStyle = fillColor;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([]);
+            } else {
+                ctx.strokeStyle = fillColor;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 3]); // 虚线
+            }
+            
+            // ===== 绘制三个可见面 =====
+            
+            // 1. 绘制上面（顶面）
+            ctx.beginPath();
+            ctx.moveTo(vertices.frontTopLeft[0], vertices.frontTopLeft[1]);
+            ctx.lineTo(vertices.backTopLeft[0], vertices.backTopLeft[1]);
+            ctx.lineTo(vertices.backTopRight[0], vertices.backTopRight[1]);
+            ctx.lineTo(vertices.frontTopRight[0], vertices.frontTopRight[1]);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // 2. 绘制前面（正面）
+            ctx.beginPath();
+            ctx.moveTo(vertices.frontTopLeft[0], vertices.frontTopLeft[1]);
+            ctx.lineTo(vertices.frontTopRight[0], vertices.frontTopRight[1]);
+            ctx.lineTo(vertices.frontBottomRight[0], vertices.frontBottomRight[1]);
+            ctx.lineTo(vertices.frontBottomLeft[0], vertices.frontBottomLeft[1]);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // 3. 绘制右面（侧面）
+            ctx.beginPath();
+            ctx.moveTo(vertices.frontTopRight[0], vertices.frontTopRight[1]);
+            ctx.lineTo(vertices.backTopRight[0], vertices.backTopRight[1]);
+            ctx.lineTo(vertices.backBottomRight[0], vertices.backBottomRight[1]);
+            ctx.lineTo(vertices.frontBottomRight[0], vertices.frontBottomRight[1]);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // 恢复全局透明度
+            ctx.globalAlpha = 1.0;
+            ctx.setLineDash([]);
+        }
+        
+        // ==================== 答案提交与验证功能 ====================
+        
+        /**
+         * 提交答案
+         * 功能：验证用户输入的答案是否正确，并更新统计和反馈
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：点击"提交答案"按钮或回车键时调用
+         */
+        function submitAnswer() {
+            // 检查是否有当前题目
+            if (!currentQuestion) {
+                alert('请先生成题目');
+                return;
+            }
+            
+            // 获取用户输入并去除空白
+            const userAnswer = document.getElementById('answerInput').value.trim();
+            if (!userAnswer) {
+                alert('请输入答案');
+                return;
+            }
+            
+            // 验证答案（支持数字和字符串比较）
+            const isCorrect = checkAnswerEquality(userAnswer, currentQuestion.answer);
+            
+            // 更新总次数统计
+            stats.total++;
+            stats.byType[currentQuestion.type].total++;
+            
+            // 根据正误处理反馈
+            if (isCorrect) {
+                // 回答正确
+                stats.correct++;
+                stats.byType[currentQuestion.type].correct++;
+                
+                const feedback = document.getElementById('feedback');
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '🎉 太棒了！回答正确！';
+                feedback.style.display = 'block';
+                
+                speak('答对了');
+            } else {
+                // 回答错误
+                stats.wrong++;
+                
+                // 记录到错题本
+                mistakes.push({
+                    ...currentQuestion,
+                    userAnswer: userAnswer,
+                    time: new Date().toLocaleString()
+                });
+                
+                const feedback = document.getElementById('feedback');
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `❌ 再想想！正确答案是 ${currentQuestion.answer}`;
+                feedback.style.display = 'block';
+                
+                speak('继续加油');
+            }
+            
+            // 显示解题思路
+            showSolution();
+            
+            // 更新统计显示
+            updateStats();
+            
+            // 切换按钮状态
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('continueBtn').style.display = 'inline-block';
+        }
+        
+        /**
+         * 检查答案相等性
+         * 功能：比较用户答案和标准答案，支持数字和字符串格式
+         * 输入参数：
+         *   - userAnswer {string} - 用户输入的答案
+         *   - correctAnswer {number|string} - 正确答案
+         * 返回值：{boolean} - 是否匹配
+         * 使用场景：submitAnswer()内部调用
+         */
+        function checkAnswerEquality(userAnswer, correctAnswer) {
+            // 尝试转换为数字比较
+            const userNum = parseFloat(userAnswer);
+            const correctNum = parseFloat(correctAnswer);
+            
+            if (!isNaN(userNum) && !isNaN(correctNum)) {
+                // 数字比较，允许微小误差
+                return Math.abs(userNum - correctNum) < 0.01;
+            }
+            
+            // 字符串比较（去除空格后）
+            return userAnswer.replace(/\s/g, '') === String(correctAnswer).replace(/\s/g, '');
+        }
+        
+        /**
+         * 显示解题思路
+         * 功能：将当前题目的解题步骤渲染到页面
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：提交答案后自动调用
+         */
+        function showSolution() {
+            if (!currentQuestion) return;
+            
+            const solutionArea = document.getElementById('solutionArea');
+            const solutionSteps = document.getElementById('solutionSteps');
+            
+            // 将解题步骤数组转换为HTML
+            solutionSteps.innerHTML = currentQuestion.solution.map((step, index) => 
+                `<div class="solution-step">${index + 1}. ${step}</div>`
+            ).join('');
+            
+            solutionArea.style.display = 'block';
+        }
+        
+        // ==================== 统计数据更新功能 ====================
+        
+        /**
+         * 更新所有统计数据显示
+         * 功能：刷新右侧面板的总次数、正确率、各题型正确率等
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：每次答题后调用
+         */
+        function updateStats() {
+            // 更新总练习次数
+            document.getElementById('totalCountMini').textContent = stats.total;
+            
+            // 计算并更新总体正确率
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            document.getElementById('accuracyMini').textContent = accuracy + '%';
+            document.getElementById('progressFillMini').style.width = accuracy + '%';
+            
+            // 更新各题型的正确率
+            ['type1', 'type2', 'type3'].forEach(type => {
+                const typeStats = stats.byType[type];
+                const typeAccuracy = typeStats.total > 0 ? Math.round((typeStats.correct / typeStats.total) * 100) : 0;
+                const element = document.getElementById(type + 'AccuracyMini');
+                if (element) element.textContent = typeAccuracy + '%';
+            });
+            
+            // 更新成就进度
+            updateStageProgress();
+            
+            // 更新错题分布
+            updateMistakesDistribution();
+            
+            // 保存数据到localStorage
+            saveData();
+        }
+        
+        /**
+         * 更新错题分布统计
+         * 功能：计算各类型的错题数量并更新错题本页面的图表
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：updateStats()内部调用
+         */
+        function updateMistakesDistribution() {
+            // 统计各类型错题数
+            const counts = { type1: 0, type2: 0, type3: 0 };
+            mistakes.forEach(mistake => counts[mistake.type]++);
+            
+            // 找出最大值用于计算百分比
+            const maxCount = Math.max(...Object.values(counts), 1);
+            
+            // 更新每种类型的进度条和数量显示
+            ['type1', 'type2', 'type3'].forEach(type => {
+                const progress = document.getElementById(type + 'MistakeProgress');
+                const countElement = document.getElementById(type + 'MistakeCount');
+                if (progress) progress.style.width = `${(counts[type] / maxCount) * 100}%`;
+                if (countElement) countElement.textContent = counts[type] + '题';
+            });
+            
+            // 更新错题列表
+            updateMistakesList();
+            
+            // 更新练习建议
+            updateSuggestions(counts);
+        }
+        
+        /**
+         * 更新错题列表显示
+         * 功能：将错题数组渲染为HTML列表
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：updateMistakesDistribution()内部调用
+         */
+        function updateMistakesList() {
+            const list = document.getElementById('mistakesList');
+            const typeLabels = { type1: '基础型', type2: '逆向型', type3: '扩展型' };
+            
+            if (mistakes.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">暂无错题记录</p>';
+            } else {
+                list.innerHTML = mistakes.map(mistake => `
+                    <div class="mistake-item">
+                        <div class="mistake-question"><strong>[${typeLabels[mistake.type]}]</strong> ${mistake.question}</div>
+                        <div class="mistake-answer">你的答案：${mistake.userAnswer}</div>
+                        <div class="mistake-correct">正确答案：${mistake.answer}</div>
+                        <div style="font-size: 0.75rem; color: #999; margin-top: 5px;">时间：${mistake.time}</div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        /**
+         * 更新针对性练习建议
+         * 功能：根据错题类型分布生成个性化建议
+         * 输入参数：counts {object} - 各类型错题数量
+         * 返回值：无
+         * 使用场景：updateMistakesDistribution()内部调用
+         */
+        function updateSuggestions(counts) {
+            const suggestionsList = document.getElementById('suggestionsList');
+            const totalMistakes = Object.values(counts).reduce((a, b) => a + b, 0);
+            
+            if (totalMistakes === 0) {
+                suggestionsList.innerHTML = `
+                    <li style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                        <span style="color: #667eea; font-weight: bold;">•</span> 
+                        完成更多练习后，系统将根据您的错题情况提供针对性练习建议
+                    </li>
+                `;
+                return;
+            }
+            
+            // 生成建议
+            let suggestions = [];
+            
+            if (counts.type1 > 0) {
+                const percent = Math.round((counts.type1 / totalMistakes) * 100);
+                suggestions.push({
+                    priority: counts.type1,
+                    text: `基础型题目错误率较高（${percent}%），建议重点复习分数运算和比例转换的基本方法`
+                });
+            }
+            
+            if (counts.type2 > 0) {
+                const percent = Math.round((counts.type2 / totalMistakes) * 100);
+                suggestions.push({
+                    priority: counts.type2,
+                    text: `逆向型题目需要加强（${percent}%），建议练习从结果倒推条件的思维方式`
+                });
+            }
+            
+            if (counts.type3 > 0) {
+                const percent = Math.round((counts.type3 / totalMistakes) * 100);
+                suggestions.push({
+                    priority: counts.type3,
+                    text: `扩展型题目较困难（${percent}%），建议拆解步骤，逐步攻克多步骤综合问题`
+                });
+            }
+            
+            // 按优先级排序
+            suggestions.sort((a, b) => b.priority - a.priority);
+            
+            // 渲染建议列表
+            suggestionsList.innerHTML = suggestions.map(s => `
+                <li style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                    <span style="color: #667eea; font-weight: bold;">•</span> 
+                    ${s.text}
+                </li>
+            `).join('');
+        }
+        
+        // ==================== 错题本管理功能 ====================
+        
+        /**
+         * 复习错题
+         * 功能：从错题本中随机抽取一道题进行复习
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：点击"复习错题"按钮时调用
+         */
+        function reviewMistakes() {
+            if (mistakes.length === 0) {
+                alert('暂无错题记录');
+                return;
+            }
+            
+            // 随机选择一道错题
+            const randomIndex = Math.floor(Math.random() * mistakes.length);
+            currentQuestion = mistakes[randomIndex];
+            
+            // 切换到练习模式标签
+            showTab('practice');
+            
+            // 显示题目
+            const questionArea = document.getElementById('questionArea');
+            const typeLabels = { type1: '基础型', type2: '逆向型', type3: '扩展型' };
+            questionArea.innerHTML = `
+                <span class="question-number">复习错题</span>
+                <span class="question-type">${typeLabels[currentQuestion.type]}</span>
+                <p style="margin-top: 15px;">${currentQuestion.question}</p>
+            `;
+            
+            // 重置界面状态
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('continueBtn').style.display = 'none';
+            
+            // 绘制可视化图形
+            drawCuboid();
+            
+            alert('已从错题本中抽取一道题，请重新作答！');
+        }
+        
+        /**
+         * 清空错题本
+         * 功能：清除所有错题记录（需用户确认）
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：点击"清空错题本"按钮时调用
+         */
+        function clearMistakes() {
+            if (mistakes.length === 0) {
+                alert('错题本已经是空的了');
+                return;
+            }
+            if (confirm('确定要清空所有错题吗？此操作不可恢复！')) {
+                mistakes = [];
+                updateMistakesList();
+                updateMistakesDistribution();
+                saveData();
+            }
+        }
+        
+        /**
+         * 重置统计数据
+         * 功能：清除所有练习统计（需用户确认）
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：点击"重置统计数据"按钮时调用
+         */
+        function clearStats() {
+            if (confirm('确定要重置所有统计数据吗？此操作不可恢复！')) {
+                stats = {
+                    total: 0,
+                    correct: 0,
+                    wrong: 0,
+                    byType: {
+                        type1: { total: 0, correct: 0 },
+                        type2: { total: 0, correct: 0 },
+                        type3: { total: 0, correct: 0 }
+                    }
+                };
+                updateStats();
+                saveData();
+            }
+        }
+        
+        // ==================== 键盘事件处理 ====================
+        
+        /**
+         * 处理回车键事件
+         * 功能：监听输入框的回车键，自动提交答案或继续下一题
+         * 输入参数：event {KeyboardEvent} - 键盘事件对象
+         * 返回值：无
+         * 使用场景：绑定到答案输入框的onkeyup事件
+         */
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn.style.display !== 'none') {
+                    submitAnswer();
+                } else {
+                    generateQuestion();
+                }
+            }
+        }
+        
+        // ==================== 数据持久化功能 ====================
+        
+        /**
+         * 保存数据到localStorage
+         * 功能：将统计数据和错题列表持久化到浏览器本地存储
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：每次更新统计后自动调用
+         */
+        function saveData() {
+            try {
+                localStorage.setItem('fractionRatioProblemStats', JSON.stringify(stats));
+                localStorage.setItem('fractionRatioProblemMistakes', JSON.stringify(mistakes));
+            } catch (error) {
+                console.error('保存数据失败:', error);
+            }
+        }
+        
+        /**
+         * 从localStorage加载数据
+         * 功能：启动时恢复之前的学习进度和错题记录
+         * 输入参数：无
+         * 返回值：无
+         * 使用场景：页面加载时调用
+         */
+        function loadData() {
+            try {
+                const savedStats = localStorage.getItem('fractionRatioProblemStats');
+                const savedMistakes = localStorage.getItem('fractionRatioProblemMistakes');
+                
+                if (savedStats) stats = JSON.parse(savedStats);
+                if (savedMistakes) mistakes = JSON.parse(savedMistakes);
+                
+                // 恢复显示
+                updateStats();
+            } catch (error) {
+                console.error('加载数据失败:', error);
+            }
+        }
+        
+        // ==================== 页面初始化 ====================
+        
+        /**
+         * 页面加载完成后执行初始化
+         * 功能：绑定事件监听器，加载保存的数据
+         * 使用场景：window.onload事件触发
+         */
+        window.onload = function() {
+            // 加载之前保存的数据
+            loadData();
+            
+            // 初始化界面
+            console.log('分数和按比分配综合问题教学工具已加载完成');
+            console.log(`共加载 ${questionBank.length} 道练习题`);
+        };
+    </script>
+    
+    <!-- 底部页脚 开始 -->
+    <footer style="
+        width: 100%;
+        background-color: #f8f8f8;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 12px;
+        color: #666;
+        border-top: 1px solid #e5e5e5;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999;
+    ">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+            <a href="#" style="color:#666; text-decoration:none;">关于我们</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none;">使用说明</a>
+            <span style="color: #ddd;">|</span>
+            <a href="#" style="color:#666; text-decoration:none;">隐私政策</a>
+            <span style="color: #ddd;">|</span>
+            <span>© 胡水之蒹HTML工具 版权所有</span>
+        </div>
+    </footer>
+    <!-- 底部页脚 结束 -->
+</body>
+</html>
